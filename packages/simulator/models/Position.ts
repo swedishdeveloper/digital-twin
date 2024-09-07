@@ -1,4 +1,5 @@
 import { inherits } from 'util'
+import { PositionType } from '../../../types/Position'
 import { haversine } from '../lib/distance'
 
 function convertPosition(pos: any): { lon: number; lat: number } {
@@ -8,7 +9,7 @@ function convertPosition(pos: any): { lon: number; lat: number } {
   }
 }
 
-class Position {
+class Position implements PositionType {
   lon: number
   lat: number
 
