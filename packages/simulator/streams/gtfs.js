@@ -14,7 +14,7 @@ const Position = require('../lib/models/position')
 
 const MONTH = 1000 * 60 * 60 * 24 * 30
 
-const downloadIfNotExists = (operator) => {
+const downloadIfNotExists = (operator: string): Promise<string> => {
   const zipFile = path.join(__dirname, `../data/${operator}.zip`)
   return new Promise((resolve, reject) => {
     const url = `https://opendata.samtrafiken.se/gtfs/${operator}/${operator}.zip?key=${key}`
@@ -48,7 +48,7 @@ const downloadIfNotExists = (operator) => {
   })
 }
 
-const downloadAndExtractIfNotExists = (operator) => {
+const downloadAndExtractIfNotExists = (operator: string): Promise<string | void> => {
   return downloadIfNotExists(operator)
     .then((zipFile) => {
       try {
@@ -67,10 +67,10 @@ const downloadAndExtractIfNotExists = (operator) => {
     })
 }
 
-function gtfs(operator) {
+function gtfs(operator: string) {
   const download = downloadAndExtractIfNotExists(operator)
-  const gtfsStream = (file) => {
-    return new Observable((observer) => {
+  const gtfsStream = (file: string): Observable<any> => {
+    return new Observable((observer: any) => {
       download.then(() => {
         const stream = fs
           .createReadStream(
@@ -205,7 +205,7 @@ function gtfs(operator) {
     shareReplay()
   )
 
-  const correctTime = (time) => {
+  const correctTime = (time: string): Date => {
     const now = new Date()
     const year = now.getFullYear()
     const month = now.getMonth()
