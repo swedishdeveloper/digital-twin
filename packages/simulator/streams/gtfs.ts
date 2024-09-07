@@ -17,31 +17,31 @@ const downloadIfNotExists = (operator: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     const url = `https://opendata.samtrafiken.se/gtfs/${operator}/${operator}.zip?key=${key}`
     const zipFileAge =
-      fs.existsSync(zipFile) && Date.now() - fs.statSync(zipFile).mtimeMs
-    const zipFileSize = fs.existsSync(zipFile) && fs.statSync(zipFile).size
+      fs.existsSync(zipFile) ? Date.now() - fs.statSync(zipFile).mtimeMs : null;
+    const zipFileSize = fs.existsSync(zipFile) ? fs.statSync(zipFile).size : 0;
     if (
       !fs.existsSync(zipFile) ||
       zipFileSize < 5000 ||
-      zipFileAge > 1 * MONTH
+      (zipFileAge !== null && zipFileAge > 1 * MONTH)
     ) {
-      const stream = fs.createWriteStream(zipFile)
-      info('Downloading GTFS', url)
+      const stream = fs.createWriteStream(zipFile);
+      info('Downloading GTFS', url);
       fetch(url)
         .then((res) =>
           res.body
             .pipe(stream)
             .on('finish', () => {
-              info('Downloaded GTFS')
-              resolve(zipFile)
+              info('Downloaded GTFS');
+              resolve(zipFile);
             })
             .on('error', (err) => {
-              error('Error downloading GTFS', err)
-              reject(err)
+              error('Error downloading GTFS', err);
+              reject(err);
             })
         )
-        .catch((err) => error('Error fetching GTFS', err) || reject(err))
+        .catch((err) => error('Error fetching GTFS', err) || reject(err));
     } else {
-      resolve(zipFile)
+      resolve(zipFile);
     }
   })
 }
