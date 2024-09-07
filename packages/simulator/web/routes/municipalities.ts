@@ -12,6 +12,7 @@ import {
 
 interface Experiment {
   municipalities: Observable<Municipality>;
+  return subscriptions;
 }
 
 interface Socket {
@@ -23,7 +24,7 @@ const count = () => pipe(scan((acc: number) => acc + 1, 0));
 interface Municipality {
   id: string;
   name: string;
-  geometry: any;
+  geometry: GeoJSON.Geometry;
   co2: number;
   dispatchedBookings: Observable<Booking>;
   cars: Observable<Car>;
@@ -71,7 +72,7 @@ interface MunicipalityData {
 }
 
 const register = (experiment: Experiment, socket: Socket): void => {
-  return [
+  const subscriptions = [
     experiment.municipalities
       .pipe(
         tap(({ id, name, geometry, co2 }) =>
