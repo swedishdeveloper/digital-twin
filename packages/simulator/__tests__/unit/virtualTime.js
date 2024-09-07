@@ -1,4 +1,4 @@
-const { VirtualTime } = require('../../lib/virtualTime')
+import { VirtualTime } from '../../lib/virtualTime'
 
 expect.extend({
   toBeNear(x, y) {
