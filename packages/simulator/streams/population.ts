@@ -4,6 +4,14 @@ import { readCsv } from '../adapters/csv';
 import coords from 'swe-coords';
 import { convertPosition } from '../lib/distance';
 
+interface CsvData {
+  id: any;
+  rutstorl: any;
+  ruta: string;
+  beftotalt: any;
+  [key: string]: any;
+}
+
 // read the SWEREF99 x,y combined string for a square km and return a WGS84 lat lon object
 // TODO: understand if the coordinate is the center of the square or the top left corner (if so, maybe add an offset to the position to get the center)
 function parseRuta(ruta: string): { lon: number; lat: number } {
@@ -12,7 +20,7 @@ function parseRuta(ruta: string): { lon: number; lat: number } {
 
 function read(): any {
   return from(readCsv(process.cwd() + '/data/5arsklasser_1km.csv')).pipe(
-    map(({ id, rutstorl: area, ruta, beftotalt: population, ...ages }) => ({
+    map(({ id, rutstorl: area, ruta, beftotalt: population, ...ages }: CsvData) => ({
       id,
       area,
       ruta,
