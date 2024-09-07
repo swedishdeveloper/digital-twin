@@ -27,7 +27,7 @@ import { getHours, getISODay } from 'date-fns'
 import Position from '../../models/Position'
 
 interface Workplace {
-  name: string
+  name: Name
   position: any
 }
 
@@ -40,7 +40,13 @@ interface Municipality {
   name: string
 }
 
+interface Name {
+  firstName: string;
+  lastName: string;
+}
+
 interface CitizenData {
+  name: Name;
   name: string
   position: any
   workplace: Workplace
