@@ -1,8 +1,20 @@
-const { from, shareReplay } = require('rxjs')
-const { map, filter } = require('rxjs/operators')
-const { readXlsx } = require('../adapters/xlsx')
+import { from } from 'rxjs';
+import { map, filter, shareReplay } from 'rxjs/operators';
+import { readXlsx } from '../adapters/xlsx';
 
-function execute() {
+interface Ombud {
+  position: {
+    lon: number;
+    lat: number;
+  };
+  operator: string;
+  frequency: string;
+  id: string;
+  type: string;
+  municipality: string;
+}
+
+function execute(): Observable<Ombud> {
   return from(
     readXlsx(
       `${process.cwd()}/data/${process.env.postombud_file || 'ombud.xlsx'}`,
@@ -35,4 +47,4 @@ function execute() {
   )
 }
 
-module.exports = execute()
+export default execute();
