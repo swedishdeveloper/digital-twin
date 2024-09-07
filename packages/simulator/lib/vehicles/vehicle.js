@@ -12,7 +12,7 @@ import { error } from '../log';
 import { virtualTime } from '../virtualTime';
 import Position from '../models/position';
 
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const wait = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 interface VehicleArgs {
   id?: string;
@@ -158,7 +158,7 @@ class Vehicle {
             )}`
           );
         this.simulate(this.route);
-        return this.heading;
+        return this.heading!;
       })
       .catch(
         (err: Error) =>
