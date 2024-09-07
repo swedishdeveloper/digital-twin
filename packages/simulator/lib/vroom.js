@@ -1,15 +1,46 @@
-const fetch = require('node-fetch')
-// eslint-disable-next-line no-undef
-const vroomUrl = process.env.VROOM_URL || 'https://vroom.telge.iteam.pub/'
-const moment = require('moment')
-const { debug, error, info } = require('./log')
-const { getFromCache, updateCache } = require('./cache')
-const queue = require('./queueSubject')
+import fetch from 'node-fetch';
+import moment from 'moment';
+import { debug, error, info } from './log';
+import { getFromCache, updateCache } from './cache';
+import queue from './queueSubject';
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+const vroomUrl: string = process.env.VROOM_URL || 'https://vroom.telge.iteam.pub/';
+
+const delay = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+
+interface Position {
+  lon: number;
+  lat: number;
+}
+
+interface Booking {
+  id: string;
+  pickup: {
+    departureTime?: string;
+    position: Position;
+  };
+  destination: {
+    arrivalTime?: string;
+    position: Position;
+  };
+}
+
+interface Vehicle {
+  position: Position;
+  passengerCapacity: number;
+  heading?: Position;
+  passengers?: any[];
+}
+
+interface Truck {
+  position: Position;
+  parcelCapacity: number;
+  heading?: Position;
+  cargo: any[];
+}
 
 class Vroom {
-  static bookingToShipment({ id, pickup, destination }, i) {
+  static bookingToShipment({ id, pickup, destination }: Booking, i: number) {
     return {
       id: i,
       //description: id,
@@ -44,7 +75,7 @@ class Vroom {
       },
     }
   }
-  static taxiToVehicle({ position, passengerCapacity, heading, passengers }, i) {
+  static taxiToVehicle({ position, passengerCapacity, heading, passengers }: Vehicle, i: number) {
     return {
       id: i,
       //description: id,
@@ -53,7 +84,7 @@ class Vroom {
       end: heading ? [heading.lon, heading.lat] : undefined,
     }
   }
-  static truckToVehicle({ position, parcelCapacity, heading, cargo }, i) {
+  static truckToVehicle({ position, parcelCapacity, heading, cargo }: Truck, i: number) {
     return {
       id: i,
       //description: id,
@@ -66,7 +97,7 @@ class Vroom {
       end: heading ? [heading.lon, heading.lat] : undefined,
     }
   }
-  static async plan({ jobs, shipments, vehicles }) {
+  static async plan({ jobs, shipments, vehicles }: { jobs: any[]; shipments: any[]; vehicles: any[] }): Promise<any> {
     if (shipments.length > 200) throw new Error('Too many shipments to plan')
     if (vehicles.length > 200) throw new Error('Too many vehicles to plan')
     if (vehicles.length < 2) throw new Error('Need at least 2 vehicles to plan')
@@ -117,4 +148,4 @@ class Vroom {
   }
 }
 
-module.exports = Vroom
+export default Vroom;

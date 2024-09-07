@@ -1,11 +1,22 @@
-const { save } = require('./elastic')
+import { save } from './elastic';
+
+interface Experiment {
+  // Define the structure of the experiment object
+}
+
+interface Booking {
+  toObject(): object;
+  passenger?: {
+    toObject(): object;
+  };
+}
 
 class Statistics {
-  static collectExperimentMetadata(experiment) {
+  static collectExperimentMetadata(experiment: Experiment): Promise<any> {
     return save(experiment, 'experiments')
   }
 
-  static collectBooking(booking, experimentSettings) {
+  static collectBooking(booking: Booking, experimentSettings: any): Promise<any> {
     return save(
       {
         ...booking.toObject(),
@@ -18,4 +29,4 @@ class Statistics {
   }
 }
 
-module.exports = Statistics
+export default Statistics;
