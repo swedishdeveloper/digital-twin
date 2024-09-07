@@ -9,13 +9,13 @@ if (!fs.existsSync(cacheDir)) {
   fs.mkdirSync(cacheDir)
 }
 
-function createHash(object: any): string {
+function createHash(object: object): string {
   const hash = crypto.createHash('sha1')
   hash.update(JSON.stringify(object))
   return hash.digest('hex')
 }
 
-async function getFromCache(object: any): Promise<any> {
+async function getFromCache(object: object): Promise<any> {
   const hash = createHash(object)
   const filePath = path.join(cacheDir, hash)
 
@@ -34,7 +34,7 @@ async function getFromCache(object: any): Promise<any> {
   })
 }
 
-async function updateCache(object: any, result: any): Promise<any> {
+async function updateCache(object: object, result: any): Promise<any> {
   const hash = createHash(object)
   const filePath = path.join(cacheDir, hash)
 

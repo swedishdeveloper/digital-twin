@@ -1,13 +1,13 @@
 type Position = { lon: number; lat: number }
 
-function convertPosition(pos: any): Position {
+function convertPosition(pos: { [key: string]: any } | any[]): Position {
   return {
     lon: pos.longitude || pos.lon || pos.lng || pos[0],
     lat: pos.latitude || pos.lat || pos[1],
   }
 }
 
-function pythagoras(from: any, to: any): number {
+function pythagoras(from: Position | any, to: Position | any): number {
   from = convertPosition(from)
   to = convertPosition(to)
   // quick approximation with pythagoras theorem
@@ -23,7 +23,7 @@ function rad(x: number): number {
 
 /* Distance in meters between two points using the Haversine algo.
  */
-function haversine(p1: any, p2: any): number {
+function haversine(p1: Position | any, p2: Position | any): number {
   p1 = convertPosition(p1)
   p2 = convertPosition(p2)
 
@@ -43,7 +43,7 @@ function haversine(p1: any, p2: any): number {
   return Math.round(d) || 0
 }
 
-function bearing(p1: any, p2: any): number {
+function bearing(p1: Position | any, p2: Position | any): number {
   return Math.round(
     (Math.atan2(
       Math.cos(p1.lat) * Math.sin(p2.lat) -
@@ -57,7 +57,7 @@ function bearing(p1: any, p2: any): number {
 
 /* Add meters to a position
  */
-function addMeters(p1: any, { x, y }: { x: number; y: number }): Position {
+function addMeters(p1: Position | any, { x, y }: { x: number; y: number }): Position {
   p1 = convertPosition(p1)
   const R = 6371000
 
@@ -89,7 +89,7 @@ function getNrOfPointsBetween(p1: Position, p2: Position, quantity: number): Pos
 
   return points
 }
-module.exports = {
+export {
   pythagoras,
   haversine,
   bearing,
