@@ -52,7 +52,7 @@ const downloadAndExtractIfNotExists = (operator: string): Promise<string | void>
       try {
         const outPath = path.join(__dirname, `../.cache/${operator}`)
         const zip = new AdmZip(zipFile)
-        if (!fs.existsSync(outPath)) fs.mkdirSync(outPath, true)
+        if (!fs.existsSync(outPath)) fs.mkdirSync(outPath, { recursive: true })
         zip.extractAllTo(outPath, true)
         return zipFile
       } catch (err) {
@@ -209,7 +209,11 @@ function gtfs(operator: string) {
     const month = now.getMonth()
     const day = now.getDate()
     const regex = /^(\d{2}):(\d{2}):(\d{2})$/
-    const [, hour, minute, second] = time.match(regex)
+    const match = time.match(regex);
+    if (!match) {
+      throw new Error(`Invalid time format: ${time}`);
+    }
+    const [, hour, minute, second] = match;
 
     // hours can be above 24 therefore we use the internal Date constructor
     // which handles this and shifts the date accordingly- ie 2023-04-01 25:00:00 -> 2023-04-02 01:00:00
