@@ -6,7 +6,7 @@ const regions = {
   stockholm,
 };
 
-export default (savedParams: any) => {
+export default (savedParams) => {
   const municipalitiesStream = municipalities.read(savedParams);
   const includedRegions = Object.entries(regions)
     .filter(
