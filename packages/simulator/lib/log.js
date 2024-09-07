@@ -26,10 +26,10 @@ const print = (
       messageFn(message),
       data instanceof Error ? data : JSON.stringify(data, null, 2),
       ...rest
-    )
+    );
   } else {
-    logFn(titleFn(title), messageFn(message), ...rest)
+    logFn(titleFn(title), messageFn(message), ...rest);
   }
-}
+};
 
 export { logStream, debug, error, info, warn, write };
