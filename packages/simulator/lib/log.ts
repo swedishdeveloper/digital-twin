@@ -1,4 +1,4 @@
-import chalk from 'chalk'
+import * as chalk from 'chalk'
 import { ReplaySubject } from 'rxjs'
 
 const LOG_LEVEL = process.env.LOG_LEVEL || 'info'
