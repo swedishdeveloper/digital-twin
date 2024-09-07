@@ -1,17 +1,21 @@
-require('dotenv').config()
+import { config } from 'dotenv'
+import { createServer, IncomingMessage, ServerResponse } from 'http'
+import { Server } from 'socket.io'
+import { env } from 'process'
+import * as routes from './routes'
 
-const { env } = require('process')
-const routes = require('./routes')
-const port = env.PORT || 4000
+config()
 
-const ok = function (req, res) {
+const port: number = parseInt(env.PORT || '4000', 10)
+
+const ok = function (req: IncomingMessage, res: ServerResponse): void {
   res.writeHead(200)
   res.end('PM Digital Twin Engine. Status: OK')
 }
 
-const server = require('http').createServer(ok)
+const server = createServer(ok)
 
-const io = require('socket.io')(server, {
+const io = new Server(server, {
   cors: {
     origin: 'http://localhost:3000',
     credentials: true,
@@ -19,7 +23,8 @@ const io = require('socket.io')(server, {
   },
 })
 
-server.listen(port)
-routes.register(io)
+server.listen(port, () => {
+  console.log(`Server running on port ${port}`)
+})
 
-console.log(`Server running on port ${port}`)
+routes.register(io)
