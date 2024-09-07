@@ -11,7 +11,7 @@ import {
 } from 'rxjs/operators';
 import { searchOne } from '../../lib/pelias';
 import Position from '../../lib/models/position';
-import Booking from '../../lib/models/booking';
+import Booking from '../../models/Booking';
 import { error } from '../../lib/log';
 
 import rutter from '../../data/telge/ruttdata_2024-09-03.json';
