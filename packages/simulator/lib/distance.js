@@ -61,8 +61,8 @@ function addMeters(p1: any, { x, y }: { x: number; y: number }): Position {
   p1 = convertPosition(p1)
   const R = 6371000
 
-  lat = p1.lat + (y / R) * (180 / Math.PI)
-  lon =
+  const lat = p1.lat + (y / R) * (180 / Math.PI)
+  const lon =
     p1.lon + ((x / R) * (180 / Math.PI)) / Math.cos((p1.lat * Math.PI) / 180)
 
   return { lon, lat }

@@ -49,7 +49,7 @@ async function updateCache(object: any, result: any): Promise<any> {
   })
 }
 
-module.exports = {
+export {
   getFromCache,
   updateCache,
 }
