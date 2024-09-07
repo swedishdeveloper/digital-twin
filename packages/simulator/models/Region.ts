@@ -17,9 +17,9 @@ import {
 import { busDispatch } from '../lib/dispatch/busDispatch'
 import { isInsideCoordinates } from '../lib/polygon'
 import { error, info } from '../lib/log'
-import Booking from './models/booking'
+import Booking from './Booking'
 
-const flattenProperty = (property) => (stream) =>
+const flattenProperty = (property: string) => (stream: Observable<any>) =>
   stream.pipe(
     mergeMap((object) =>
       object[property].pipe(
@@ -32,7 +32,7 @@ const flattenProperty = (property) => (stream) =>
     )
   )
 
-const tripsInMunicipality = (municipalities) => (stops) =>
+const tripsInMunicipality = (municipalities: Observable<any>) => (stops: Observable<any>) =>
   stops.pipe(
     groupBy(({ tripId }) => tripId),
     mergeMap((s) => s.pipe(toArray())),
@@ -57,7 +57,26 @@ const tripsInMunicipality = (municipalities) => (stops) =>
   )
 
 class Region {
-  constructor({ id, name, geometry, stops, municipalities }) {
+  id: string;
+  name: string;
+  geometry: any;
+  trips: Observable<any>;
+  stops: Observable<any>;
+  lineShapes: Observable<any>;
+  municipalities: Observable<any>;
+  postombud: Observable<any>;
+  buses: Observable<any>;
+  cars: Observable<any>;
+  taxis: Observable<any>;
+  recycleTrucks: Observable<any>;
+  recycleCollectionPoints: Observable<any>;
+  citizens: Observable<any>;
+  stopAssignments: Observable<any>;
+  manualBookings: Subject<any>;
+  unhandledBookings: Observable<any>;
+  dispatchedBookings: Observable<any>;
+
+  constructor({ id, name, geometry, stops, municipalities }: { id: string; name: string; geometry: any; stops: Observable<any>; municipalities: Observable<any> }) {
     this.id = id
     this.geometry = geometry
     this.name = name
@@ -173,4 +192,4 @@ const stopsToBooking = ([pickup, destination]) =>
     type: 'busstop',
   })
 
-module.exports = Region
+export default Region
