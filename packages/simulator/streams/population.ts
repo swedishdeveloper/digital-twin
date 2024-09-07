@@ -1,15 +1,15 @@
-import { from, shareReplay, filter } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { readCsv } from '../adapters/csv';
-import coords from 'swe-coords';
-import { convertPosition } from '../lib/distance';
+import { from, shareReplay, filter } from 'rxjs'
+import { map } from 'rxjs/operators'
+import { readCsv } from '../adapters/csv'
+import coords from 'swe-coords'
+import { convertPosition } from '../lib/distance'
 
 interface CsvData {
-  id: any;
-  rutstorl: any;
-  ruta: string;
-  beftotalt: any;
-  [key: string]: any;
+  id: any
+  rutstorl: any
+  ruta: string
+  beftotalt: any
+  [key: string]: any
 }
 
 // read the SWEREF99 x,y combined string for a square km and return a WGS84 lat lon object
@@ -20,17 +20,25 @@ function parseRuta(ruta: string): { lon: number; lat: number } {
 
 function read(): any {
   return from(readCsv(process.cwd() + '/data/5arsklasser_1km.csv')).pipe(
-    map(({ id, rutstorl: area, ruta, beftotalt: population, ...ages }: CsvData) => ({
-      id,
-      area,
-      ruta,
-      position: parseRuta(ruta),
-      ages: Object.values(ages).map((nr) => parseFloat(nr, 10)),
-      population: parseFloat(population, 10),
-    })),
+    map(
+      ({
+        id,
+        rutstorl: area,
+        ruta,
+        beftotalt: population,
+        ...ages
+      }: CsvData) => ({
+        id,
+        area,
+        ruta,
+        position: parseRuta(ruta),
+        ages: Object.values(ages).map((nr) => parseFloat(nr, 10)),
+        population: parseFloat(population, 10),
+      })
+    ),
     filter((p) => p.population > 0), // only keep squares with people living there.
     shareReplay()
   )
 }
 
-export default read();
+export default read()

@@ -1,5 +1,5 @@
-import fs from 'fs';
-import parse from 'csv-parse';
+import fs from 'fs'
+import parse from 'csv-parse'
 
 const readCsv = (path: string): any => {
   const input = fs.readFileSync(path)
@@ -9,4 +9,4 @@ const readCsv = (path: string): any => {
   })
 }
 
-export { readCsv };
+export { readCsv }
