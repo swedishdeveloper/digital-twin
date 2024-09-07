@@ -1,11 +1,11 @@
-import fetch from 'node-fetch';
-import polyline from 'polyline';
+import fetch from 'node-fetch'
+import polyline from 'polyline'
 const osrmUrl =
   // eslint-disable-next-line no-undef
   process.env.OSRM_URL ||
   'https://osrm.telge.iteam.pub' ||
   'http://localhost:5000'
-import { warn, write } from './log';
+import { warn, write } from './log'
 
 const decodePolyline = function (geometry: string): Position[] {
   return polyline.decode(geometry).map((point) => ({
@@ -19,13 +19,13 @@ const encodePolyline = function (geometry: Position[]): string {
 }
 
 interface Position {
-  lat: number;
-  lon: number;
+  lat: number
+  lon: number
 }
 
 interface Route {
-  geometry: { coordinates: Position[] };
-  duration: number;
+  geometry: { coordinates: Position[] }
+  duration: number
 }
 
 export const osrm = {
@@ -93,4 +93,4 @@ export const osrm = {
   },
   decodePolyline,
   encodePolyline,
-};
+}
