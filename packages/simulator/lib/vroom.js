@@ -43,7 +43,7 @@ class Vroom {
           : undefined,
       },
     }
-  },
+  }
   static taxiToVehicle({ position, passengerCapacity, heading, passengers }, i) {
     return {
       id: i,
@@ -52,7 +52,7 @@ class Vroom {
       start: [position.lon, position.lat],
       end: heading ? [heading.lon, heading.lat] : undefined,
     }
-  },
+  }
   static truckToVehicle({ position, parcelCapacity, heading, cargo }, i) {
     return {
       id: i,
@@ -65,7 +65,7 @@ class Vroom {
       start: [position.lon, position.lat],
       end: heading ? [heading.lon, heading.lat] : undefined,
     }
-  },
+  }
   static async plan({ jobs, shipments, vehicles }) {
     if (shipments.length > 200) throw new Error('Too many shipments to plan')
     if (vehicles.length > 200) throw new Error('Too many vehicles to plan')
@@ -114,7 +114,7 @@ class Vroom {
           )
         })
     )
-  },
+  }
 }
 
 module.exports = Vroom
