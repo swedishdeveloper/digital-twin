@@ -1,6 +1,6 @@
 import inside from 'point-in-polygon'
 
-interface Coordinates {
+type Coordinates = {
   lon: number
   lat: number
 }
