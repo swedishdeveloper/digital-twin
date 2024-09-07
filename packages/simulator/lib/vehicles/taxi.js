@@ -1,5 +1,5 @@
 import { Vehicle } from '../../models/vehicle';
-import Position from '../../models/Position';
+import { Position } from '../../models/Position';
 
 interface TaxiArgs {
     id: string;
