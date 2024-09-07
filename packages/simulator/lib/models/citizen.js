@@ -1,4 +1,4 @@
-const {
+import {
   map,
   filter,
   shareReplay,
@@ -15,18 +15,59 @@ const {
   retryWhen,
   delay,
   take,
-} = require('rxjs')
-const { virtualTime } = require('../virtualTime')
+} from 'rxjs'
+import { virtualTime } from '../virtualTime'
 
-const { safeId } = require('../id')
-const moment = require('moment')
-const Booking = require('./booking')
-const pelias = require('../pelias')
-const { error } = require('../log')
-const { getHours, getISODay } = require('date-fns')
-const Position = require('./position')
+import { safeId } from '../id'
+import moment from 'moment'
+import Booking from './booking'
+import pelias from '../pelias'
+import { error } from '../log'
+import { getHours, getISODay } from 'date-fns'
+import Position from './position'
+
+interface Workplace {
+  name: string
+  position: any
+}
+
+interface Home {
+  name: string
+  position: any
+}
+
+interface Municipality {
+  name: string
+}
+
+interface CitizenData {
+  name: string
+  position: any
+  workplace: Workplace
+  home: Home
+  startPosition?: any
+  municipality: Municipality
+}
 
 class Citizen {
+  id: string
+  workplace: Workplace
+  home: Home
+  name: string
+  position: Position
+  startPosition: Position
+  municipality: Municipality
+  distance: number
+  cost: number
+  co2: number
+  inVehicle: boolean
+  moveTime: number
+  waitTime: number
+  intents: any
+  bookings: any
+  pickedUpEvents: any
+  deliveredEvents: any
+
   constructor({
     name,
     position,
@@ -34,7 +75,7 @@ class Citizen {
     home,
     startPosition,
     municipality,
-  }) {
+  }: CitizenData) {
     this.id = 'p-' + safeId()
     this.workplace = {
       name: workplace.name || 'arbetsplats',
@@ -192,12 +233,12 @@ class Citizen {
     )
   }
 
-  reset() {
+  reset(): void {
     this.position = this.startPosition
     this.inVehicle = false
   }
 
-  toObject() {
+  toObject(): object {
     const obj = {
       co2: this.co2,
       cost: this.cost,
@@ -215,7 +256,7 @@ class Citizen {
     return obj
   }
 
-  moved(position, metersMoved, co2, cost, moveTime) {
+  moved(position: any, metersMoved: number, co2: number, cost: number, moveTime: number): void {
     this.position = position
 
     // Aggregate values
@@ -226,4 +267,4 @@ class Citizen {
   }
 }
 
-module.exports = Citizen
+export default Citizen

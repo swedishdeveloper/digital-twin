@@ -1,6 +1,6 @@
-const { haversine } = require('../distance')
+import { haversine } from '../distance'
 
-function convertPosition(pos) {
+function convertPosition(pos: any): { lon: number; lat: number } {
   return {
     lon: pos.longitude || pos.lon || pos.lng || pos[0],
     lat: pos.latitude || pos.lat || pos[1],
@@ -8,13 +8,16 @@ function convertPosition(pos) {
 }
 
 class Position {
-  constructor(pos) {
+  lon: number
+  lat: number
+
+  constructor(pos: any) {
     const { lon, lat } = convertPosition(pos)
     this.lon = lon
     this.lat = lat
   }
 
-  isValid() {
+  isValid(): boolean {
     if (!this.lon || !this.lat) return false
     if (this.lon < -180 || this.lon > 180) return false
     if (this.lat < -90 || this.lat > 90) return false
@@ -23,17 +26,17 @@ class Position {
     return true
   }
 
-  distanceTo(position) {
+  distanceTo(position: Position): number {
     return haversine(this, position)
   }
 
-  toObject() {
+  toObject(): { lon: number; lat: number } {
     return { lon: this.lon, lat: this.lat }
   }
 
-  toString() {
+  toString(): string {
     return JSON.stringify(this.toObject(), null, 2)
   }
 }
 
-module.exports = Position
+export default Position

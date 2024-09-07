@@ -1,9 +1,41 @@
-const { virtualTime } = require('../virtualTime')
-const { safeId } = require('../id')
+import { virtualTime } from '../virtualTime'
+import { safeId } from '../id'
 
-const { ReplaySubject, merge } = require('rxjs')
+import { ReplaySubject, merge } from 'rxjs'
+
+interface BookingData {
+  sender?: string
+  passenger?: any
+  type?: string
+  pickup?: { position: any }
+  destination?: any
+}
+
 class Booking {
-  constructor(booking) {
+  id: string
+  status: string
+  co2: number
+  passenger: any
+  type: string
+  cost: number
+  distance: number
+  weight: number
+  position: any
+  queuedEvents: ReplaySubject<any>
+  pickedUpEvents: ReplaySubject<any>
+  assignedEvents: ReplaySubject<any>
+  deliveredEvents: ReplaySubject<any>
+  statusEvents: any
+  queuedDateTime?: number
+  car?: any
+  assigned?: number
+  pickupDateTime?: number
+  pickupPosition?: any
+  deliveredDateTime?: number
+  deliveredPosition?: any
+  deliveryTime?: number
+
+  constructor(booking: BookingData) {
     Object.assign(this, booking)
     this.id =
       `${
@@ -29,14 +61,14 @@ class Booking {
     )
   }
 
-  async queued(car) {
+  async queued(car: any): Promise<void> {
     this.queuedDateTime = await virtualTime.getTimeInMillisecondsAsPromise()
     this.status = 'Queued'
     this.car = car
     this.queuedEvents.next(this)
   }
 
-  async assign(car) {
+  async assign(car: any): Promise<void> {
     this.assigned =
       this.assigned || (await virtualTime.getTimeInMillisecondsAsPromise())
     this.car = car
@@ -44,7 +76,7 @@ class Booking {
     this.assignedEvents.next(this)
   }
 
-  async moved(position, metersMoved, co2, cost) {
+  async moved(position: any, metersMoved: number, co2: number, cost: number): Promise<void> {
     this.position = position
     this.passenger?.moved(
       position,
@@ -60,9 +92,9 @@ class Booking {
   }
 
   async pickedUp(
-    position,
-    date = virtualTime.getTimeInMillisecondsAsPromise()
-  ) {
+    position: any,
+    date: Promise<number> = virtualTime.getTimeInMillisecondsAsPromise()
+  ): Promise<void> {
     date = await date
     this.pickupDateTime = date
     this.pickupPosition = position
@@ -71,9 +103,9 @@ class Booking {
   }
 
   async delivered(
-    position,
-    date = virtualTime.getTimeInMillisecondsAsPromise()
-  ) {
+    position: any,
+    date: Promise<number> = virtualTime.getTimeInMillisecondsAsPromise()
+  ): Promise<void> {
     date = await date
     this.deliveredDateTime = date
     this.deliveredPosition = position
@@ -82,7 +114,7 @@ class Booking {
     this.deliveredEvents.next(this)
   }
 
-  toObject() {
+  toObject(): object {
     return {
       id: this.id,
       status: this.status,
@@ -107,4 +139,4 @@ class Booking {
   }
 }
 
-module.exports = Booking
+export default Booking
