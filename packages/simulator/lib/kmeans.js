@@ -20,7 +20,7 @@ interface Cluster {
 
 const clusterPositions = (input: Input[], nrOfClusters: number = 5): Promise<Cluster[]> => {
   const vectors = input.map(({ pickup, position }) => {
-    const pos = position || pickup?.position;
+    const pos = position || (pickup && pickup.position);
     if (!pos) {
       throw new Error('Position is undefined');
     }
