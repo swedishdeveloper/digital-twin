@@ -1,5 +1,5 @@
-const { from } = require('rxjs')
-const {
+import { from } from 'rxjs';
+import {
   map,
   mergeMap,
   catchError,
@@ -8,14 +8,15 @@ const {
   filter,
   take,
   share,
-} = require('rxjs/operators')
-const { searchOne } = require('../../lib/pelias')
-const Position = require('../../lib/models/position')
-const Booking = require('../../lib/models/booking')
-const { error } = require('../../lib/log')
+} from 'rxjs/operators';
+import { searchOne } from '../../lib/pelias';
+import Position from '../../lib/models/position';
+import Booking from '../../lib/models/booking';
+import { error } from '../../lib/log';
 
-function read() {
-  const rutter = require('../../data/telge/ruttdata_2024-09-03.json')
+import rutter from '../../data/telge/ruttdata_2024-09-03.json';
+
+function read(): Observable<Booking> {
   console.log('TELGE -> read')
   // TODO: add error handling
   return from(rutter).pipe(
@@ -66,4 +67,4 @@ function read() {
   )
 }
 
-module.exports = read()
+export default read();
