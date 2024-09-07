@@ -1,5 +1,5 @@
 import Municipality from '../../models/Municipality'
-import { stops } from '../publicTransport'
+import { stops } from '../publicTransport.ts'
 import { filter, shareReplay } from 'rxjs'
 
 const includedMunicipalities = ['Södertälje kommun']
