@@ -189,6 +189,4 @@ const register = (experiment: Experiment, socket: Socket) => {
   ]
 }
 
-module.exports = {
-  register,
-}
+export { register };
