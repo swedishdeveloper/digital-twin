@@ -19,35 +19,13 @@ const register = (experiment: Experiment, socket: Socket): any[] => {
       .subscribe((car) => {
         socket.emit('cars', [car])
       }),
-    experiment.carUpdates
-      .pipe(
-        windowTime<Vehicle>(100), // start a window every x ms
-        mergeMap((win: Observable<Vehicle>) =>
-          win.pipe(
-            groupBy((car) => car.id), // create a stream for each car in this window
-            mergeMap((cars) => cars.pipe(last())) // take the last update in this window
-          )
-        ),
-        filter((car: Vehicle) => {
-          if (!car) return false
-          if (car.vehicleType === 'bus' && !socket.data.emitBusUpdates)
-            return false
-          if (car.vehicleType === 'taxi' && !socket.data.emitTaxiUpdates)
-            return false
-          if (car.vehicleType === 'car' && !socket.data.emitCars) return false
-          return true
-        }),
-        map((vehicle: Vehicle) => vehicle.toJson()),
-        map((vehicle: Vehicle) => ({
-          experimentId: experiment.parameters.id,
-          ...vehicle,
-        })),
-        bufferTime(100, null, 100)
-      )
-      .subscribe((cars) => {
-        if (!cars.length) return
-        socket.volatile.emit('cars', cars)
-      }),
+    experiment.carUpdates.pipe(
+      windowTime<Vehicle>(100),
+      mergeMap(processWindow),
+      filter(filterCars),
+      map(toJsonWithExperimentId),
+      bufferTime(100, null, 100)
+    ).subscribe(emitCars(socket)),
     experiment.buses
       .pipe(
         map(cleanCars),
@@ -63,3 +41,31 @@ const register = (experiment: Experiment, socket: Socket): any[] => {
 }
 
 export { register }
+function processWindow(win: Observable<Vehicle>): Observable<Vehicle> {
+  return win.pipe(
+    groupBy((car) => car.id),
+    mergeMap((cars) => cars.pipe(last()))
+  );
+}
+
+function filterCars(car: Vehicle): boolean {
+  if (!car) return false;
+  if (car.vehicleType === 'bus' && !socket.data.emitBusUpdates) return false;
+  if (car.vehicleType === 'taxi' && !socket.data.emitTaxiUpdates) return false;
+  if (car.vehicleType === 'car' && !socket.data.emitCars) return false;
+  return true;
+}
+
+function toJsonWithExperimentId(vehicle: Vehicle): any {
+  return {
+    experimentId: experiment.parameters.id,
+    ...vehicle.toJson(),
+  };
+}
+
+function emitCars(socket: Socket) {
+  return (cars: any[]) => {
+    if (!cars.length) return;
+    socket.volatile.emit('cars', cars);
+  };
+}
