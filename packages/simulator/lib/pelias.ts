@@ -4,6 +4,19 @@ const peliasUrl = process.env.PELIAS_URL || 'https://pelias.telge.iteam.pub'
 
 info('Pelias URL', peliasUrl)
 
+interface PeliasFeature {
+  geometry: {
+    coordinates: [number, number];
+  };
+  properties: {
+    name?: string;
+    street?: string;
+    houseNumber?: string;
+    localadmin?: string;
+    label?: string;
+  };
+}
+
 export const nearest = (
   position: Position,
   layers: string = 'address,venue'
@@ -67,7 +80,7 @@ export const search = (
     })
     .then((results) =>
       results.features
-        .map(({ geometry, properties } = {}) => ({
+        .map(({ geometry, properties }: PeliasFeature) => ({
           ...properties,
           position: new Position({
             lon: geometry.coordinates[0],
