@@ -1,8 +1,24 @@
-const { from } = require('rxjs')
-const { map, mergeMap } = require('rxjs/operators')
-const fs = require('fs').promises
+import { from, Observable } from 'rxjs';
+import { map, mergeMap } from 'rxjs/operators';
+import { promises as fs } from 'fs';
 
-function execute() {
+interface RecycleData {
+  turId: string;
+  date: string;
+  vehicle: string;
+  customerNumber: string;
+  houseNumber: string;
+  jobNumber: string;
+  decision: string;
+  sequenceNumber: string;
+  wasteType: string;
+  serviceType: string;
+  frequency: string;
+  scheduled: string;
+  position: { lat: number; lon: number };
+}
+
+function execute(): Observable<RecycleData> {
   // Adjust the file path as necessary
   const filePath = `${process.cwd()}/packages/simulator/data/telge/ruttdata 2024-09-03.txt`
 
@@ -48,4 +64,4 @@ function execute() {
   )
 }
 
-module.exports = execute()
+export default execute();
