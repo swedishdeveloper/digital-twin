@@ -4,7 +4,7 @@ import { mergeMap, catchError } from 'rxjs/operators'
 import { read } from './config'
 import { info, error, logStream } from './lib/log'
 
-import { Experiment, ExperimentParameters } from '../../../types/Experiment';
+import { Experiment, ExperimentParameters } from '../../../types/Experiment'
 
 const engine = {
   subscriptions: [] as any[],
@@ -124,5 +124,3 @@ const engine = {
     return experiment
   },
 }
-
-module.exports = engine
