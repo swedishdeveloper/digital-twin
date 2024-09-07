@@ -1,4 +1,4 @@
-import { plan, taxiToVehicle, bookingToShipment } from '../Vroom';
+import { plan, taxiToVehicle, bookingToShipment } from '../Vroom'
 import moment from 'moment';
 import { error, debug, write, info } from '../log';
 import { virtualTime } from '../../models/VirtualTime';
@@ -25,7 +25,7 @@ const taxiDispatch = async (taxis: Taxi[], bookings: Booking[]) => {
   const virtualNow = await virtualTime.getTimeInMillisecondsAsPromise()
   const now = moment(new Date(virtualNow))
 
-  return result?.routes.map((route: any) => ({
+  return result?.routes.map((route: any) => {
     write('✅')
     return {
       taxi: taxis[route.vehicle],
@@ -56,17 +56,6 @@ const findBestRouteToPickupBookings = async (taxi: Taxi, bookings: Booking[]) =>
   }
 
   return result.routes[0].steps
-    .filter(({ type }) => ['pickup', 'delivery', 'start'].includes(type))
-    .map(({ id, type, arrival, departure }) => {
-      const booking = bookings[id];
-      const instruction = {
-        action: type,
-        arrival,
-        departure,
-        booking,
-      };
-      return instruction;
-    });
     .filter(({ type }) => ['pickup', 'delivery', 'start'].includes(type))
     .map(({ id, type, arrival, departure }) => {
       const booking = bookings[id]
