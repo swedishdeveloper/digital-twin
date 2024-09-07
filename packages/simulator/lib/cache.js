@@ -1,6 +1,6 @@
-const fs = require('fs')
-const path = require('path')
-const crypto = require('crypto')
+import fs from 'fs'
+import path from 'path'
+import crypto from 'crypto'
 
 const cacheDir = path.join(__dirname, '../.cache')
 
@@ -9,13 +9,13 @@ if (!fs.existsSync(cacheDir)) {
   fs.mkdirSync(cacheDir)
 }
 
-function createHash(object) {
+function createHash(object: any): string {
   const hash = crypto.createHash('sha1')
   hash.update(JSON.stringify(object))
   return hash.digest('hex')
 }
 
-async function getFromCache(object) {
+async function getFromCache(object: any): Promise<any> {
   const hash = createHash(object)
   const filePath = path.join(cacheDir, hash)
 
@@ -34,7 +34,7 @@ async function getFromCache(object) {
   })
 }
 
-async function updateCache(object, result) {
+async function updateCache(object: any, result: any): Promise<any> {
   const hash = createHash(object)
   const filePath = path.join(cacheDir, hash)
 

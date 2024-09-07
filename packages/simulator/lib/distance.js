@@ -1,11 +1,13 @@
-function convertPosition(pos) {
+type Position = { lon: number; lat: number }
+
+function convertPosition(pos: any): Position {
   return {
     lon: pos.longitude || pos.lon || pos.lng || pos[0],
     lat: pos.latitude || pos.lat || pos[1],
   }
 }
 
-function pythagoras(from, to) {
+function pythagoras(from: any, to: any): number {
   from = convertPosition(from)
   to = convertPosition(to)
   // quick approximation with pythagoras theorem
@@ -15,13 +17,13 @@ function pythagoras(from, to) {
   )
 }
 
-function rad(x) {
+function rad(x: number): number {
   return (x * Math.PI) / 180
 }
 
 /* Distance in meters between two points using the Haversine algo.
  */
-function haversine(p1, p2) {
+function haversine(p1: any, p2: any): number {
   p1 = convertPosition(p1)
   p2 = convertPosition(p2)
 
@@ -41,7 +43,7 @@ function haversine(p1, p2) {
   return Math.round(d) || 0
 }
 
-function bearing(p1, p2) {
+function bearing(p1: any, p2: any): number {
   return Math.round(
     (Math.atan2(
       Math.cos(p1.lat) * Math.sin(p2.lat) -
@@ -55,7 +57,7 @@ function bearing(p1, p2) {
 
 /* Add meters to a position
  */
-function addMeters(p1, { x, y }) {
+function addMeters(p1: any, { x, y }: { x: number; y: number }): Position {
   p1 = convertPosition(p1)
   const R = 6371000
 
@@ -65,8 +67,8 @@ function addMeters(p1, { x, y }) {
 
   return { lon, lat }
 }
-function getNrOfPointsBetween(p1, p2, quantity) {
-  var points = new Array()
+function getNrOfPointsBetween(p1: Position, p2: Position, quantity: number): Position[] {
+  const points: Position[] = []
   var latDiff = p2.lat - p1.lat,
     lonDiff = p2.lon - p1.lon
   var slope = (p2.lat - p1.lat) / (p2.lon - p1.lon)
