@@ -24,7 +24,9 @@ const print = (
     logFn(
       titleFn(`[${title}]`),
       messageFn(`- ${message}`),
-      data instanceof Error ? `\n${data.stack}` : `\n${JSON.stringify(data, null, 2)}`,
+      data instanceof Error
+        ? `\n${data.stack}`
+        : `\n${JSON.stringify(data, null, 2)}`,
       ...rest
     )
   } else {
@@ -80,6 +82,7 @@ const warn = (message: string, data?: any, ...rest: any[]) => {
 const error = (message: string, data?: any, ...rest: any[]) => {
   print(console.error, chalk.red, chalk.white, 'ERROR', message, data, ...rest)
   logStream.next(`ERROR: ${message}`)
+  return Promise.reject(data)
 }
 
 const write = (message: string) => {
