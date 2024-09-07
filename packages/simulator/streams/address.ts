@@ -1,9 +1,5 @@
 const osrm = require('../lib/osrm')
-const assert = require('assert')
-const Position = require('../lib/models/position')
-const { addMeters } = require('../lib/distance')
-const fetch = require('node-fetch')
-const { error } = require('../lib/log')
+const Position = require('../lib/models/Position')
 const streamsUrl =
   process.env.STREAMS_URL || 'https://streams.telge.iteam.pub/addresses'
 

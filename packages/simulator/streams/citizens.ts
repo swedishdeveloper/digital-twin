@@ -1,16 +1,16 @@
-import { take, map, filter, mergeAll } from 'rxjs/operators';
-import { randomNames } from './personNames';
-import Citizen from '../lib/models/citizen';
-import { from, zip } from 'rxjs';
-import { getAddressesInArea } from './address';
+import { take, map, filter, mergeAll } from 'rxjs/operators'
+import { randomNames } from './personNames'
+import { from, zip } from 'rxjs'
+import { getAddressesInArea } from './address'
+import Citizen from '../models/Citizen'
 
 interface Square {
-  position: any;
-  area: any;
-  population: number;
+  position: any
+  area: any
+  population: number
 }
 
-const getCitizensInSquare = (
+export const getCitizensInSquare = (
   { position, area, population }: Square,
   workplaces: any,
   municipalityName: string
@@ -42,5 +42,3 @@ const getCitizensInSquare = (
     take(nrOfCitizens)
   )
 }
-
-export { getCitizensInSquare };

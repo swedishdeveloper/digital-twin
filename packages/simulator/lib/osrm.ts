@@ -6,7 +6,7 @@ const osrmUrl =
   'https://osrm.telge.iteam.pub' ||
   'http://localhost:5000'
 import { warn, write } from './log'
-import Position from '../models/position'
+import Position from '../models/Position'
 
 const decodePolyline = function (geometry: string): Position[] {
   return polyline.decode(geometry).map((point) => ({

@@ -18,8 +18,8 @@ import packageVolumes from './packageVolumes.js'
 import postombud from './postombud.js'
 import inside from 'point-in-polygon'
 import { searchOne } from '../lib/pelias'
-import { getCitizensInSquare } from './citizens.js'
-import { getAddressesInArea } from './address.js'
+import { getCitizensInSquare } from './citizens'
+import { getAddressesInArea } from './address'
 import { municipalities } from '../config/index.js'
 
 const activeMunicipalities = municipalities()

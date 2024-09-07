@@ -1,4 +1,4 @@
-import Position from '../position'
+import Position from '../Position'
 import Truck from './Truck'
 
 interface RecycleTruck {

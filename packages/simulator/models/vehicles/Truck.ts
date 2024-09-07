@@ -1,7 +1,7 @@
 import { warn } from 'console'
-import Position from '../position'
+import Position from '../Position'
 import Vehicle from './Vehicle'
-import Booking from '../booking'
+import Booking from '../Booking'
 
 interface Truck {
   parcelCapacity: number

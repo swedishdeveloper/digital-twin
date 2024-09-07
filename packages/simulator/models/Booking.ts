@@ -4,7 +4,7 @@ import { safeId } from '../../lib/id'
 import { ReplaySubject, merge } from 'rxjs'
 
 import { BookingData } from '../../../types/BookingData'
-import Position from './position'
+import Position from './Position'
 
 class Booking {
   id: string

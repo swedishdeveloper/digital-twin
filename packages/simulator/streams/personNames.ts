@@ -1,7 +1,6 @@
 import { from, repeat, map, zip, filter, toArray, pipe, mergeAll } from 'rxjs'
 import fornamnData from '../data/svenska_tilltalsnamn_2021.json'
 import efternamnData from '../data/svenska_efternamn_2021.json'
-import { Name } from '@elastic/elasticsearch/api/types'
 
 const fornamn: string[] = fornamnData.data
 const efternamn: string[] = efternamnData.data

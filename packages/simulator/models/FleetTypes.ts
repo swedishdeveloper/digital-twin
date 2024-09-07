@@ -1,11 +1,11 @@
-import Position from './models/position';
+import Position from './models/Position'
 
 export interface FleetConstructorArgs {
-  name: string;
-  marketshare: number;
-  percentageHomeDelivery: number;
-  vehicles: Record<string, number>;
-  hub: any;
-  type: string;
-  municipality: any;
+  name: string
+  marketshare: number
+  percentageHomeDelivery: number
+  vehicles: Record<string, number>
+  hub: any
+  type: string
+  municipality: any
 }

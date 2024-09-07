@@ -2,9 +2,9 @@ import { ReplaySubject, Subscription } from 'rxjs'
 import { scan } from 'rxjs/operators'
 import moment from 'moment'
 import { assert, warn } from 'console'
-import Position from '../position'
-import Booking from '../booking'
 import { bearing } from '../../lib/distance'
+import Position from '../Position'
+import Booking from '../Booking'
 
 const wait = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms))
@@ -269,10 +269,10 @@ class Vehicle {
   async updatePosition(
     position: Position,
     pointsPassedSinceLastUpdate?: any[],
-    time: number
+    time?: number
   ) {
     const lastPosition = this.position || position
-    const timeDiff = time - (this.lastPositionUpdate || 0)
+    const timeDiff = time ? time - (this.lastPositionUpdate || 0) : 0
 
     if (pointsPassedSinceLastUpdate) {
       const metersMoved =
