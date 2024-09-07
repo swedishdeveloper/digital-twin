@@ -6,65 +6,29 @@ import {
   mergeMap,
   groupBy,
   windowTime,
+  Observable,
 } from 'rxjs'
 import { Socket } from 'socket.io'
 import { Experiment } from '../../../../types/Experiment'
+import Vehicle from '../../models/vehicles/Vehicle'
 
-const cleanCars = ({
-  // TODO: Replace cleanCars with .toObject() on Vehicle
-  position: { lon, lat },
-  id,
-  altitude,
-  heading,
-  speed,
-  bearing,
-  status,
-  fleet,
-  cargo,
-  passengers,
-  passengerCapacity,
-  parcelCapacity,
-  queue,
-  co2,
-  distance,
-  ema,
-  lineNumber,
-  vehicleType,
-}) => ({
-  id,
-  heading: (heading && [heading.lon, heading.lat]) || null, // contains route to plot or interpolate on client side.
-  speed,
-  bearing,
-  position: [lon, lat, altitude || 0],
-  status,
-  fleet: fleet?.name || 'Privat',
-  co2,
-  distance,
-  ema,
-  cargo: cargo.length,
-  passengers: passengers?.length,
-  queue: queue.length,
-  passengerCapacity,
-  parcelCapacity,
-  lineNumber,
-  vehicleType,
-})
-
-const register = (experiment: Experiment, socket: Socket): void => {
+const register = (experiment: Experiment, socket: Socket): any[] => {
   return [
-    experiment.cars.pipe(map(cleanCars)).subscribe((car) => {
-      socket.emit('cars', [car])
-    }),
+    experiment.cars
+      .pipe(map((vehicle: Vehicle) => vehicle.toJson()))
+      .subscribe((car) => {
+        socket.emit('cars', [car])
+      }),
     experiment.carUpdates
       .pipe(
-        windowTime(100), // start a window every x ms
-        mergeMap((win) =>
+        windowTime<Vehicle>(100), // start a window every x ms
+        mergeMap((win: Observable<Vehicle>) =>
           win.pipe(
             groupBy((car) => car.id), // create a stream for each car in this window
             mergeMap((cars) => cars.pipe(last())) // take the last update in this window
           )
         ),
-        filter((car) => {
+        filter((car: Vehicle) => {
           if (!car) return false
           if (car.vehicleType === 'bus' && !socket.data.emitBusUpdates)
             return false
@@ -73,8 +37,8 @@ const register = (experiment: Experiment, socket: Socket): void => {
           if (car.vehicleType === 'car' && !socket.data.emitCars) return false
           return true
         }),
-        map(cleanCars),
-        map((vehicle) => ({
+        map((vehicle: Vehicle) => vehicle.toJson()),
+        map((vehicle: Vehicle) => ({
           experimentId: experiment.parameters.id,
           ...vehicle,
         })),
@@ -87,7 +51,7 @@ const register = (experiment: Experiment, socket: Socket): void => {
     experiment.buses
       .pipe(
         map(cleanCars),
-        map((vehicle) => ({
+        map((vehicle: Vehicle) => ({
           experimentId: experiment.parameters.id,
           ...vehicle,
         }))
