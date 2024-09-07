@@ -62,9 +62,9 @@ const dispatch = (cars: Observable<Car>, bookings: Observable<Booking>): Observa
             bookings,
           }))
         }),
-        catchError((err: any) => {
+        catchError((err: any, caught) => {
           error('cluster err', err);
-          return [];
+          return caught;
         }),
         mergeAll(),
         filter(({ bookings }: { bookings: Booking[] }) => bookings.length > 0),
@@ -87,9 +87,9 @@ const dispatch = (cars: Observable<Car>, bookings: Observable<Booking>): Observa
         )
       )
     ),
-    catchError((err: any) => {
+    catchError((err: any, caught) => {
       error('dispatchCentral -> dispatch', err);
-      return [];
+      return caught;
     })
   )
 }
