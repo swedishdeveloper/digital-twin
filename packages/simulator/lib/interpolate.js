@@ -39,7 +39,15 @@ function interpolatePositionFromRoute(
       remainingPoints: [],
       skippedPoints: [],
     }
-  }
+  } : {
+      lat: lastPoint.position.lat,
+      lon: lastPoint.position.lon,
+      speed: 0,
+      instruction: lastPoint,
+      next: null,
+      remainingPoints,
+      skippedPoints: [],
+    };
 
   const futurePoints: Point[] = remainingPointsInRoute.filter(
     (point) => (point.passed || 0) + point.duration > timeSinceRouteStarted
@@ -47,12 +55,12 @@ function interpolatePositionFromRoute(
   const nrOfPointsSkipped: number = remainingPointsInRoute.indexOf(futurePoints[0]) + 1;
   const skippedPoints: Point[] = remainingPointsInRoute.slice(0, nrOfPointsSkipped);
   const current: Point = futurePoints[0];
-  const next: Point = futurePoints[1];
+  const next: Point | undefined = futurePoints[1];
   const lastPoint: Point = remainingPointsInRoute[remainingPointsInRoute.length - 1];
   const remainingPoints: Point[] = futurePoints;
 
   // when we reach the end
-  if (!current || !next)
+  if (!current || !next) {
     return {
       lat: lastPoint.position.lat,
       lon: lastPoint.position.lon,
@@ -68,7 +76,7 @@ function interpolatePositionFromRoute(
   // var progress = (timeSinceRouteStarted - start.passed) / (end.passed - start.passed)
   const speed: number = Math.round(current.meters / 1000 / (current.duration / 60 / 60));
 
-  const interpolatedPosition: InterpolatedPosition = {
+  const interpolatedPosition: InterpolatedPosition = next ? {
     lat:
       current.position.lat +
       (next.position.lat - current.position.lat) * progress,
