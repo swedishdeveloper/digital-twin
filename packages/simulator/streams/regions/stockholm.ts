@@ -1,5 +1,6 @@
 import Municipality from '../../models/Municipality'
-import { stops } from '../publicTransport.ts'
+import Region from '../../models/Region'
+import publicTransport from '../publicTransport'
 import { filter, shareReplay } from 'rxjs'
 
 const includedMunicipalities = ['Södertälje kommun']
@@ -16,7 +17,7 @@ const stockholm = (municipalitiesStream: Observable<Municipality>) => {
     id: 'stockholm',
     name: 'Stockholm',
     municipalities: municipalities,
-    stops,
+    stops: publicTransport('sl').stops,
   })
 }
 

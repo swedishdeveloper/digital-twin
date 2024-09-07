@@ -11,7 +11,7 @@ import {
 } from 'rxjs/operators'
 import { info, error, warn, debug } from '../log'
 import { clusterPositions } from '../kmeans'
-import Vehicle from '../../models/vehicle'
+import Vehicle from '../../models/vehicles/Vehicle'
 import Booking from '../../models/Booking'
 
 const dispatch = (

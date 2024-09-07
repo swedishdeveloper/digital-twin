@@ -4,7 +4,7 @@ const peliasUrl = process.env.PELIAS_URL || 'https://pelias.telge.iteam.pub'
 
 info('Pelias URL', peliasUrl)
 
-const nearest = (
+export const nearest = (
   position: Position,
   layers: string = 'address,venue'
 ): Promise<any> => {
@@ -48,7 +48,7 @@ const nearest = (
 
   return promise
 }
-const search = (
+export const search = (
   name: string,
   near: Position | null = null,
   layers: string = 'address,venue',
@@ -85,7 +85,7 @@ const search = (
 
 const cache = new Map()
 
-const searchOne = async (
+export const searchOne = async (
   name: string,
   near: Position | null = null,
   layers: string = 'address,venue'
@@ -98,10 +98,4 @@ const searchOne = async (
   })
   if (cacheKey && results.length > 0) cache.set(cacheKey, results[0])
   return results[0]
-}
-
-module.exports = {
-  nearest,
-  search,
-  searchOne,
 }

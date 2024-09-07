@@ -14,12 +14,14 @@ const queue = new Queue()
 
 class Vroom {
   static bookingToShipment({ id, pickup, destination }: Booking, i: number) {
+    if (!pickup || !destination)
+      throw new Error('Missing pickup or destination')
     return {
       id: i,
       //description: id,
       amount: [1],
       pickup: {
-        time_windows: pickup.departureTime?.length
+        time_windows: pickup.departureTime
           ? [
               [
                 moment(pickup.departureTime, 'hh:mm:ss').unix(),
@@ -30,12 +32,12 @@ class Vroom {
             ]
           : undefined,
         id: i,
-        location: [pickup.position.lon, pickup.position.lat],
+        location: [pickup?.position.lon, pickup.position.lat],
       },
       delivery: {
         id: i,
         location: [destination.position.lon, destination.position.lat],
-        time_windows: destination.arrivalTime?.length
+        time_windows: destination.arrivalTime
           ? [
               [
                 moment(destination.arrivalTime, 'hh:mm:ss').unix(),
@@ -49,7 +51,7 @@ class Vroom {
     }
   }
   static taxiToVehicle(
-    { position, passengerCapacity, heading, passengers }: Vehicle,
+    { position, passengerCapacity, heading, passengers }: Taxi,
     i: number
   ) {
     return {

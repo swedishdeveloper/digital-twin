@@ -1,7 +1,7 @@
 /**
  * TODO: Describe the stream that this file exports and what its data means
  */
-import { from, shareReplay } from 'rxjs';
+import { from, shareReplay } from 'rxjs'
 import {
   map,
   filter,
@@ -11,27 +11,24 @@ import {
   take,
   repeat,
   share,
-} from 'rxjs/operators';
-import data from '../data/municipalities.json';
-import population from './population.js';
-import packageVolumes from './packageVolumes.js';
-import postombud from './postombud.js';
-import inside from 'point-in-polygon';
-import { searchOne } from '../lib/pelias';
-import { getCitizensInSquare } from './citizens.js';
-import { getAddressesInArea } from './address.js';
-import { municipalities } from '../config/index.js';
-import commercialAreasData from '../data/scb_companyAreas.json';
-
-const commercialAreas = from(commercialAreasData.features);
+} from 'rxjs/operators'
+import data from '../data/municipalities.json'
+import population from './population.js'
+import packageVolumes from './packageVolumes.js'
+import postombud from './postombud.js'
+import inside from 'point-in-polygon'
+import { searchOne } from '../lib/pelias'
+import { getCitizensInSquare } from './citizens.js'
+import { getAddressesInArea } from './address.js'
+import { municipalities } from '../config/index.js'
 
 const activeMunicipalities = municipalities()
 
-import telgeBookings from './orders/telge.js';
+import telgeBookings from './orders/telge.js'
 
 const bookings = {
   telge: telgeBookings,
-};
+}
 
 function getPopulationSquares({ geometry: { coordinates } }) {
   return population.pipe(
@@ -43,13 +40,6 @@ function getPopulationSquares({ geometry: { coordinates } }) {
       population,
       area: +area,
     })), // only keep the essentials to save memory
-    shareReplay()
-  )
-}
-
-function getCommercialAreas(municipalityId) {
-  return commercialAreas.pipe(
-    filter((area) => area.properties.KOMMUNKOD === municipalityId),
     shareReplay()
   )
 }
@@ -94,7 +84,6 @@ function read({ fleets }: { fleets: any }) {
       }) => {
         console.log('Processing municipality', name)
         const squares = getPopulationSquares({ geometry })
-        const commercialAreas = getCommercialAreas(kod)
 
         const searchQuery = address || name.split(' ')[0]
 
@@ -137,7 +126,6 @@ function read({ fleets }: { fleets: any }) {
             .pipe(reduce((a, b) => a + b.population, 0))
             .toPromise(),
           packageVolumes: packageVolumes.find((e) => name.startsWith(e.name)),
-          commercialAreas: commercialAreas,
 
           citizens,
         })
