@@ -1,8 +1,8 @@
 /**
  * TODO: Describe the stream that this file exports and what its data means
  */
-const { from, shareReplay } = require('rxjs')
-const {
+import { from, shareReplay } from 'rxjs';
+import {
   map,
   filter,
   reduce,
@@ -11,19 +11,19 @@ const {
   take,
   repeat,
   share,
-} = require('rxjs/operators')
-const Municipality = require('../lib/municipality.js')
-const Position = require('../lib/models/position.js')
-const data = require('../data/municipalities.json')
-const population = require('./population.js')
-const packageVolumes = require('./packageVolumes.js')
-const postombud = require('./postombud.js')
-const inside = require('point-in-polygon')
-const Pelias = require('../lib/pelias.js')
-const { getCitizensInSquare } = require('../simulator/citizens.js')
-const { getAddressesInArea } = require('../simulator/address.js')
-const { municipalities } = require('../config/index.js')
-const commercialAreas = from(require('../data/scb_companyAreas.json').features)
+} from 'rxjs/operators';
+import Municipality from '../lib/municipality.js';
+import Position from '../lib/models/position.js';
+import data from '../data/municipalities.json';
+import population from './population.js';
+import packageVolumes from './packageVolumes.js';
+import postombud from './postombud.js';
+import inside from 'point-in-polygon';
+import Pelias from '../lib/pelias.js';
+import { getCitizensInSquare } from '../simulator/citizens.js';
+import { getAddressesInArea } from '../simulator/address.js';
+import { municipalities } from '../config/index.js';
+const commercialAreas = from(require('../data/scb_companyAreas.json').features);
 
 const activeMunicipalities = municipalities()
 
@@ -65,7 +65,7 @@ async function getWorkplaces(position, nrOfWorkplaces = 100) {
 }
 
 // function read() {
-function read({ fleets }) {
+function read({ fleets }: { fleets: any }) {
   return from(data).pipe(
     filter(({ namn }) =>
       activeMunicipalities.some((name) => namn.startsWith(name))
@@ -146,4 +146,4 @@ function read({ fleets }) {
   )
 }
 
-module.exports = { read }
+export { read };
