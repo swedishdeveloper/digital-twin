@@ -2,7 +2,7 @@ import { config } from 'dotenv'
 import { createServer, IncomingMessage, ServerResponse } from 'http'
 import { Server } from 'socket.io'
 import { env } from 'process'
-import * as routes from './routes'
+import { register } from './routes'
 
 config()
 
@@ -27,4 +27,4 @@ server.listen(port, () => {
   console.log(`Server running on port ${port}`)
 })
 
-routes.register(io)
+register(io)
