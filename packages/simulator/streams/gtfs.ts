@@ -1,14 +1,14 @@
-import fs from 'fs';
-import path from 'path';
-import AdmZip from 'adm-zip';
-import fetch from 'node-fetch';
-import { shareReplay, Observable } from 'rxjs';
-import { map, toArray, groupBy, mergeMap, filter } from 'rxjs/operators';
-import csv from 'csv-stream';
-import Position from '../lib/models/position';
-import { info, error, debug } from '../lib/log';
+import fs from 'fs'
+import path from 'path'
+import AdmZip from 'adm-zip'
+import { shareReplay, Observable } from 'rxjs'
+import { map, toArray, groupBy, mergeMap, filter } from 'rxjs/operators'
+import csv from 'csv-stream'
+import { info, error, debug } from '../lib/log'
+import Position from '../models/Position'
 
-const key: string = process.env.TRAFIKLAB_KEY || '62262314de784de6847954de884334f1'; // Fallback key used for development.
+const key: string =
+  process.env.TRAFIKLAB_KEY || '62262314de784de6847954de884334f1' // Fallback key used for development.
 
 const MONTH = 1000 * 60 * 60 * 24 * 30
 
@@ -16,37 +16,40 @@ const downloadIfNotExists = (operator: string): Promise<string> => {
   const zipFile = path.join(__dirname, `../data/${operator}.zip`)
   return new Promise((resolve, reject) => {
     const url = `https://opendata.samtrafiken.se/gtfs/${operator}/${operator}.zip?key=${key}`
-    const zipFileAge =
-      fs.existsSync(zipFile) ? Date.now() - fs.statSync(zipFile).mtimeMs : null;
-    const zipFileSize = fs.existsSync(zipFile) ? fs.statSync(zipFile).size : 0;
+    const zipFileAge = fs.existsSync(zipFile)
+      ? Date.now() - fs.statSync(zipFile).mtimeMs
+      : null
+    const zipFileSize = fs.existsSync(zipFile) ? fs.statSync(zipFile).size : 0
     if (
       !fs.existsSync(zipFile) ||
       zipFileSize < 5000 ||
       (zipFileAge !== null && zipFileAge > 1 * MONTH)
     ) {
-      const stream = fs.createWriteStream(zipFile);
-      info('Downloading GTFS', url);
+      const stream = fs.createWriteStream(zipFile)
+      info('Downloading GTFS', url)
       fetch(url)
         .then((res) =>
           res.body
             .pipe(stream)
             .on('finish', () => {
-              info('Downloaded GTFS');
-              resolve(zipFile);
+              info('Downloaded GTFS')
+              resolve(zipFile)
             })
             .on('error', (err) => {
-              error('Error downloading GTFS', err);
-              reject(err);
+              error('Error downloading GTFS', err)
+              reject(err)
             })
         )
-        .catch((err) => error('Error fetching GTFS', err) || reject(err));
+        .catch((err) => error('Error fetching GTFS', err) || reject(err))
     } else {
-      resolve(zipFile);
+      resolve(zipFile)
     }
   })
 }
 
-const downloadAndExtractIfNotExists = (operator: string): Promise<string | void> => {
+const downloadAndExtractIfNotExists = (
+  operator: string
+): Promise<string | void> => {
   return downloadIfNotExists(operator)
     .then((zipFile) => {
       try {
@@ -209,11 +212,11 @@ function gtfs(operator: string) {
     const month = now.getMonth()
     const day = now.getDate()
     const regex = /^(\d{2}):(\d{2}):(\d{2})$/
-    const match = time.match(regex);
+    const match = time.match(regex)
     if (!match) {
-      throw new Error(`Invalid time format: ${time}`);
+      throw new Error(`Invalid time format: ${time}`)
     }
-    const [, hour, minute, second] = match;
+    const [, hour, minute, second] = match
 
     // hours can be above 24 therefore we use the internal Date constructor
     // which handles this and shifts the date accordingly- ie 2023-04-01 25:00:00 -> 2023-04-02 01:00:00
