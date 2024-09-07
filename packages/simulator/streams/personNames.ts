@@ -1,4 +1,4 @@
-const {
+import {
   from,
   repeat,
   map,
@@ -7,18 +7,21 @@ const {
   toArray,
   pipe,
   mergeAll,
-} = require('rxjs')
-const fornamn = require('../data/svenska_tilltalsnamn_2021.json').data
-const efternamn = require('../data/svenska_efternamn_2021.json').data
+} from 'rxjs';
+import fornamnData from '../data/svenska_tilltalsnamn_2021.json';
+import efternamnData from '../data/svenska_efternamn_2021.json';
 
-const shuffle = () =>
+const fornamn: string[] = fornamnData.data;
+const efternamn: string[] = efternamnData.data;
+
+const shuffle = (): any =>
   pipe(
     toArray(),
     map((names) => names.sort(() => Math.random() - 0.5)), // shuffle the names
     mergeAll()
   )
 
-const zipfDistribution = () =>
+const zipfDistribution = (): any =>
   pipe(
     map((name, i) => ({
       name,
@@ -32,22 +35,22 @@ const zipfDistribution = () =>
  *
  * @returns stream of names
  */
-const weightedRandom = () =>
+const weightedRandom = (): any =>
   pipe(
     filter(({ frequency }) => frequency > Math.random()),
     map(({ name }) => name)
   )
 
-const toToTitleCase = (str) =>
+const toToTitleCase = (str: string): string =>
   str
     .split(' ')
     .map((word) => word.charAt(0).toUpperCase() + word.substr(1).toLowerCase())
     .join(' ')
 
-const randomFirstName = () =>
+const randomFirstName = (): any =>
   from(fornamn).pipe(zipfDistribution(), shuffle(), weightedRandom())
 
-const randomLastName = () =>
+const randomLastName = (): any =>
   from(efternamn).pipe(
     zipfDistribution(),
     shuffle(),
@@ -55,7 +58,7 @@ const randomLastName = () =>
     map((name) => toToTitleCase(name))
   )
 
-const randomNames = zip(randomFirstName(), randomLastName()).pipe(
+const randomNames: any = zip(randomFirstName(), randomLastName()).pipe(
   map(([firstName, lastName]) => ({
     firstName,
     lastName,
@@ -64,6 +67,6 @@ const randomNames = zip(randomFirstName(), randomLastName()).pipe(
   repeat()
 )
 
-module.exports = {
+export {
   randomNames,
 }
