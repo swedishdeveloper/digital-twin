@@ -19,10 +19,13 @@ interface Cluster {
 }
 
 const clusterPositions = (input: Input[], nrOfClusters: number = 5): Promise<Cluster[]> => {
-  const vectors = input.map(({ pickup, position = pickup.position }) => [
-    position.lon,
-    position.lat,
-  ])
+  const vectors = input.map(({ pickup, position }) => {
+    const pos = position || pickup?.position;
+    if (!pos) {
+      throw new Error('Position is undefined');
+    }
+    return [pos.lon, pos.lat];
+  });
   info('Clustering', vectors.length, 'positions into', nrOfClusters, 'clusters')
   assert(
     vectors.length < 301,
