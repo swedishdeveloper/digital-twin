@@ -1,25 +1,35 @@
-const fetch = require('node-fetch')
-const polyline = require('polyline')
+import fetch from 'node-fetch';
+import polyline from 'polyline';
 const osrmUrl =
   // eslint-disable-next-line no-undef
   process.env.OSRM_URL ||
   'https://osrm.telge.iteam.pub' ||
   'http://localhost:5000'
-const { warn, write } = require('./log')
+import { warn, write } from './log';
 
-const decodePolyline = function (geometry) {
+const decodePolyline = function (geometry: string): { lat: number; lon: number }[] {
   return polyline.decode(geometry).map((point) => ({
     lat: point[0],
     lon: point[1],
   }))
 }
 
-const encodePolyline = function (geometry) {
+const encodePolyline = function (geometry: { lat: number; lon: number }[]): string {
   return polyline.encode(geometry.map(({ lat, lon }) => [lat, lon]))
 }
 
-module.exports = {
-  route(from, to) {
+interface Position {
+  lat: number;
+  lon: number;
+}
+
+interface Route {
+  geometry: { coordinates: Position[] };
+  duration: number;
+}
+
+export const osrm = {
+  route(from: Position, to: Position): Promise<Route | {}> {
     // http://{server}/route/v1/{profile}/{coordinates}?alternatives={true|false}&steps={true|false}&geometries={polyline|geojson}&overview={full|simplified|false}&annotations={true|false}
     const coordinates = [
       [from.lon, from.lat],
@@ -49,7 +59,7 @@ module.exports = {
         })
     )
   },
-  nearest(position) {
+  nearest(position: Position): Promise<any> {
     const coordinates = [position.lon, position.lat].join(',')
     const url = `${osrmUrl}/nearest/v1/driving/${coordinates}`
     write('n')
@@ -64,7 +74,7 @@ module.exports = {
 
     return promise
   },
-  match(positions) {
+  match(positions: { position: Position; date: Date }[]): Promise<any> {
     const coordinates = positions
       .map((pos) => [pos.position.lon, pos.position.lat].join(','))
       .join(';')
@@ -83,4 +93,4 @@ module.exports = {
   },
   decodePolyline,
   encodePolyline,
-}
+};
