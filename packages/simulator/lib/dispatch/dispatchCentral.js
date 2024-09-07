@@ -1,5 +1,5 @@
-const { mergeAll, from } = require('rxjs')
-const {
+import { mergeAll, from, Observable } from 'rxjs';
+import {
   tap,
   filter,
   delay,
@@ -8,32 +8,42 @@ const {
   bufferTime,
   retryWhen,
   toArray,
-} = require('rxjs/operators')
-const { info, error, warn, debug } = require('../log')
-const { clusterPositions } = require('../kmeans')
+} from 'rxjs/operators';
+import { info, error, warn, debug } from '../log';
+import { clusterPositions } from '../kmeans';
 
-const dispatch = (cars, bookings) => {
+interface Car {
+  id: string;
+  fleet: { name: string };
+  handleBooking: (booking: Booking) => Promise<void>;
+}
+
+interface Booking {
+  car?: Car;
+}
+
+const dispatch = (cars: Observable<Car>, bookings: Observable<Booking>): Observable<void> => {
   return cars.pipe(
     toArray(),
-    tap((cars) => info(`🚚 Dispatch ${cars.length} vehicles`)),
-    tap((cars) => {
+    tap((cars: Car[]) => info(`🚚 Dispatch ${cars.length} vehicles`)),
+    tap((cars: Car[]) => {
       if (!cars.length) {
         warn('Fleet has no cars, dispatch is not possible.')
       }
     }),
-    filter((cars) => cars.length > 0), // TODO: Move this check to the caller.
-    tap((cars) => {
+    filter((cars: Car[]) => cars.length > 0), // TODO: Move this check to the caller.
+    tap((cars: Car[]) => {
       const fleet = cars[0].fleet.name
       info(`🚚 Dispatch ${cars.length} vehicles in ${fleet}`)
     }),
     filter((cars) => cars.length > 0),
-    mergeMap((cars) =>
+    mergeMap((cars: Car[]) =>
       bookings.pipe(
-        filter((booking) => !booking.car),
+        filter((booking: Booking) => !booking.car),
         bufferTime(5000, null, 300),
         filter((b) => b.length > 0),
         //mergeMap((bookings) => getVroomPlan(cars, bookings)),
-        mergeMap(async (bookings) => {
+        mergeMap(async (bookings: Booking[]) => {
           if (bookings.length < cars.length) {
             return [
               {
@@ -47,37 +57,43 @@ const dispatch = (cars, bookings) => {
             `Clustering ${bookings.length} bookings into ${cars.length} cars`
           )
           const clusters = await clusterPositions(bookings, cars.length)
-          return clusters.map(({ items: bookings }, i) => ({
+          return clusters.map(({ items: bookings }: { items: Booking[] }, i: number) => ({
             car: cars[i],
             bookings,
           }))
         }),
-        catchError((err) => error('cluster err', err)),
+        catchError((err: any) => {
+          error('cluster err', err);
+          return [];
+        }),
         mergeAll(),
-        filter(({ bookings }) => bookings.length > 0),
-        tap(({ car, bookings }) =>
+        filter(({ bookings }: { bookings: Booking[] }) => bookings.length > 0),
+        tap(({ car, bookings }: { car: Car; bookings: Booking[] }) =>
           debug(
             `Plan ${car.id} (${car.fleet.name}) received ${bookings.length} bookings`
           )
         ),
-        mergeMap(({ car, bookings }) =>
+        mergeMap(({ car, bookings }: { car: Car; bookings: Booking[] }) =>
           from(bookings).pipe(
-            mergeMap((booking) => car.handleBooking(booking), 1)
+            mergeMap((booking: Booking) => car.handleBooking(booking), 1)
           )
         ),
         // tap((bookings) => info('dispatched', bookings)),
-        retryWhen((errors) =>
+        retryWhen((errors: Observable<any>) =>
           errors.pipe(
-            tap((err) => error('dispatch error, retrying in 1s...', err)),
+            tap((err: any) => error('dispatch error, retrying in 1s...', err)),
             delay(1000)
           )
         )
       )
     ),
-    catchError((err) => error('dispatchCentral -> dispatch', err))
+    catchError((err: any) => {
+      error('dispatchCentral -> dispatch', err);
+      return [];
+    })
   )
 }
 
-module.exports = {
+export {
   dispatch,
 }
