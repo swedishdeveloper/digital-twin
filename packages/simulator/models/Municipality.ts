@@ -13,22 +13,7 @@ import Fleet from '../lib/fleet'
 import { error } from '../log'
 import { searchOne } from '../pelias'
 
-interface MunicipalityArgs {
-  geometry: any
-  name: string
-  id: string
-  packageVolumes: any
-  email: string
-  zip: string
-  center: any
-  telephone: string
-  postombud: any
-  population: number
-  recycleCollectionPoints: any
-  citizens: any
-  squares: any
-  fleets: any
-}
+import { MunicipalityData as MunicipalityArgs } from '../../../types/MunicipalityData';
 
 class Municipality {
   squares: any

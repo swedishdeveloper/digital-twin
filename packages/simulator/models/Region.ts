@@ -80,19 +80,9 @@ class Region {
   unhandledBookings: Observable<Booking>
   dispatchedBookings: Observable<Booking>
 
-  constructor({
-    id,
-    name,
-    geometry,
-    stops,
-    municipalities,
-  }: {
-    id: string
-    name: string
-    geometry: any
-    stops: Observable<Stop>
-    municipalities: Observable<Municipality>
-  }) {
+import { RegionData } from '../../../types/RegionData';
+
+  constructor({ id, name, geometry, stops, municipalities }: RegionData) {
     this.id = id
     this.geometry = geometry
     this.name = name
