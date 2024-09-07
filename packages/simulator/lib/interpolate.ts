@@ -36,15 +36,7 @@ function interpolatePositionFromRoute(
       remainingPoints: [],
       skippedPoints: [],
     }
-  } : {
-      lat: lastPoint.position.lat,
-      lon: lastPoint.position.lon,
-      speed: 0,
-      instruction: lastPoint,
-      next: null,
-      remainingPoints,
-      skippedPoints: [],
-    };
+  }
 
   const futurePoints: Point[] = remainingPointsInRoute.filter(
     (point) => (point.passed || 0) + point.duration > timeSinceRouteStarted
