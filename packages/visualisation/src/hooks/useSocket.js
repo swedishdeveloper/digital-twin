@@ -1,35 +1,37 @@
-import { useContext, useEffect, useRef } from 'react'
-import { SocketIOContext } from '../context/socketIOContext'
+import { useContext, useEffect, useRef } from 'react';
+import { SocketIOContext } from '../context/socketIOContext';
 
-export const useSocket = (eventKey, callback) => {
-  const socket = useContext(SocketIOContext)
-  const callbackRef = useRef(callback)
+type Callback = (...args: any[]) => void;
 
-  callbackRef.current = callback
+export const useSocket = (eventKey: string, callback: Callback) => {
+  const socket = useContext(SocketIOContext);
+  const callbackRef = useRef<Callback>(callback);
 
-  const socketHandlerRef = useRef(function () {
+  callbackRef.current = callback;
+
+  const socketHandlerRef = useRef<Callback>(function (...args: any[]) {
     if (callbackRef.current) {
-      callbackRef.current.apply(this, arguments)
+      callbackRef.current.apply(this, args);
     }
-  })
+  });
 
   useEffect(() => {
     const subscribe = () => {
       if (eventKey) {
-        socket.on(eventKey, socketHandlerRef.current)
+        socket.on(eventKey, socketHandlerRef.current);
       }
-    }
+    };
 
     const unsubscribe = () => {
       if (eventKey) {
-        socket.removeListener(eventKey, socketHandlerRef.current)
+        socket.removeListener(eventKey, socketHandlerRef.current);
       }
-    }
+    };
 
-    subscribe()
+    subscribe();
 
-    return unsubscribe
-  }, [eventKey, socket])
+    return unsubscribe;
+  }, [eventKey, socket]);
 
-  return { socket }
-}
+  return { socket };
+};
