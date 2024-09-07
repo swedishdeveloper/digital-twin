@@ -5,6 +5,11 @@ interface SocketContextType {
   socket: Socket
 }
 
-const SocketIOContext: Context<SocketContextType> = createContext({})
+const SocketIOContext: Context<SocketContextType> = createContext({
+  socket: {
+    on: () => {},
+    emit: () => {},
+  } as unknown as Socket,
+})
 
 export { SocketIOContext }
