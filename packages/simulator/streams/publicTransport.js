@@ -14,7 +14,7 @@ import {
 import { error } from '../lib/log';
 
 const reduceMap = (idProp: string = 'id') =>
-  pipe(reduce((map: Map<any, any>, item: any) => map.set(item[idProp], item), new Map<any, any>()));
+  pipe(reduce((map: Map<string, any>, item: any) => map.set(item[idProp], item), new Map<string, any>()));
 
 const addProp = (prop: string, fn: (item: any) => any) =>
   pipe(
@@ -26,6 +26,21 @@ const addProp = (prop: string, fn: (item: any) => any) =>
   );
 
 async function getStopsForDate(date: string, operator: string): Promise<Observable<any>> {
+  const {
+    stops,
+    busStops,
+    trips,
+    serviceDates,
+    routeNames,
+    excludedLineNumbers,
+  }: {
+    stops: Observable<any>,
+    busStops: Observable<any>,
+    trips: Observable<any>,
+    serviceDates: Observable<any>,
+    routeNames: Observable<any>,
+    excludedLineNumbers: Observable<any>
+  } = gtfs(operator);
   const {
     stops,
     busStops,
@@ -64,7 +79,7 @@ async function getStopsForDate(date: string, operator: string): Promise<Observab
   )
 }
 
-function publicTransport(operator: string) {
+function publicTransport(operator: string): { stops: Observable<any> } {
   // stop_times.trip_id -> trips.service_id -> calendar_dates.service_id
   const todaysDate = moment().format('YYYYMMDD')
 
