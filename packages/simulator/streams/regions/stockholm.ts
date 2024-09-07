@@ -1,23 +1,23 @@
-const { stops } = require('../publicTransport')('sl')
-const { filter, shareReplay } = require('rxjs')
-const Region = require('../../lib/region')
+import { stops } from '../publicTransport';
+import { filter, shareReplay } from 'rxjs';
+import Region from '../../lib/region';
 
-const includedMunicipalities = ['Södertälje municipality']
+const includedMunicipalities = ['Södertälje municipality'];
 
-const stockholm = (municipalitiesStream) => {
+const stockholm = (municipalitiesStream: any) => {
   const municipalities = municipalitiesStream.pipe(
-    filter((municipality) =>
+    filter((municipality: any) =>
       includedMunicipalities.includes(municipality.name)
     ),
     shareReplay()
-  )
+  );
 
   return new Region({
     id: 'stockholm',
     name: 'Stockholm',
     municipalities: municipalities,
     stops,
-  })
+  });
 }
 
-module.exports = stockholm
+export default stockholm;
