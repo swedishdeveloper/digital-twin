@@ -58,7 +58,7 @@ function emitCars(socket: Socket) {
 export const register = (experiment: Experiment, socket: Socket): any[] => {
   return [
     experiment.cars
-      .pipe(map((vehicle) => vehicle.toJson()))
+      .pipe(map((vehicle) => (vehicle as Vehicle).toJson()))
       .subscribe((car) => {
         socket.emit('cars', [car])
       }),
@@ -66,7 +66,7 @@ export const register = (experiment: Experiment, socket: Socket): any[] => {
       .pipe(
         EmitOneVehiclePer(100),
         filter(filterCars(socket.data)),
-        map(toJsonWithExperimentId(experiment)),
+        map((vehicle) => toJsonWithExperimentId(experiment)(vehicle as Vehicle)),
         bufferTime(100, null, 100)
       )
       .subscribe(emitCars(socket)),
