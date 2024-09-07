@@ -9,21 +9,7 @@ interface SocketContextType {
   socket: SocketType
 }
 
-const defaultSocketContext: SocketContextType = {
-  socket: {
-    on: () => {
-      throw new Error('SocketIOContext not found')
-    },
-    emit: () => {
-      throw new Error('SocketIOContext not found')
-    },
-  },
-}
-
-const SocketIOContext: Context<SocketContextType> =
-  createContext(defaultSocketContext)
-
-const SocketIOContext = createContext({
+const SocketIOContext: Context<SocketContextType> = createContext({
   socket: {
     on: () => {
       throw new Error('SocketIOContext not found')
