@@ -1,7 +1,5 @@
-import { Subject, mergeMap, catchError, from } from 'rxjs'
+import { Subject, mergeMap, catchError, from, Subscription } from 'rxjs'
 import { debug, error } from './log'
-
-const API_CALL_LIMIT = 10
 
 interface QueueItem {
   fn: () => Promise<any>
@@ -9,44 +7,56 @@ interface QueueItem {
   reject: (reason?: any) => void
 }
 
-const queueSubject = new Subject<QueueItem>()
+class Queue {
+  private queueSubject: Subject<QueueItem>
+  private queueLength: number
+  private subscription: Subscription
 
-let queueLength = 0
+  constructor(private apiCallLimit: number = 10) {
+    this.queueSubject = new Subject<QueueItem>()
+    this.queueLength = 0
+    this.subscription = this.queueSubject
+      .pipe(
+        mergeMap(
+          ({ fn, resolve, reject }) =>
+            from(fn()).pipe(
+              mergeMap((result) => {
+                this.queueLength--
+                debug('queueLength', this.queueLength)
+                resolve(result)
+                return []
+              }),
+              catchError((err) => {
+                this.queueLength--
+                error('error queue', err, this.queueLength)
+                reject(err)
+                return []
+              })
+            ),
+          this.apiCallLimit
+        )
+      )
+      .subscribe()
+  }
 
-function queue(fn: () => Promise<any>): Promise<any> {
-  queueLength++
-  return new Promise<any>((resolve, reject) => {
-    queueSubject.next({
-      fn,
-      resolve,
-      reject,
+  public enqueue(fn: () => Promise<any>): Promise<any> {
+    this.queueLength++
+    return new Promise<any>((resolve, reject) => {
+      this.queueSubject.next({
+        fn,
+        resolve,
+        reject,
+      })
     })
-  })
-}
-// Hantera köade anrop med RxJS
-queueSubject
-  .pipe(
-    // Begränsa antalet samtidiga anrop med mergeMap
-    mergeMap(
-      ({ fn, resolve, reject }) =>
-        from(fn()).pipe(
-          // Hantera lyckade anrop och fel
-          mergeMap((result) => {
-            queueLength--
-            debug('queueLength', queueLength)
-            resolve(result)
-            return []
-          }),
-          catchError((err) => {
-            queueLength--
-            error('error queue', err, queueLength)
-            reject(err)
-            return []
-          })
-        ),
-      API_CALL_LIMIT
-    )
-  )
-  .subscribe()
+  }
 
-export default queue
+  public getQueueLength(): number {
+    return this.queueLength
+  }
+
+  public unsubscribe(): void {
+    this.subscription.unsubscribe()
+  }
+}
+
+export default Queue
