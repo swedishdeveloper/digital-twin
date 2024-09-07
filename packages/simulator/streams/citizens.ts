@@ -1,14 +1,20 @@
-const { take, map, filter, mergeAll } = require('rxjs/operators')
-const { randomNames } = require('./personNames')
-const Citizen = require('../lib/models/citizen')
-const { from, zip } = require('rxjs')
-const { getAddressesInArea } = require('./address')
+import { take, map, filter, mergeAll } from 'rxjs/operators';
+import { randomNames } from './personNames';
+import Citizen from '../lib/models/citizen';
+import { from, zip } from 'rxjs';
+import { getAddressesInArea } from './address';
+
+interface Square {
+  position: any;
+  area: any;
+  population: number;
+}
 
 const getCitizensInSquare = (
-  { position, area, population },
-  workplaces,
-  municipalityName
-) => {
+  { position, area, population }: Square,
+  workplaces: any,
+  municipalityName: string
+): any => {
   const nrOfCitizens = Math.floor(population * 0.01) // sample x% of the population
   if (nrOfCitizens === 0) return from([])
   const addresses = from(getAddressesInArea(position, area, nrOfCitizens)).pipe(
@@ -37,6 +43,4 @@ const getCitizensInSquare = (
   )
 }
 
-module.exports = {
-  getCitizensInSquare,
-}
+export { getCitizensInSquare };
