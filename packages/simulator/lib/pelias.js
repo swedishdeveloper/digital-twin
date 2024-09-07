@@ -1,11 +1,6 @@
 import fetch from 'node-fetch';
 import { info, error, write } from './log';
 import Position from './models/position';
-
-interface Position {
-  lon: number;
-  lat: number;
-}
 const peliasUrl = process.env.PELIAS_URL || 'https://pelias.telge.iteam.pub'
 
 info('Pelias URL', peliasUrl)
@@ -84,10 +79,10 @@ const search = (name: string, near: Position | null = null, layers: string = 'ad
 const cache = new Map()
 
 const searchOne = async (name: string, near: Position | null = null, layers: string = 'address,venue'): Promise<any> => {
-  const cacheKey = !near && name + layers
+  const cacheKey = !near ? name + layers : null;
   if (cacheKey && cache.has(cacheKey)) return cache.get(cacheKey)
   const results = await search(name, near, layers, 1)
-  if (cacheKey) cache.set(cacheKey, results[0])
+  if (cacheKey && results.length > 0) cache.set(cacheKey, results[0]);
   return results[0]
 }
 
