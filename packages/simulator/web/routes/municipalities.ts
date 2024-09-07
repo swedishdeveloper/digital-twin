@@ -1,4 +1,4 @@
-const {
+import {
   pipe,
   map,
   filter,
@@ -8,11 +8,19 @@ const {
   startWith,
   combineLatest,
   throttleTime,
-} = require('rxjs')
+} from 'rxjs';
 
-const count = () => pipe(scan((acc) => acc + 1, 0))
+interface Experiment {
+  municipalities: any;
+}
 
-const register = (experiment, socket) => {
+interface Socket {
+  emit: (event: string, data: any) => void;
+}
+
+const count = () => pipe(scan((acc: number) => acc + 1, 0));
+
+const register = (experiment: Experiment, socket: Socket) => {
   return [
     experiment.municipalities
       .pipe(
