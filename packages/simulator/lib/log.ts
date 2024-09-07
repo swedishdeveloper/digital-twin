@@ -22,9 +22,9 @@ const print = (
 ): void => {
   if (data) {
     logFn(
-      titleFn(title),
-      messageFn(message),
-      data instanceof Error ? data : JSON.stringify(data, null, 2),
+      titleFn(`[${title}]`),
+      messageFn(`- ${message}`),
+      data instanceof Error ? `\n${data.stack}` : `\n${JSON.stringify(data, null, 2)}`,
       ...rest
     )
   } else {
