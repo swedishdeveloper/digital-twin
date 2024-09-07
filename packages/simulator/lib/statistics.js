@@ -22,6 +22,28 @@ interface Booking {
   };
 }
 
+interface Experiment {
+  // Define the structure of the experiment object
+}
+
+interface Position {
+  lon: number;
+  lat: number;
+}
+
+interface Booking {
+  toObject(): object;
+  passenger?: {
+    toObject(): object;
+  };
+  pickup: {
+    position: Position;
+  };
+  destination: {
+    position: Position;
+  };
+}
+
 class Statistics {
   static collectExperimentMetadata(experiment: Experiment): Promise<any> {
     return save(experiment, 'experiments');
