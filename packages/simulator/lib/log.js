@@ -1,12 +1,12 @@
 import chalk from 'chalk';
 import { ReplaySubject } from 'rxjs';
 
-const LOG_LEVEL: string = process.env.LOG_LEVEL || 'info';
+const LOG_LEVEL = process.env.LOG_LEVEL || 'info';
 
-const logLevelIsAtLeastDebug: boolean = LOG_LEVEL.toUpperCase() === 'DEBUG';
-const logLevelIsAtLeastInfo: boolean =
+const logLevelIsAtLeastDebug = LOG_LEVEL.toUpperCase() === 'DEBUG';
+const logLevelIsAtLeastInfo =
   LOG_LEVEL.toUpperCase() === 'INFO' || logLevelIsAtLeastDebug;
-const logLevelIsAtLeastWarn: boolean =
+const logLevelIsAtLeastWarn =
   LOG_LEVEL.toUpperCase() === 'WARN' || logLevelIsAtLeastInfo;
 
 const logStream = new ReplaySubject<string>(10);
@@ -19,7 +19,7 @@ const print = (
   message: string,
   data?: any,
   ...rest: any[]
-) => {
+): void => {
   if (data) {
     logFn(
       titleFn(title),
