@@ -20,12 +20,12 @@ const {
   shareReplay,
   first,
 } = require('rxjs/operators')
-const { busDispatch } = require('./dispatch/busDispatch')
+const { busDispatch } = require('../lib/dispatch/busDispatch')
 const { isInsideCoordinates } = require('../lib/polygon')
-const { clusterPositions } = require('./kmeans')
-const { haversine } = require('./distance')
-const { taxiDispatch } = require('./dispatch/taxiDispatch')
-const { error, info } = require('./log')
+const { clusterPositions } = require('../lib/kmeans')
+const { haversine } = require('../lib/distance')
+const { taxiDispatch } = require('../lib/dispatch/taxiDispatch')
+const { error, info } = require('../lib/log')
 const Booking = require('./models/booking')
 
 const flattenProperty = (property) => (stream) =>
