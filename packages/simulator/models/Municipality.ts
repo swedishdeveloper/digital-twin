@@ -8,12 +8,14 @@ import {
   filter,
   catchError,
   first,
+  Observable,
 } from 'rxjs'
-import Fleet from '../lib/fleet'
-import { error } from '../log'
-import { searchOne } from '../pelias'
-
-import { MunicipalityData as MunicipalityArgs } from '../../../types/MunicipalityData';
+import Vehicle from './vehicles/Vehicle'
+import RecycleTruck from './vehicles/RecycleTruck'
+import Citizen from './Citizen'
+import Booking from './Booking'
+import Fleet from './Fleet'
+import { searchOne } from '../lib/pelias'
 
 class Municipality {
   squares: any
@@ -23,20 +25,19 @@ class Municipality {
   email: string
   zip: string
   center: any
+  co2: number
   telephone: string
-  postombud: any
-  recycleCollectionPoints: any
   packageVolumes: any
   busesPerCapita: number
   population: number
-  privateCars: ReplaySubject<any>
-  unhandledBookings: Subject<any>
-  co2: number
-  citizens: any
-  fleets: any
-  buses: any
-  recycleTrucks: any
-  dispatchedBookings: any
+  privateCars: ReplaySubject<Vehicle>
+  unhandledBookings: Subject<Booking>
+  recycleCollectionPoints: any
+  citizens: Observable<Citizen>
+  fleets: Observable<Fleet>
+  buses: Observable<Vehicle>
+  recycleTrucks: Observable<RecycleTruck>
+  dispatchedBookings: Observable<Booking>
   cars: any
 
   constructor({
@@ -48,13 +49,12 @@ class Municipality {
     zip,
     center,
     telephone,
-    postombud,
     population,
     recycleCollectionPoints,
     citizens,
     squares,
     fleets,
-  }: MunicipalityArgs) {
+  }: Municipality) {
     this.squares = squares
     this.geometry = geometry
     this.name = name
@@ -63,7 +63,6 @@ class Municipality {
     this.zip = zip
     this.center = center
     this.telephone = telephone
-    this.postombud = postombud
     this.recycleCollectionPoints = recycleCollectionPoints
     this.packageVolumes = packageVolumes
     this.busesPerCapita = 100 / 80_000
@@ -75,7 +74,7 @@ class Municipality {
     this.citizens = citizens
 
     this.fleets = from(fleets).pipe(
-      mergeMap(async (fleet) => {
+      mergeMap(async (fleet: Fleet) => {
         const hub = fleet.hubAddress
           ? await searchOne(fleet.hubAddress)
               .then((r) => r.position)
@@ -113,9 +112,8 @@ class Municipality {
             mergeMap((fleet) => fleet.handleBooking(booking))
           )
         ),
-        catchError((err) => {
+        catchError(async (err) => {
           error('municipality dispatchedBookings err', err)
-          return []
         })
       )
     )

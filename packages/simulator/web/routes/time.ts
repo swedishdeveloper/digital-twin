@@ -1,6 +1,8 @@
-const { throttleTime } = require('rxjs')
+import { Socket } from 'socket.io'
+import { Experiment } from '../../../../types/Experiment'
+import { throttleTime } from 'rxjs'
 
-const register = (experiment, socket) => {
+const register = (experiment: Experiment, socket: Socket) => {
   const virtualTime = experiment.virtualTime
 
   socket.on('reset', () => {

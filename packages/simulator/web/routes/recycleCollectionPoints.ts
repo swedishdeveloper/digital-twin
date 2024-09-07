@@ -1,6 +1,8 @@
-const { toArray } = require('rxjs')
+import { toArray } from 'rxjs'
+import { Experiment } from '../../../../types/Experiment'
+import { Socket } from 'socket.io'
 
-const register = (experiment, socket) => {
+const register = (experiment: Experiment, socket: Socket) => {
   return [
     experiment.recycleCollectionPoints
       .pipe(toArray())

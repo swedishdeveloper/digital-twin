@@ -1,19 +1,14 @@
-import { from, share } from 'rxjs'
+import { from, Observable, share } from 'rxjs'
 import stockholm from './stockholm'
+import Region from '../../models/Region'
 
 const regions = {
   stockholm,
 }
 
-export default (municipalitiesStream) => {
-  return from(
-    Object.entries(regions)
-      .filter(
-        ([region]) =>
-          process.env.REGIONS?.includes(region) ||
-          process.env.REGIONS === '*' ||
-          !process.env.REGIONS
-      )
-      .map(([, region]) => region(municipalitiesStream))
-  ).pipe(share())
+export function createRegions({ municipalities }): Observable<Region> {
+  return from(Object.values(regions)).pipe(
+    map((region) => region(municipalities)),
+    share()
+  )
 }

@@ -4,6 +4,6 @@ export interface BookingData {
   sender?: string;
   passenger?: any;
   type?: string;
-  pickup?: { position: Position };
+  pickup: { departureTime?: Date, position: Position };
   destination?: any;
 }

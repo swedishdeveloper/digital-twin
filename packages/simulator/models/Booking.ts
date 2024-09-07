@@ -3,7 +3,8 @@ import { safeId } from '../../lib/id'
 
 import { ReplaySubject, merge } from 'rxjs'
 
-import { BookingData } from '../../../types/BookingData';
+import { BookingData } from '../../../types/BookingData'
+import Position from './position'
 
 class Booking {
   id: string
@@ -15,7 +16,7 @@ class Booking {
   distance: number
   weight: number
   position: any
-  pickup?: { departureTime?: Date; position: Position }
+  pickup: { departureTime?: Date; position: Position }
   destination?: { arrivalTime?: Date; position: Position }
   queuedEvents: ReplaySubject<any>
   pickedUpEvents: ReplaySubject<any>
@@ -39,8 +40,9 @@ class Booking {
       }-` + safeId()
     this.status = 'New'
     this.co2 = 0 //TODO: initialvärde?
+    this.pickup = booking.pickup
     this.passenger = booking.passenger
-    this.type = booking.type
+    this.type = booking.type || 'parcel'
     this.cost = 0 // startkostnad?
     this.distance = 0 //TODO: räkna med sträcka innan?
     this.weight = Math.random() * 10 // kg TODO: find reference kg // TODO: passagerare väger mer..
@@ -96,8 +98,7 @@ class Booking {
     position: any,
     date: Promise<number> = virtualTime.getTimeInMillisecondsAsPromise()
   ): Promise<void> {
-    date = await date
-    this.pickupDateTime = date
+    this.pickupDateTime = await date
     this.pickupPosition = position
     this.status = 'Picked up'
     this.pickedUpEvents.next(this)
@@ -107,10 +108,9 @@ class Booking {
     position: any,
     date: Promise<number> = virtualTime.getTimeInMillisecondsAsPromise()
   ): Promise<void> {
-    date = await date
-    this.deliveredDateTime = date
+    this.deliveredDateTime = await date
     this.deliveredPosition = position
-    this.deliveryTime = (date - (this.assigned || this.queued)) / 1000
+    this.deliveryTime = ((await date) - (this.assigned || this.queued)) / 1000
     this.status = 'Delivered'
     this.deliveredEvents.next(this)
   }

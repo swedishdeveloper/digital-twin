@@ -1,17 +1,7 @@
 import { Subject, range, from, merge, of, firstValueFrom } from 'rxjs'
-import {
-  shareReplay,
-  mergeMap,
-  share,
-  catchError,
-  first,
-} from 'rxjs/operators'
-import { FleetConstructorArgs } from './FleetTypes';
-import { dispatch } from './dispatch/dispatchCentral'
-import RecycleTruck from './vehicles/recycleTruck'
-import Taxi from './vehicles/taxi'
-import Position from './models/position'
-import { error, debug, info } from './log'
+import { shareReplay, mergeMap, share, catchError, first } from 'rxjs/operators'
+import { FleetConstructorArgs } from './FleetTypes'
+import RecycleTruck from './vehicles/RecycleTruck'
 
 const vehicleTypes = {
   recycleTruck: {

@@ -1,4 +1,5 @@
-import { haversine } from '../../lib/distance'
+import { inherits } from 'util'
+import { haversine } from '../lib/distance'
 
 function convertPosition(pos: any): { lon: number; lat: number } {
   return {

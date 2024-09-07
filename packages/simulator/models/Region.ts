@@ -21,6 +21,7 @@ import Booking from './Booking'
 import Vehicle from './vehicles/Vehicle'
 import Citizen from './Citizen'
 import Municipality from './Municipality'
+import RecycleTruck from './vehicles/RecycleTruck'
 
 const flattenProperty = (property: string) => (stream: Observable<any>) =>
   stream.pipe(
@@ -64,15 +65,12 @@ class Region {
   id: string
   name: string
   geometry: any
-  trips: Observable<Booking>
-  stops: Observable<any>
-  lineShapes: Observable<any>
-  municipalities: Observable<any>
+  municipalities: Observable<Municipality>
   postombud: Observable<Booking>
   buses: Observable<Vehicle>
   cars: Observable<Vehicle>
   taxis: Observable<Vehicle>
-  recycleTrucks: Observable<Vehicle>
+  recycleTrucks: Observable<RecycleTruck>
   recycleCollectionPoints: Observable<Booking>
   citizens: Observable<Citizen>
   stopAssignments: Observable<any>
@@ -80,38 +78,11 @@ class Region {
   unhandledBookings: Observable<Booking>
   dispatchedBookings: Observable<Booking>
 
-import { RegionData } from '../../../types/RegionData';
-
-  constructor({ id, name, geometry, stops, municipalities }: RegionData) {
+  constructor({ id, name, geometry, municipalities }: Region) {
     this.id = id
     this.geometry = geometry
     this.name = name
-    this.trips = tripsInMunicipality(municipalities)(stops).pipe(shareReplay())
-    this.stops = this.trips.pipe(
-      mergeMap(({ municipality, stops }) =>
-        municipalities.pipe(
-          first(({ name }) => name === municipality, null),
-          mergeMap((municipality) => (municipality ? stops : of(null)))
-        )
-      )
-    )
-    this.lineShapes = this.trips.pipe(
-      map(
-        ({ tripId, stops, lineNumber, firstStop, lastStop, municipality }) => ({
-          tripId,
-          lineNumber,
-          from: firstStop.name,
-          to: lastStop.name,
-          municipality,
-          stops: stops.map(({ position }) => position),
-        })
-      )
-    )
     this.municipalities = municipalities
-
-    this.postombud = municipalities.pipe(
-      mergeMap((municipality) => municipality.postombud)
-    )
 
     this.buses = municipalities.pipe(
       map((municipality) => municipality.buses),

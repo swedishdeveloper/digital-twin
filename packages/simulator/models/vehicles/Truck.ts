@@ -1,25 +1,21 @@
-import { findBestRouteToPickupBookings } from '../dispatch/truckDispatch'
-import { warn, debug } from '../log'
-import Booking from '../Booking'
-import Position from '../Position'
+import { warn } from 'console'
+import Position from '../position'
 import Vehicle from './Vehicle'
+import Booking from '../booking'
 
-interface TruckArgs {
+interface Truck {
   parcelCapacity: number
-  position: Position
-  startPosition?: Position
 }
 
 class Truck extends Vehicle {
-  isPrivateCar: boolean
   plan: any[]
   startPosition: Position
   instruction?: any
+  _timeout?: NodeJS.Timeout
 
-  constructor(args: TruckArgs) {
+  constructor(args: Truck) {
     super(args)
     this.vehicleType = 'truck'
-    this.isPrivateCar = false
     this.co2PerKmKg = 0.1201
     this.parcelCapacity = args.parcelCapacity
     this.plan = []
@@ -38,10 +34,10 @@ class Truck extends Vehicle {
         return this.navigateTo(this.startPosition)
       case 'pickup':
         this.status = 'toPickup'
-        return this.navigateTo(this.booking!.pickup.position)
+        return this.navigateTo(this.booking?.pickup?.position)
       case 'delivery':
         this.status = 'toDelivery'
-        return this.navigateTo(this.booking!.destination.position)
+        return this.navigateTo(this.booking?.destination?.position)
       case 'ready':
       case 'returning':
         this.status = 'ready'

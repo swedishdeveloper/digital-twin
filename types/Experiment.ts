@@ -1,28 +1,32 @@
+import { Observable, Subscription } from "rxjs"
+import Municipality from "../packages/simulator/models/Municipality"
+import Vehicle from "../packages/simulator/models/vehicles/Vehicle"
+import RecycleTruck from "../packages/simulator/models/vehicles/RecycleTruck"
+import Citizen from "../packages/simulator/models/Citizen"
+import Booking from "../packages/simulator/models/Booking"
+
 export type ExperimentParameters = {
-  id: string;
-  startDate: Date;
-  fixedRoute: number;
-  emitters: any;
-  fleets: any;
-};
+  id: string
+  startDate: Date
+  fleets: any
+}
 
 export type Experiment = {
-  logStream: any;
-  busStops: any;
-  lineShapes: any;
-  postombud: any;
-  municipalities: any;
-  subscriptions: any[];
+  logStream: Observable<any>;
+  municipalities: Observable<Municipality>;
   virtualTime: any;
   dispatchedBookings: any;
-  cars: any;
-  buses: any;
-  taxis: any;
-  recycleTrucks: any;
+
+  // Vehicless
+  cars: Observable<Vehicle>;
+  recycleTrucks: Observable<RecycleTruck>;
   parameters: ExperimentParameters;
-  passengers: any;
-  recycleCollectionPoints: any;
+  passengers: Observable<Citizen>;
+  recycleCollectionPoints: Observable<Booking>;
   bookingUpdates: any;
   passengerUpdates: any;
   carUpdates: any;
+
+  // Keep track on all subscriptions so we can unsubscribe when experiment is over
+  subscriptions: Subscription[];
 };

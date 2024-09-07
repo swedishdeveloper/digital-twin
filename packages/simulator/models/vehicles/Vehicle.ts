@@ -1,16 +1,10 @@
 import { ReplaySubject, Subscription } from 'rxjs'
 import { scan } from 'rxjs/operators'
 import moment from 'moment'
-import { assert } from 'console'
-
-import osrm from '../osrm'
-import { haversine, bearing } from '../distance'
-import interpolate from '../interpolate'
-import Booking from '../booking'
-import { safeId } from '../id'
-import { error } from '../log'
-import { virtualTime } from '../virtualTime'
+import { assert, warn } from 'console'
 import Position from '../position'
+import Booking from '../booking'
+import { bearing } from '../../lib/distance'
 
 const wait = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms))
@@ -169,7 +163,7 @@ class Vehicle {
       this.status = 'toPickup'
       this.statusEvents.next(this)
 
-      this.navigateTo(booking.pickup.position)
+      if (booking.pickup) this.navigateTo(booking.pickup.position)
     } else {
       this.queue.push(booking)
       booking.assign(this)
@@ -180,6 +174,7 @@ class Vehicle {
   }
 
   async waitAtPickup() {
+    if (!this.booking?.pickup?.departureTime) return
     const departure = moment(
       this.booking!.pickup.departureTime,
       'hh:mm:ss'
@@ -216,7 +211,7 @@ class Vehicle {
 
         if (
           this.queue.length > 0 &&
-          haversine(this.queue[0].pickup.position, this.position) <
+          haversine(this.queue[0].pickup!.position, this.position) <
             haversine(this.booking.destination.position, this.position)
         ) {
           this.navigateTo(this.queue[0].pickup.position)
@@ -273,47 +268,50 @@ class Vehicle {
 
   async updatePosition(
     position: Position,
-    pointsPassedSinceLastUpdate: any[],
+    pointsPassedSinceLastUpdate?: any[],
     time: number
   ) {
     const lastPosition = this.position || position
     const timeDiff = time - (this.lastPositionUpdate || 0)
 
-    const metersMoved =
-      pointsPassedSinceLastUpdate.reduce(
-        (acc, { meters }) => acc + meters,
+    if (pointsPassedSinceLastUpdate) {
+      const metersMoved =
+        pointsPassedSinceLastUpdate.reduce(
+          (acc, { meters }) => acc + meters,
+          0
+        ) || haversine(lastPosition, position)
+
+      const seconds = pointsPassedSinceLastUpdate.reduce(
+        (acc, { duration }) => acc + duration,
         0
-      ) || haversine(lastPosition, position)
+      )
 
-    const seconds = pointsPassedSinceLastUpdate.reduce(
-      (acc, { duration }) => acc + duration,
-      0
-    )
+      const [km, h] = [metersMoved / 1000, seconds / 60 / 60]
 
-    const [km, h] = [metersMoved / 1000, seconds / 60 / 60]
+      const co2 = this.updateCarbonDioxide(km)
+      this.distance += km
+      this.speed = Math.round(km / h || 0)
 
-    const co2 = this.updateCarbonDioxide(km)
+      if (metersMoved > 0) {
+        this.bearing = bearing(lastPosition, position) || 0
+        this.movedEvents.next(this)
+        const cargoAndPassengers = [...this.cargo, ...(this.passengers || [])]
+        cargoAndPassengers.map((booking) => {
+          booking.moved(
+            this.position,
+            metersMoved,
+            co2 / (this.cargo.length + 1),
+            (h * this.costPerHour) / (this.cargo.length + 1),
+            timeDiff
+          )
+        })
+      }
+    }
 
-    this.distance += km
     this.pointsPassedSinceLastUpdate = pointsPassedSinceLastUpdate
-    this.speed = Math.round(km / h || 0)
     this.position = position
     this.lastPositionUpdate = time
     this.ema = haversine(this.heading!, this.position)
-    if (metersMoved > 0) {
-      this.bearing = bearing(lastPosition, position) || 0
-      this.movedEvents.next(this)
-      const cargoAndPassengers = [...this.cargo, ...(this.passengers || [])]
-      cargoAndPassengers.map((booking) => {
-        booking.moved(
-          this.position,
-          metersMoved,
-          co2 / (this.cargo.length + 1),
-          (h * this.costPerHour) / (this.cargo.length + 1),
-          timeDiff
-        )
-      })
-    }
   }
 
   stopped() {
@@ -341,6 +339,42 @@ class Vehicle {
 
     this.co2 += co2
     return co2
+  }
+
+  toJson() {
+    const {
+      position: { lon, lat },
+      id,
+      heading,
+      speed,
+      bearing,
+      status,
+      fleet,
+      cargo,
+      passengers,
+      queue,
+      co2,
+      distance,
+      ema,
+      vehicleType,
+    } = this
+
+    return {
+      id,
+      heading: (heading && [heading.lon, heading.lat]) || null,
+      speed,
+      bearing,
+      position: [lon, lat],
+      status,
+      fleet: fleet?.name || 'Privat',
+      co2,
+      distance,
+      ema,
+      cargo: cargo.length,
+      passengers: passengers?.length,
+      queue: queue.length,
+      vehicleType,
+    }
   }
 }
 

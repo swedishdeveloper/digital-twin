@@ -25,24 +25,6 @@ function EmitOneVehiclePer(ms) {
   )
 }
 
-const filterCars =
-  ({
-    emitBusUpdates,
-    emitTaxiUpdates,
-    emitCars,
-  }: {
-    emitBusUpdates: boolean
-    emitTaxiUpdates: boolean
-    emitCars: boolean
-  }) =>
-  (car: Vehicle) => {
-    if (!car) return false
-    if (car.vehicleType === 'bus' && !emitBusUpdates) return false
-    if (car.vehicleType === 'taxi' && !emitTaxiUpdates) return false
-    if (car.vehicleType === 'car' && !emitCars) return false
-    return true
-  }
-
 const toJsonWithExperimentId = (experiment) => (vehicle: Vehicle) => ({
   experimentId: experiment.parameters.id,
   ...vehicle.toJson(),
@@ -65,8 +47,9 @@ export const register = (experiment: Experiment, socket: Socket): any[] => {
     experiment.carUpdates
       .pipe(
         EmitOneVehiclePer(100),
-        filter(filterCars(socket.data)),
-        map((vehicle) => toJsonWithExperimentId(experiment)(vehicle as Vehicle)),
+        map((vehicle) =>
+          toJsonWithExperimentId(experiment)(vehicle as Vehicle)
+        ),
         bufferTime(100, null, 100)
       )
       .subscribe(emitCars(socket)),

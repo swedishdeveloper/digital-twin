@@ -1,17 +1,17 @@
-import { from } from 'rxjs';
-import { map, filter, shareReplay } from 'rxjs/operators';
-import { readXlsx } from '../adapters/xlsx';
+import { from, Observable } from 'rxjs'
+import { map, filter, shareReplay } from 'rxjs/operators'
+import { readXlsx } from '../adapters/xlsx'
 
 interface Ombud {
   position: {
-    lon: number;
-    lat: number;
-  };
-  operator: string;
-  frequency: string;
-  id: string;
-  type: string;
-  municipality: string;
+    lon: number
+    lat: number
+  }
+  operator: string
+  frequency: string
+  id: string
+  type: string
+  municipality: string
 }
 
 function execute(): Observable<Ombud> {
@@ -32,8 +32,8 @@ function execute(): Observable<Ombud> {
         KOMMUNNAMN,
       }) => ({
         position: {
-          lon: parseFloat(X_WGS84, 10),
-          lat: parseFloat(Y_WGS84, 10),
+          lon: parseFloat(X_WGS84),
+          lat: parseFloat(Y_WGS84),
         },
         operator: OPERATÖR,
         frequency: LevFrekv,
@@ -47,4 +47,4 @@ function execute(): Observable<Ombud> {
   )
 }
 
-export default execute();
+export default execute()

@@ -1,3 +1,6 @@
+import { Socket } from 'socket.io'
+import { Experiment } from '../../../../types/Experiment'
+
 const { bufferTime, filter, merge } = require('rxjs')
 
 /**
@@ -7,7 +10,7 @@ const { bufferTime, filter, merge } = require('rxjs')
  * @param {socket} socket
  * @returns an array of subscriptions
  */
-const register = (experiment, socket) => {
+const register = (experiment: Experiment, socket: Socket) => {
   return [
     merge(experiment.passengers, experiment.passengerUpdates)
       .pipe(

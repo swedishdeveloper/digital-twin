@@ -6,7 +6,7 @@
     "recycleTrucks",
     "recycleCollectionPoints"
   ],
-  "fleets": {
+  "municipalities": {
     "Södertälje municipality": {
       "fleets": [
         {

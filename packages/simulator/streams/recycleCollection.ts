@@ -1,21 +1,21 @@
-import { from, Observable } from 'rxjs';
-import { map, mergeMap } from 'rxjs/operators';
-import { promises as fs } from 'fs';
+import { from, Observable } from 'rxjs'
+import { map, mergeMap } from 'rxjs/operators'
+import { promises as fs } from 'fs'
 
 interface RecycleData {
-  turId: string;
-  date: string;
-  vehicle: string;
-  customerNumber: string;
-  houseNumber: string;
-  jobNumber: string;
-  decision: string;
-  sequenceNumber: string;
-  wasteType: string;
-  serviceType: string;
-  frequency: string;
-  scheduled: string;
-  position: { lat: number; lon: number };
+  turId: string
+  date: string
+  vehicle: string
+  customerNumber: string
+  houseNumber: string
+  jobNumber: string
+  decision: string
+  sequenceNumber: string
+  wasteType: string
+  serviceType: string
+  frequency: string
+  scheduled: string
+  position: { lat: number; lon: number }
 }
 
 function execute(): Observable<RecycleData> {
@@ -26,20 +26,20 @@ function execute(): Observable<RecycleData> {
     mergeMap((fileContent) => {
       // Parse the JSON data from the file
       const data: {
-        Lat: any;
-        Lng: any;
-        Turid: any;
-        Datum: any;
-        Bil: any;
-        Kundnr: any;
-        Hsnr: any;
-        Tjnr: any;
-        Dec: any;
-        Turordningsnr: any;
-        Avftyp: any;
-        Tjtyp: any;
-        Frekvens: any;
-        Schemalagd: any;
+        Lat: number
+        Lng: number
+        Turid: string
+        Datum: string
+        Bil: string
+        Kundnr: string
+        Hsnr: string
+        Tjnr: string
+        Dec: string
+        Turordningsnr: string
+        Avftyp: string
+        Tjtyp: string
+        Frekvens: string
+        Schemalagd: string
       }[] = JSON.parse(fileContent)
       return from(data)
     }),
@@ -79,4 +79,4 @@ function execute(): Observable<RecycleData> {
   )
 }
 
-export default execute();
+export default execute()

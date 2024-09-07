@@ -1,18 +1,10 @@
-import {
-  from,
-  repeat,
-  map,
-  zip,
-  filter,
-  toArray,
-  pipe,
-  mergeAll,
-} from 'rxjs';
-import fornamnData from '../data/svenska_tilltalsnamn_2021.json';
-import efternamnData from '../data/svenska_efternamn_2021.json';
+import { from, repeat, map, zip, filter, toArray, pipe, mergeAll } from 'rxjs'
+import fornamnData from '../data/svenska_tilltalsnamn_2021.json'
+import efternamnData from '../data/svenska_efternamn_2021.json'
+import { Name } from '@elastic/elasticsearch/api/types'
 
-const fornamn: string[] = fornamnData.data;
-const efternamn: string[] = efternamnData.data;
+const fornamn: string[] = fornamnData.data
+const efternamn: string[] = efternamnData.data
 
 const shuffle = (): any =>
   pipe(
@@ -21,9 +13,9 @@ const shuffle = (): any =>
     mergeAll()
   )
 
-const zipfDistribution = (): any =>
+const zipfDistribution = () =>
   pipe(
-    map((name, i) => ({
+    map((name: string, i: number) => ({
       name,
       frequency: 1 / (i + 1), // Zipf distribution
     }))
@@ -37,8 +29,8 @@ const zipfDistribution = (): any =>
  */
 const weightedRandom = (): any =>
   pipe(
-    filter(({ frequency }) => frequency > Math.random()),
-    map(({ name }) => name)
+    filter(({ name, frequency }) => frequency > Math.random()),
+    map(({ name }: { name: string }) => name)
   )
 
 const toToTitleCase = (str: string): string =>
@@ -55,18 +47,18 @@ const randomLastName = (): any =>
     zipfDistribution(),
     shuffle(),
     weightedRandom(),
-    map((name) => toToTitleCase(name))
+    map((name: string) => toToTitleCase(name))
   )
 
-const randomNames: any = zip(randomFirstName(), randomLastName()).pipe(
-  map(([firstName, lastName]) => ({
-    firstName,
-    lastName,
-    name: `${firstName} ${lastName}`,
-  })),
-  repeat()
-)
-
-export {
-  randomNames,
+function randomNames() {
+  return zip<Name[]>(randomFirstName(), randomLastName()).pipe(
+    map(([firstName, lastName]) => ({
+      firstName,
+      lastName,
+      name: `${firstName} ${lastName}`,
+    })),
+    repeat()
+  )
 }
+
+export { randomNames }

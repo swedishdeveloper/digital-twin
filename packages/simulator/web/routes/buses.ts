@@ -1,8 +1,8 @@
-import { toArray } from 'rxjs'
+import { Observable, toArray } from 'rxjs'
 import { Socket } from 'socket.io'
 import { Experiment } from '../../../../types/Experiment'
 
-const register = (experiment: Experiment, socket: Socket): void => {
+const register = (experiment: Experiment, socket: Socket): any[] => {
   return [
     experiment.busStops
       .pipe(toArray())
