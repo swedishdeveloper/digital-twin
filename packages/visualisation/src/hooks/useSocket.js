@@ -7,7 +7,9 @@ export const useSocket = (eventKey: string, callback: Callback) => {
   const socket = useContext(SocketIOContext);
   const callbackRef = useRef<Callback>(callback);
 
-  callbackRef.current = callback;
+  useEffect(() => {
+    callbackRef.current = callback;
+  }, [callback]);
 
   const socketHandlerRef = useRef<(...args: any[]) => void>(function (...args: any[]) {
     if (callbackRef.current) {
