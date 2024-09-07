@@ -3,13 +3,7 @@ import { safeId } from '../../lib/id'
 
 import { ReplaySubject, merge } from 'rxjs'
 
-interface BookingData {
-  sender?: string
-  passenger?: any
-  type?: string
-  pickup?: { position: any }
-  destination?: any
-}
+import { BookingData } from '../../../types/BookingData';
 
 class Booking {
   id: string
