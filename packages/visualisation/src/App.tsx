@@ -218,7 +218,6 @@ const App = () => {
       busLines: setBusLineLayer,
       passengers: setPassengerLayer,
       postombud: setPostombudLayer,
-      recycleCollection: setRecycleCollectionLayer,
       municipalities: setMunicipalityLayer,
     }
 
@@ -340,7 +339,6 @@ const App = () => {
           cars={cars}
           bookings={bookings}
           postombud={postombud}
-          recycleCollectionPoints={recycleCollectionPoints}
           busStops={busStops}
           municipalities={municipalities}
           activeCar={activeCar}

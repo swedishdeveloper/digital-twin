@@ -1,19 +1,10 @@
 import { createContext, Context } from 'react'
-
-type SocketType = {
-  on: (event: string, callback: (...args: any[]) => void) => void
-  emit: (event: string, ...args: any[]) => void
-}
+import { Socket } from 'socket.io-client'
 
 interface SocketContextType {
-  socket: SocketType
+  socket: Socket
 }
 
-const SocketIOContext: Context<SocketContextType> = createContext({
-  socket: {
-    on: () => {},
-    emit: () => {},
-  },
-})
+const SocketIOContext: Context<SocketContextType> = createContext({})
 
 export { SocketIOContext }
