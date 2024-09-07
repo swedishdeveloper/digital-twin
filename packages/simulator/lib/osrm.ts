@@ -6,6 +6,7 @@ const osrmUrl =
   'https://osrm.telge.iteam.pub' ||
   'http://localhost:5000'
 import { warn, write } from './log'
+import Position from '../models/position'
 
 const decodePolyline = function (geometry: string): Position[] {
   return polyline.decode(geometry).map((point) => ({
@@ -17,8 +18,6 @@ const decodePolyline = function (geometry: string): Position[] {
 const encodePolyline = function (geometry: Position[]): string {
   return polyline.encode(geometry.map(({ lat, lon }) => [lat, lon]))
 }
-
-import { Position } from '../../../types/Position';
 
 interface Route {
   geometry: { coordinates: Position[] }

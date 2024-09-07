@@ -1,4 +1,4 @@
-import Position from '../models/Position'
+import Position from '../models/position'
 import { info, error, write } from './log'
 const peliasUrl = process.env.PELIAS_URL || 'https://pelias.telge.iteam.pub'
 
@@ -6,15 +6,18 @@ info('Pelias URL', peliasUrl)
 
 interface PeliasFeature {
   geometry: {
-    coordinates: [number, number];
-  };
+    coordinates: [number, number]
+  }
   properties: {
-    name?: string;
-    street?: string;
-    houseNumber?: string;
-    localadmin?: string;
-    label?: string;
-  };
+    name?: string
+    street?: string
+    houseNumber?: string
+    localadmin?: string
+    label?: string
+  }
+}
+interface PeliasResponse {
+  features: PeliasFeature[]
 }
 
 export const nearest = (
@@ -40,9 +43,9 @@ export const nearest = (
           {
             geometry,
             properties: { name, street, houseNumber, localadmin, label },
-          } = {},
+          },
         ] = [],
-      }) => ({
+      }: PeliasResponse) => ({
         name,
         street,
         houseNumber,

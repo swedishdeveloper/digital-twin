@@ -1,4 +1,3 @@
-import { inherits } from 'util'
 import { PositionType } from '../../../types/Position'
 import { haversine } from '../lib/distance'
 
