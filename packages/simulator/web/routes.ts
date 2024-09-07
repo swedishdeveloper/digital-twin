@@ -1,13 +1,15 @@
-const engine = require('../index')
-const { save } = require('../config')
-const { info } = require('../lib/log')
-const { emitters, ignoreWelcomeMessage } = require('../config')
-const cookie = require('cookie')
-const moment = require('moment')
+import engine from '../index'
+import { save } from '../config'
+import { info } from '../lib/log'
+import { emitters, ignoreWelcomeMessage } from '../config'
+import cookie from 'cookie'
+import moment from 'moment'
+import { Socket } from 'socket.io'
+import { Experiment } from '../../../../types/Experiment'
 
-const defaultEmitters = emitters()
+const defaultEmitters: string[] = emitters()
 
-function subscribe(experiment, socket) {
+function subscribe(experiment: Experiment, socket: Socket): any[] {
   return [
     defaultEmitters.includes('bookings') &&
       require('./routes/bookings').register(experiment, socket),
@@ -30,7 +32,7 @@ function subscribe(experiment, socket) {
     .flat()
 }
 
-function start(socket) {
+function start(socket: Socket): void {
   const experiment = engine.createExperiment({ defaultEmitters })
   socket.data.experiment = experiment
   experiment.subscriptions = subscribe(experiment, socket)
@@ -41,7 +43,7 @@ function start(socket) {
   })
 }
 
-function register(io) {
+function register(io: Socket): void {
   if (ignoreWelcomeMessage) {
     io.engine.on('initial_headers', (headers) => {
       headers['set-cookie'] = cookie.serialize('hideWelcomeBox', 'true', {
@@ -101,6 +103,4 @@ function register(io) {
     })*/
   })
 }
-module.exports = {
-  register,
-}
+export { register }
