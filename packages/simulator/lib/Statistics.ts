@@ -1,33 +1,36 @@
-import { save } from './elastic';
+import { save } from './elastic'
 
 interface Experiment {
   // Define the structure of the experiment object
 }
 
 interface Position {
-  lon: number;
-  lat: number;
+  lon: number
+  lat: number
 }
 
 interface Booking {
-  toObject(): object;
+  toObject(): object
   passenger?: {
-    toObject(): object;
-  };
+    toObject(): object
+  }
   pickup: {
-    position: Position;
-  };
+    position: Position
+  }
   destination: {
-    position: Position;
-  };
+    position: Position
+  }
 }
 
 class Statistics {
   static collectExperimentMetadata(experiment: Experiment): Promise<any> {
-    return save(experiment, 'experiments');
+    return save(experiment, 'experiments')
   }
 
-  static collectBooking(booking: Booking, experimentSettings: any): Promise<any> {
+  static collectBooking(
+    booking: Booking,
+    experimentSettings: any
+  ): Promise<any> {
     return save(
       {
         ...booking.toObject(),
@@ -36,8 +39,8 @@ class Statistics {
         passenger: booking.passenger?.toObject(),
       },
       'bookings'
-    );
+    )
   }
 }
 
-export default Statistics;
+export default Statistics

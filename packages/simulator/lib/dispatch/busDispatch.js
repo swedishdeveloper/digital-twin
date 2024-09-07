@@ -1,6 +1,6 @@
 const moment = require('moment')
 const { info, warn, error } = require('../log')
-const { plan } = require('../vroom')
+const { plan } = require('../Vroom')
 
 const MAX_SHIPMENTS = 200
 

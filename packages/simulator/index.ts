@@ -1,44 +1,44 @@
 import { filter, share, merge, shareReplay } from 'rxjs'
 import { mergeMap, catchError } from 'rxjs/operators'
 
-import { virtualTime } from './lib/virtualTime'
-import { safeId } from './lib/id'
 import { read } from './config'
-import statistics from './lib/statistics'
 import { info, error, logStream } from './lib/log'
 
 type ExperimentParameters = {
-  id: string;
-  startDate: Date;
-  fixedRoute: number;
-  emitters: any;
-  fleets: any;
+  id: string
+  startDate: Date
+  fixedRoute: number
+  emitters: any
+  fleets: any
 }
 
 type Experiment = {
-  logStream: any;
-  busStops: any;
-  lineShapes: any;
-  postombud: any;
-  municipalities: any;
-  subscriptions: any[];
-  virtualTime: any;
-  dispatchedBookings: any;
-  cars: any;
-  buses: any;
-  taxis: any;
-  recycleTrucks: any;
-  parameters: ExperimentParameters;
-  passengers: any;
-  recycleCollectionPoints: any;
-  bookingUpdates: any;
-  passengerUpdates: any;
-  carUpdates: any;
+  logStream: any
+  busStops: any
+  lineShapes: any
+  postombud: any
+  municipalities: any
+  subscriptions: any[]
+  virtualTime: any
+  dispatchedBookings: any
+  cars: any
+  buses: any
+  taxis: any
+  recycleTrucks: any
+  parameters: ExperimentParameters
+  passengers: any
+  recycleCollectionPoints: any
+  bookingUpdates: any
+  passengerUpdates: any
+  carUpdates: any
 }
 
 const engine = {
   subscriptions: [] as any[],
-  createExperiment: ({ defaultEmitters, id = safeId() }: { defaultEmitters: any, id?: string } = {}): Experiment => {
+  createExperiment: ({
+    defaultEmitters,
+    id = safeId(),
+  }: { defaultEmitters: any; id?: string } = {}): Experiment => {
     console.log('Creating experiment')
     const savedParams = read()
     info(`*** Starting experiment ${id} with params:`, {
@@ -59,7 +59,7 @@ const engine = {
       emitters: defaultEmitters,
       fleets: savedParams.fleets,
     }
-    statistics.collectExperimentMetadata(parameters)
+    //statistics.collectExperimentMetadata(parameters)
     const experiment: Experiment = {
       logStream,
       busStops: regions.pipe(

@@ -18,6 +18,9 @@ import { busDispatch } from '../lib/dispatch/busDispatch'
 import { isInsideCoordinates } from '../lib/polygon'
 import { error, info } from '../lib/log'
 import Booking from './Booking'
+import Vehicle from './vehicle'
+import Citizen from './Citizen'
+import Municipality from './Municipality'
 
 const flattenProperty = (property: string) => (stream: Observable<any>) =>
   stream.pipe(
@@ -32,51 +35,64 @@ const flattenProperty = (property: string) => (stream: Observable<any>) =>
     )
   )
 
-const tripsInMunicipality = (municipalities: Observable<any>) => (stops: Observable<any>) =>
-  stops.pipe(
-    groupBy(({ tripId }) => tripId),
-    mergeMap((s) => s.pipe(toArray())),
-    filter((stops) => stops.length > 1),
-    mergeMap((stops) => {
-      const firstStop = stops[0]
-      const lastStop = stops[stops.length - 1]
-      return municipalities.pipe(
-        filter(({ geometry }) =>
-          isInsideCoordinates(firstStop.position, geometry.coordinates)
-        ),
-        map(({ name }) => ({
-          tripId: firstStop.tripId,
-          lineNumber: stops[0].lineNumber,
-          stops,
-          firstStop,
-          lastStop,
-          municipality: name,
-        }))
-      )
-    })
-  )
+const tripsInMunicipality =
+  (municipalities: Observable<Municipality>) => (stops: Observable<any>) =>
+    stops.pipe(
+      groupBy(({ tripId }) => tripId),
+      mergeMap((s) => s.pipe(toArray())),
+      filter((stops) => stops.length > 1),
+      mergeMap((stops) => {
+        const firstStop = stops[0]
+        const lastStop = stops[stops.length - 1]
+        return municipalities.pipe(
+          filter(({ geometry }) =>
+            isInsideCoordinates(firstStop.position, geometry.coordinates)
+          ),
+          map(({ name }) => ({
+            tripId: firstStop.tripId,
+            lineNumber: stops[0].lineNumber,
+            stops,
+            firstStop,
+            lastStop,
+            municipality: name,
+          }))
+        )
+      })
+    )
 
 class Region {
-  id: string;
-  name: string;
-  geometry: any;
-  trips: Observable<any>;
-  stops: Observable<any>;
-  lineShapes: Observable<any>;
-  municipalities: Observable<any>;
-  postombud: Observable<any>;
-  buses: Observable<any>;
-  cars: Observable<any>;
-  taxis: Observable<any>;
-  recycleTrucks: Observable<any>;
-  recycleCollectionPoints: Observable<any>;
-  citizens: Observable<any>;
-  stopAssignments: Observable<any>;
-  manualBookings: Subject<any>;
-  unhandledBookings: Observable<any>;
-  dispatchedBookings: Observable<any>;
+  id: string
+  name: string
+  geometry: any
+  trips: Observable<Booking>
+  stops: Observable<any>
+  lineShapes: Observable<any>
+  municipalities: Observable<any>
+  postombud: Observable<Booking>
+  buses: Observable<Vehicle>
+  cars: Observable<Vehicle>
+  taxis: Observable<Vehicle>
+  recycleTrucks: Observable<Vehicle>
+  recycleCollectionPoints: Observable<Booking>
+  citizens: Observable<Citizen>
+  stopAssignments: Observable<any>
+  manualBookings: Subject<Booking>
+  unhandledBookings: Observable<Booking>
+  dispatchedBookings: Observable<Booking>
 
-  constructor({ id, name, geometry, stops, municipalities }: { id: string; name: string; geometry: any; stops: Observable<any>; municipalities: Observable<any> }) {
+  constructor({
+    id,
+    name,
+    geometry,
+    stops,
+    municipalities,
+  }: {
+    id: string
+    name: string
+    geometry: any
+    stops: Observable<any>
+    municipalities: Observable<any>
+  }) {
     this.id = id
     this.geometry = geometry
     this.name = name

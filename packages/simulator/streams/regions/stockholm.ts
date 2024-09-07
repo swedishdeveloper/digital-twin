@@ -1,23 +1,23 @@
-import { stops } from '../publicTransport';
-import { filter, shareReplay } from 'rxjs';
-import Region from '../../lib/region';
+import Municipality from '../../models/Municipality'
+import { stops } from '../publicTransport'
+import { filter, shareReplay } from 'rxjs'
 
-const includedMunicipalities = ['Södertälje municipality'];
+const includedMunicipalities = ['Södertälje kommun']
 
-const stockholm = (municipalitiesStream: any) => {
+const stockholm = (municipalitiesStream: Observable<Municipality>) => {
   const municipalities = municipalitiesStream.pipe(
     filter((municipality: any) =>
       includedMunicipalities.includes(municipality.name)
     ),
     shareReplay()
-  );
+  )
 
   return new Region({
     id: 'stockholm',
     name: 'Stockholm',
     municipalities: municipalities,
     stops,
-  });
+  })
 }
 
-export default stockholm;
+export default stockholm

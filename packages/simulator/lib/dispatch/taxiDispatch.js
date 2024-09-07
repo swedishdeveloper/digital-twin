@@ -1,7 +1,7 @@
-const { plan, taxiToVehicle, bookingToShipment } = require('../vroom')
+const { plan, taxiToVehicle, bookingToShipment } = require('../Vroom')
 const moment = require('moment')
 const { error, debug, write, info } = require('../log')
-const { virtualTime } = require('../virtualTime')
+const { virtualTime } = require('../../models/VirtualTime')
 
 const taxiDispatch = async (taxis, bookings) => {
   const vehicles = taxis.map(taxiToVehicle)

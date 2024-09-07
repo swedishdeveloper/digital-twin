@@ -1,43 +1,16 @@
-import fetch from 'node-fetch';
-import moment from 'moment';
-import { debug, error, info } from './log';
-import { getFromCache, updateCache } from './cache';
-import queue from './queueSubject';
+import moment from 'moment'
+import { debug, error, info } from './log'
+import { getFromCache, updateCache } from './cache'
+import Queue from './Queue'
+import Booking from '../models/Booking'
 
-const vroomUrl: string = process.env.VROOM_URL || 'https://vroom.telge.iteam.pub/';
+const vroomUrl: string =
+  process.env.VROOM_URL || 'https://vroom.telge.iteam.pub/'
 
-const delay = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+const delay = (ms: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms))
 
-interface Position {
-  lon: number;
-  lat: number;
-}
-
-interface Booking {
-  id: string;
-  pickup: {
-    departureTime?: string;
-    position: Position;
-  };
-  destination: {
-    arrivalTime?: string;
-    position: Position;
-  };
-}
-
-interface Vehicle {
-  position: Position;
-  passengerCapacity: number;
-  heading?: Position;
-  passengers?: any[];
-}
-
-interface Truck {
-  position: Position;
-  parcelCapacity: number;
-  heading?: Position;
-  cargo: any[];
-}
+const queue = new Queue()
 
 class Vroom {
   static bookingToShipment({ id, pickup, destination }: Booking, i: number) {
@@ -73,18 +46,24 @@ class Vroom {
             ]
           : undefined,
       },
-    };
+    }
   }
-  static taxiToVehicle({ position, passengerCapacity, heading, passengers }: Vehicle, i: number) {
+  static taxiToVehicle(
+    { position, passengerCapacity, heading, passengers }: Vehicle,
+    i: number
+  ) {
     return {
       id: i,
       //description: id,
       capacity: [Math.max(1, passengerCapacity - (passengers?.length || 0))], // HACK: sometimes we will arrive here with -1 or 0 in capacity - we should fix that
       start: [position.lon, position.lat],
       end: heading ? [heading.lon, heading.lat] : undefined,
-    };
+    }
   }
-  static truckToVehicle({ position, parcelCapacity, heading, cargo }: Truck, i: number) {
+  static truckToVehicle(
+    { position, parcelCapacity, heading, cargo }: Truck,
+    i: number
+  ) {
     return {
       id: i,
       //description: id,
@@ -95,23 +74,31 @@ class Vroom {
       capacity: [parcelCapacity - cargo.length],
       start: [position.lon, position.lat],
       end: heading ? [heading.lon, heading.lat] : undefined,
-    };
-  }
-  static async plan({ jobs, shipments, vehicles }: { jobs: any[]; shipments: any[]; vehicles: any[] }): Promise<any> {
-    if (shipments.length > 200) throw new Error('Too many shipments to plan');
-    if (vehicles.length > 200) throw new Error('Too many vehicles to plan');
-    if (vehicles.length < 2) throw new Error('Need at least 2 vehicles to plan');
-
-    const result = await getFromCache({ jobs, shipments, vehicles });
-    if (result) {
-      debug('Vroom cache hit');
-      return result;
     }
-    debug('Vroom cache miss');
+  }
+  static async plan({
+    jobs,
+    shipments,
+    vehicles,
+  }: {
+    jobs: any[]
+    shipments: any[]
+    vehicles: any[]
+  }): Promise<any> {
+    if (shipments.length > 200) throw new Error('Too many shipments to plan')
+    if (vehicles.length > 200) throw new Error('Too many vehicles to plan')
+    if (vehicles.length < 2) throw new Error('Need at least 2 vehicles to plan')
 
-    const before = Date.now();
+    const result = await getFromCache({ jobs, shipments, vehicles })
+    if (result) {
+      debug('Vroom cache hit')
+      return result
+    }
+    debug('Vroom cache miss')
 
-    return await queue(() =>
+    const before = Date.now()
+
+    return await queue.enqueue(() =>
       fetch(vroomUrl, {
         method: 'POST',
         headers: {
@@ -136,16 +123,16 @@ class Vroom {
             : json
         )
         .catch((vroomError) => {
-          error(`Vroom error: ${vroomError} (enable debug logging for details)`);
-          info('Jobs', jobs?.length);
-          info('Shipments', shipments?.length);
-          info('Vehicles', vehicles?.length);
+          error(`Vroom error: ${vroomError} (enable debug logging for details)`)
+          info('Jobs', jobs?.length)
+          info('Shipments', shipments?.length)
+          info('Vehicles', vehicles?.length)
           return delay(2000).then(() =>
             Vroom.plan({ jobs, shipments, vehicles })
-          );
+          )
         })
-    );
+    )
   }
 }
 
-export default Vroom;
+export default Vroom
