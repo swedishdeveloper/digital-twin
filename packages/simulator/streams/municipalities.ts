@@ -1,7 +1,7 @@
 /**
  * TODO: Describe the stream that this file exports and what its data means
  */
-import { from, shareReplay } from 'rxjs';
+import { from, shareReplay } from 'rxjs'
 import {
   map,
   filter,
@@ -11,19 +11,17 @@ import {
   take,
   repeat,
   share,
-} from 'rxjs/operators';
-import Municipality from '../lib/municipality.js';
-import Position from '../lib/models/position.js';
-import data from '../data/municipalities.json';
-import population from './population.js';
-import packageVolumes from './packageVolumes.js';
-import postombud from './postombud.js';
-import inside from 'point-in-polygon';
-import Pelias from '../lib/pelias.js';
-import { getCitizensInSquare } from '../simulator/citizens.js';
-import { getAddressesInArea } from '../simulator/address.js';
-import { municipalities } from '../config/index.js';
-const commercialAreas = from(require('../data/scb_companyAreas.json').features);
+} from 'rxjs/operators'
+import data from '../data/municipalities.json'
+import population from './population.js'
+import packageVolumes from './packageVolumes.js'
+import postombud from './postombud.js'
+import inside from 'point-in-polygon'
+import { searchOne } from '../lib/pelias'
+import { getCitizensInSquare } from './citizens.js'
+import { getAddressesInArea } from './address.js'
+import { municipalities } from '../config/index.js'
+const commercialAreas = from(require('../data/scb_companyAreas.json').features)
 
 const activeMunicipalities = municipalities()
 
@@ -96,7 +94,7 @@ function read({ fleets }: { fleets: any }) {
 
         const searchQuery = address || name.split(' ')[0]
 
-        const searchResult = await Pelias.searchOne(searchQuery)
+        const searchResult = await searchOne(searchQuery)
         if (!searchQuery || !searchResult || !searchResult.position) {
           throw new Error(
             `No valid address or name found for municipality: ${name}. Please check parameters.json and add address or position for this municipality. ${searchQuery}`
@@ -146,4 +144,4 @@ function read({ fleets }: { fleets: any }) {
   )
 }
 
-export { read };
+export { read }
