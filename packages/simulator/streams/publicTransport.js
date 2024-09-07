@@ -40,14 +40,6 @@ async function getStopsForDate(date: string, operator: string): Promise<Observab
     serviceDates: Observable<any>,
     routeNames: Observable<any>,
     excludedLineNumbers: Observable<any>
-  } = gtfs(operator);
-  const {
-    stops,
-    busStops,
-    trips,
-    serviceDates,
-    routeNames,
-    excludedLineNumbers,
   } = gtfs(operator)
 
   const allTrips = await firstValueFrom(trips.pipe(reduceMap()))
