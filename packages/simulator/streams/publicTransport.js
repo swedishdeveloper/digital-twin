@@ -23,11 +23,11 @@ import {
 import { error } from '../lib/log';
 
 const reduceMap = (idProp: string = 'id') =>
-  pipe(reduce((map: Map<string, any>, item: Record<string, any>) => map.set(item[idProp], item), new Map<string, any>()));
+  pipe(reduce((map: Map<string, any>, item: Record<string, any>) => map.set(item[idProp], item), new Map<string, Record<string, any>>()));
 
-const addProp = (prop: string, fn: (item: Record<string, any>) => any) =>
+const addProp = <T extends Record<string, any>>(prop: string, fn: (item: T) => any) =>
   pipe(
-    map((item: Record<string, any>) =>
+    map((item: T) =>
       Object.assign(item, {
         [prop]: fn(item),
       })
@@ -43,12 +43,12 @@ async function getStopsForDate(date: string, operator: string): Promise<Observab
     routeNames,
     excludedLineNumbers,
   }: {
-    stops: Observable<any>,
-    busStops: Observable<any>,
-    trips: Observable<any>,
-    serviceDates: Observable<any>,
-    routeNames: Observable<any>,
-    excludedLineNumbers: Observable<any>
+    stops: Observable<Record<string, any>>,
+    busStops: Observable<Record<string, any>>,
+    trips: Observable<Record<string, any>>,
+    serviceDates: Observable<Record<string, any>>,
+    routeNames: Observable<Record<string, any>>,
+    excludedLineNumbers: Observable<string>
   } = gtfs(operator)
 
   const allTrips = await firstValueFrom(trips.pipe(reduceMap()))
