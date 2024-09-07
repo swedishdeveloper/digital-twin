@@ -23,9 +23,9 @@ import {
 import { error } from '../lib/log';
 
 const reduceMap = (idProp: string = 'id') =>
-  pipe(reduce((map: Map<string, any>, item: Record<string, any>) => map.set(item[idProp], item), new Map<string, Record<string, any>>()));
+  pipe(reduce((map: Map<string, Record<string, any>>, item: Record<string, any>) => map.set(item[idProp], item), new Map<string, Record<string, any>>()));
 
-const addProp = <T extends Record<string, any>>(prop: string, fn: (item: T) => any) =>
+const addProp = <T extends Record<string, any>, K extends keyof T>(prop: K, fn: (item: T) => T[K]) =>
   pipe(
     map((item: T) =>
       Object.assign(item, {
