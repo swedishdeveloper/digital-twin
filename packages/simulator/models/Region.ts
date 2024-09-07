@@ -2,29 +2,20 @@ import { from, mergeMap, merge, Subject, of, Observable } from 'rxjs'
 import {
   map,
   groupBy,
-  tap,
   filter,
   pairwise,
   mergeAll,
   share,
   toArray,
   catchError,
-  switchMap,
-  bufferTime,
   retryWhen,
   delay,
   take,
-  scan,
-  debounceTime,
-  concatMap,
   shareReplay,
   first,
 } from 'rxjs/operators'
 import { busDispatch } from '../lib/dispatch/busDispatch'
 import { isInsideCoordinates } from '../lib/polygon'
-import { clusterPositions } from '../lib/kmeans'
-import { haversine } from '../lib/distance'
-import { taxiDispatch } from '../lib/dispatch/taxiDispatch'
 import { error, info } from '../lib/log'
 import Booking from './models/booking'
 
@@ -39,18 +30,16 @@ const flattenProperty = (property) => (stream) =>
         }))
       )
     )
-  );
+  )
 
-const tripsInMunicipality = (municipalities) => (
-  stops
-) =>
+const tripsInMunicipality = (municipalities) => (stops) =>
   stops.pipe(
     groupBy(({ tripId }) => tripId),
     mergeMap((s) => s.pipe(toArray())),
     filter((stops) => stops.length > 1),
     mergeMap((stops) => {
-      const firstStop = stops[0];
-      const lastStop = stops[stops.length - 1];
+      const firstStop = stops[0]
+      const lastStop = stops[stops.length - 1]
       return municipalities.pipe(
         filter(({ geometry }) =>
           isInsideCoordinates(firstStop.position, geometry.coordinates)
@@ -63,17 +52,16 @@ const tripsInMunicipality = (municipalities) => (
           lastStop,
           municipality: name,
         }))
-      );
+      )
     })
-  );
-
+  )
 
 class Region {
   constructor({ id, name, geometry, stops, municipalities }) {
-    this.id = id;
-    this.geometry = geometry;
-    this.name = name;
-    this.trips = tripsInMunicipality(municipalities)(stops).pipe(shareReplay());
+    this.id = id
+    this.geometry = geometry
+    this.name = name
+    this.trips = tripsInMunicipality(municipalities)(stops).pipe(shareReplay())
     this.stops = this.trips.pipe(
       mergeMap(({ municipality, stops }) =>
         municipalities.pipe(
@@ -81,7 +69,7 @@ class Region {
           mergeMap((municipality) => (municipality ? stops : of(null)))
         )
       )
-    );
+    )
     this.lineShapes = this.trips.pipe(
       map(
         ({ tripId, stops, lineNumber, firstStop, lastStop, municipality }) => ({
@@ -93,42 +81,42 @@ class Region {
           stops: stops.map(({ position }) => position),
         })
       )
-    );
-    this.municipalities = municipalities;
+    )
+    this.municipalities = municipalities
 
     this.postombud = municipalities.pipe(
       mergeMap((municipality) => municipality.postombud)
-    );
+    )
 
     this.buses = municipalities.pipe(
       map((municipality) => municipality.buses),
       mergeAll(),
       shareReplay()
-    );
+    )
 
     this.cars = municipalities.pipe(
       mergeMap((municipality) => municipality.cars)
-    );
+    )
 
     this.taxis = municipalities.pipe(
       mergeMap((municipality) => municipality.cars),
       filter((car) => car.vehicleType === 'taxi'),
       catchError((err) => error('taxi err', err))
-    );
+    )
 
     this.recycleTrucks = municipalities.pipe(
       mergeMap((municipality) => municipality.recycleTrucks),
       catchError((err) => error('recycle trucks err', err))
-    );
+    )
 
     this.recycleCollectionPoints = municipalities.pipe(
       mergeMap((municipality) => municipality.recycleCollectionPoints),
       catchError((err) => error('recycleCollectionPoints err', err))
-    );
+    )
 
     this.citizens = municipalities.pipe(
       mergeMap((municipality) => municipality.citizens)
-    );
+    )
 
     this.stopAssignments = this.trips.pipe(
       groupBy((trip) => trip.municipality),
@@ -154,16 +142,16 @@ class Region {
       ),
       catchError((err) => error('stopAssignments', err)),
       share()
-    );
+    )
 
-    this.manualBookings = new Subject();
+    this.manualBookings = new Subject()
 
     this.unhandledBookings = this.citizens.pipe(
       mergeMap((passenger) => passenger.bookings),
       filter((booking) => !booking.assigned),
       catchError((err) => error('unhandledBookings', err)),
       share()
-    );
+    )
 
     this.dispatchedBookings = merge(
       this.municipalities.pipe(
@@ -173,7 +161,7 @@ class Region {
         mergeMap((municipality) => municipality.fleets),
         mergeMap((fleet) => fleet.dispatchedBookings)
       )
-    ).pipe(share());
+    ).pipe(share())
   }
 }
 
@@ -183,6 +171,6 @@ const stopsToBooking = ([pickup, destination]) =>
     destination,
     lineNumber: pickup.lineNumber ?? destination.lineNumber,
     type: 'busstop',
-  });
+  })
 
-module.exports = Region;
+module.exports = Region
