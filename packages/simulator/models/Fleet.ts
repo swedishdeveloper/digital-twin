@@ -6,6 +6,7 @@ import {
   catchError,
   first,
 } from 'rxjs/operators'
+import { FleetConstructorArgs } from './FleetTypes';
 import { dispatch } from './dispatch/dispatchCentral'
 import RecycleTruck from './vehicles/recycleTruck'
 import Taxi from './vehicles/taxi'
@@ -35,7 +36,7 @@ class Fleet {
     hub,
     type,
     municipality,
-  }) {
+  }: FleetConstructorArgs) {
     this.name = name
     this.type = type
     this.marketshare = marketshare
