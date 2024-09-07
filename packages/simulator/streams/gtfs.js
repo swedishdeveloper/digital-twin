@@ -1,16 +1,14 @@
-const key = process.env.TRAFIKLAB_KEY || '62262314de784de6847954de884334f1' // Fallback key used for development.
-// log in to trafiklab.se and get a key or use ours - it's free and public domain, shouldn't be a problem to share like this?
+import fs from 'fs';
+import path from 'path';
+import AdmZip from 'adm-zip';
+import fetch from 'node-fetch';
+import { shareReplay, Observable } from 'rxjs';
+import { map, toArray, groupBy, mergeMap, filter } from 'rxjs/operators';
+import csv from 'csv-stream';
+import Position from '../lib/models/position';
+import { info, error, debug } from '../lib/log';
 
-const fs = require('fs')
-const path = require('path')
-const { info, error, debug } = require('../lib/log')
-
-const AdmZip = require('adm-zip')
-const fetch = require('node-fetch')
-const { shareReplay, Observable } = require('rxjs')
-const { map, toArray, groupBy, mergeMap, filter } = require('rxjs/operators')
-const csv = require('csv-stream')
-const Position = require('../lib/models/position')
+const key: string = process.env.TRAFIKLAB_KEY || '62262314de784de6847954de884334f1'; // Fallback key used for development.
 
 const MONTH = 1000 * 60 * 60 * 24 * 30
 
