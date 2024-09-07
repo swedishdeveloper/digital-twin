@@ -1,13 +1,13 @@
 import * as moment from 'moment';
 
-type Stop = {
+interface Stop {
   tripId: string;
   routeId: string;
   stopId: string;
   lineNumber: string;
   position: any;
   services: any;
-};
+}
 import gtfs from './gtfs';
 
 import { shareReplay, from, firstValueFrom, groupBy, pipe, Observable } from 'rxjs';
@@ -26,15 +26,14 @@ import { error } from '../lib/log';
  * Creates a reducer function that accumulates items into a Map using a specified property as the key.
  * @param idProp - The property to use as the key for the Map.
  */
-const reduceMap = (idProp: string = 'id') =>
+const reduceMap = <T extends Record<string, any>>(idProp: keyof T = 'id') =>
   pipe(
     reduce(
-      (map: Map<string, Record<string, any>>, item: Record<string, any>) => {
-        // Set the item in the map with the specified idProp as the key
+      (map: Map<T[keyof T], T>, item: T) => {
         map.set(item[idProp], item);
         return map;
       },
-      new Map<string, Record<string, any>>() // Initialize with an empty Map
+      new Map<T[keyof T], T>()
     )
   );
 
@@ -48,14 +47,13 @@ const addProp = <T extends Record<string, any>, K extends keyof T>(
   fn: (item: T) => T[K]
 ) =>
   pipe(
-    map((item: T) => {
-      // Add the new property to the item
-      const newItem = { ...item, [prop]: fn(item) };
-      return newItem;
-    })
+    map((item: T) => ({
+      ...item,
+      [prop]: fn(item),
+    }))
   );
 
-async function getStopsForDate(date: string, operator: string): Promise<Observable<Stop>> {
+async function getStopsForDate(date: string, operator: string): Promise<Observable<Partial<Stop>>> {
   const {
     stops,
     busStops,
