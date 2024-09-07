@@ -18,7 +18,7 @@ function parseRuta(ruta: string): { lon: number; lat: number } {
   return convertPosition(coords.toLatLng(ruta.slice(6), ruta.slice(0, 6)))
 }
 
-function read(): any {
+function read(): Observable<{ id: any; area: any; ruta: string; position: { lon: number; lat: number; }; ages: number[]; population: number; }> {
   return from(readCsv(process.cwd() + '/data/5arsklasser_1km.csv')).pipe(
     map(
       ({
