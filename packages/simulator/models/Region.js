@@ -28,7 +28,7 @@ import { taxiDispatch } from '../lib/dispatch/taxiDispatch'
 import { error, info } from '../lib/log'
 import Booking from './models/booking'
 
-const flattenProperty = (property: string) => (stream: Observable<any>) =>
+const flattenProperty = (property) => (stream) =>
   stream.pipe(
     mergeMap((object) =>
       object[property].pipe(
@@ -41,8 +41,8 @@ const flattenProperty = (property: string) => (stream: Observable<any>) =>
     )
   );
 
-const tripsInMunicipality = (municipalities: Observable<Municipality>) => (
-  stops: Observable<Stop>
+const tripsInMunicipality = (municipalities) => (
+  stops
 ) =>
   stops.pipe(
     groupBy(({ tripId }) => tripId),
@@ -67,70 +67,9 @@ const tripsInMunicipality = (municipalities: Observable<Municipality>) => (
     })
   );
 
-interface Municipality {
-  name: string;
-  geometry: {
-    coordinates: any;
-  };
-  postombud: any;
-  buses: any;
-  cars: any;
-  recycleTrucks: any;
-  recycleCollectionPoints: any;
-  citizens: any;
-  dispatchedBookings: any;
-  fleets: any;
-}
-
-interface Stop {
-  tripId: string;
-  lineNumber: string;
-  position: any;
-  name: string;
-}
-
-interface Trip {
-  tripId: string;
-  lineNumber: string;
-  stops: Stop[];
-  firstStop: Stop;
-  lastStop: Stop;
-  municipality: string;
-}
 
 class Region {
-  id: string;
-  name: string;
-  geometry: any;
-  trips: Observable<Trip>;
-  stops: Observable<any>;
-  lineShapes: Observable<any>;
-  municipalities: Observable<Municipality>;
-  postombud: Observable<any>;
-  buses: Observable<any>;
-  cars: Observable<any>;
-  taxis: Observable<any>;
-  recycleTrucks: Observable<any>;
-  recycleCollectionPoints: Observable<any>;
-  citizens: Observable<any>;
-  stopAssignments: Observable<any>;
-  manualBookings: Subject<any>;
-  unhandledBookings: Observable<any>;
-  dispatchedBookings: Observable<any>;
-
-  constructor({
-    id,
-    name,
-    geometry,
-    stops,
-    municipalities,
-  }: {
-    id: string;
-    name: string;
-    geometry: any;
-    stops: Observable<Stop>;
-    municipalities: Observable<Municipality>;
-  }) {
+  constructor({ id, name, geometry, stops, municipalities }) {
     this.id = id;
     this.geometry = geometry;
     this.name = name;
@@ -238,7 +177,7 @@ class Region {
   }
 }
 
-const stopsToBooking = ([pickup, destination]: [Stop, Stop]) =>
+const stopsToBooking = ([pickup, destination]) =>
   new Booking({
     pickup,
     destination,
@@ -246,4 +185,4 @@ const stopsToBooking = ([pickup, destination]: [Stop, Stop]) =>
     type: 'busstop',
   });
 
-export default Region;
+module.exports = Region;
