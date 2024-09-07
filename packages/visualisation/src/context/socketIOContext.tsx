@@ -9,6 +9,11 @@ interface SocketContextType {
   socket: SocketType
 }
 
-const SocketIOContext: Context<SocketContextType> = createContext()
+const SocketIOContext: Context<SocketContextType> = createContext({
+  socket: {
+    on: () => {},
+    emit: () => {},
+  },
+})
 
 export { SocketIOContext }
