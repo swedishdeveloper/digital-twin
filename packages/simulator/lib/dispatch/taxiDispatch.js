@@ -1,9 +1,20 @@
-const { plan, taxiToVehicle, bookingToShipment } = require('../Vroom')
-const moment = require('moment')
-const { error, debug, write, info } = require('../log')
-const { virtualTime } = require('../../models/VirtualTime')
+import { plan, taxiToVehicle, bookingToShipment } from '../Vroom';
+import moment from 'moment';
+import { error, debug, write, info } from '../log';
+import { virtualTime } from '../../models/VirtualTime';
 
-const taxiDispatch = async (taxis, bookings) => {
+interface Taxi {
+  // Define the properties of a Taxi
+}
+
+interface Booking {
+  pickup: {
+    departureTime: string;
+  };
+  // Define other properties of a Booking
+}
+
+const taxiDispatch = async (taxis: Taxi[], bookings: Booking[]) => {
   const vehicles = taxis.map(taxiToVehicle)
   const shipments = bookings.map(bookingToShipment) // TODO: concat bookings from existing vehicles with previous assignments
   info(
@@ -14,7 +25,7 @@ const taxiDispatch = async (taxis, bookings) => {
   const virtualNow = await virtualTime.getTimeInMillisecondsAsPromise()
   const now = moment(new Date(virtualNow))
 
-  return result?.routes.map((route) => {
+  return result?.routes.map((route: any) => {
     write('✅')
     return {
       taxi: taxis[route.vehicle],
@@ -33,7 +44,7 @@ const taxiDispatch = async (taxis, bookings) => {
   })
 }
 
-const findBestRouteToPickupBookings = async (taxi, bookings) => {
+const findBestRouteToPickupBookings = async (taxi: Taxi, bookings: Booking[]) => {
   const vehicles = [taxiToVehicle(taxi, 0)]
   const shipments = bookings.map(bookingToShipment)
 
@@ -44,7 +55,7 @@ const findBestRouteToPickupBookings = async (taxi, bookings) => {
     return null
   }
 
-  return result.routes[0].steps
+  return result.routes[0].steps.map((step: any) => {
     .filter(({ type }) => ['pickup', 'delivery', 'start'].includes(type))
     .map(({ id, type, arrival, departure }) => {
       const booking = bookings[id]
@@ -58,7 +69,7 @@ const findBestRouteToPickupBookings = async (taxi, bookings) => {
     })
 }
 
-module.exports = {
+export {
   taxiDispatch,
   findBestRouteToPickupBookings,
 }
