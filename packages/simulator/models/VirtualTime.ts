@@ -66,7 +66,9 @@ class VirtualTime {
     if (this.timeMultiplier === 0) return // don't wait when time is stopped
     if (this.timeMultiplier === Infinity) return // return directly if time is set to infinity
     const waitUntil = time
-    return await firstValueFrom(this.currentTime.pipe(filter((e) => e >= waitUntil)))
+    return await firstValueFrom(
+      this.currentTime.pipe(filter((e) => e >= waitUntil))
+    )
   }
 
   async wait(ms) {
