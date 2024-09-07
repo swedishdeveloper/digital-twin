@@ -1,15 +1,44 @@
-const { filter, share, merge, shareReplay } = require('rxjs')
-const { mergeMap, catchError } = require('rxjs/operators')
+import { filter, share, merge, shareReplay } from 'rxjs'
+import { mergeMap, catchError } from 'rxjs/operators'
 
-const { virtualTime } = require('./lib/virtualTime')
-const { safeId } = require('./lib/id')
-const { read } = require('./config')
-const statistics = require('./lib/statistics')
-const { info, error, logStream } = require('./lib/log')
+import { virtualTime } from './lib/virtualTime'
+import { safeId } from './lib/id'
+import { read } from './config'
+import statistics from './lib/statistics'
+import { info, error, logStream } from './lib/log'
+
+interface ExperimentParameters {
+  id: string;
+  startDate: Date;
+  fixedRoute: number;
+  emitters: any;
+  fleets: any;
+}
+
+interface Experiment {
+  logStream: any;
+  busStops: any;
+  lineShapes: any;
+  postombud: any;
+  municipalities: any;
+  subscriptions: any[];
+  virtualTime: any;
+  dispatchedBookings: any;
+  cars: any;
+  buses: any;
+  taxis: any;
+  recycleTrucks: any;
+  parameters: ExperimentParameters;
+  passengers: any;
+  recycleCollectionPoints: any;
+  bookingUpdates: any;
+  passengerUpdates: any;
+  carUpdates: any;
+}
 
 const engine = {
-  subscriptions: [],
-  createExperiment: ({ defaultEmitters, id = safeId() } = {}) => {
+  subscriptions: [] as any[],
+  createExperiment: ({ defaultEmitters, id = safeId() }: { defaultEmitters: any, id?: string } = {}): Experiment => {
     console.log('Creating experiment')
     const savedParams = read()
     info(`*** Starting experiment ${id} with params:`, {
@@ -23,7 +52,7 @@ const engine = {
 
     const regions = require('./streams/regions')(savedParams)
 
-    const parameters = {
+    const parameters: ExperimentParameters = {
       id,
       startDate: new Date(),
       fixedRoute: savedParams.fixedRoute || 100,
@@ -31,7 +60,7 @@ const engine = {
       fleets: savedParams.fleets,
     }
     statistics.collectExperimentMetadata(parameters)
-    const experiment = {
+    const experiment: Experiment = {
       logStream,
       busStops: regions.pipe(
         filter((region) => region.stops),
