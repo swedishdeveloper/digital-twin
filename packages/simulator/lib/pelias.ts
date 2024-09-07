@@ -1,4 +1,4 @@
-import Position from '../models/Position'
+import Position from '../models/position'
 import { info, error, write } from './log'
 const peliasUrl = process.env.PELIAS_URL || 'https://pelias.telge.iteam.pub'
 
