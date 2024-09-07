@@ -1,20 +1,25 @@
-const { interval, firstValueFrom } = require('rxjs')
-const {
+import { interval, firstValueFrom } from 'rxjs';
+import {
   scan,
   shareReplay,
   map,
   filter,
   distinctUntilChanged,
-} = require('rxjs/operators')
-const {
+} from 'rxjs/operators';
+import {
   addMilliseconds,
   startOfDay,
   addHours,
   getUnixTime,
-} = require('date-fns')
+} from 'date-fns';
 
 class VirtualTime {
-  constructor(timeMultiplier = 1, startHour = 6.8) {
+  private startHour: number;
+  private timeMultiplier: number;
+  private internalTimeScale: number;
+  private currentTime: any;
+
+  constructor(timeMultiplier: number = 1, startHour: number = 6.8) {
     this.startHour = startHour
     this.timeMultiplier = timeMultiplier
     this.startHour = startHour
@@ -22,7 +27,7 @@ class VirtualTime {
     this.reset()
   }
 
-  reset() {
+  reset(): void {
     const startDate = addHours(startOfDay(new Date()), this.startHour)
     const msUpdateFrequency = 100
     this.currentTime = interval(msUpdateFrequency).pipe(
@@ -38,11 +43,11 @@ class VirtualTime {
     )
   }
 
-  getTimeStream() {
+  getTimeStream(): any {
     return this.currentTime
   }
 
-  getTimeInMilliseconds() {
+  getTimeInMilliseconds(): any {
     return this.currentTime.pipe(
       map(getUnixTime),
       map((e) => e * 1000),
@@ -50,19 +55,19 @@ class VirtualTime {
     )
   }
 
-  getTimeInMillisecondsAsPromise() {
+  getTimeInMillisecondsAsPromise(): Promise<number> {
     return firstValueFrom(this.getTimeInMilliseconds())
   }
 
-  play() {
+  play(): void {
     this.internalTimeScale = 1
   }
 
-  pause() {
+  pause(): void {
     this.internalTimeScale = 0
   }
 
-  async waitUntil(time) {
+  async waitUntil(time: number): Promise<void> {
     if (this.timeMultiplier === 0) return // don't wait when time is stopped
     if (this.timeMultiplier === Infinity) return // return directly if time is set to infinity
     const waitUntil = time
@@ -71,18 +76,16 @@ class VirtualTime {
     )
   }
 
-  async wait(ms) {
+  async wait(ms: number): Promise<void> {
     const now = await this.getTimeInMillisecondsAsPromise()
     await this.waitUntil(now + ms)
   }
 
   // Set the speed in which time should advance
-  setTimeMultiplier(timeMultiplier) {
+  setTimeMultiplier(timeMultiplier: number): void {
     this.timeMultiplier = timeMultiplier
   }
 }
 
-module.exports = {
-  virtualTime: new VirtualTime(), // static global time
-  VirtualTime,
-}
+export const virtualTime = new VirtualTime(); // static global time
+export { VirtualTime };
