@@ -18,7 +18,7 @@ import { busDispatch } from '../lib/dispatch/busDispatch'
 import { isInsideCoordinates } from '../lib/polygon'
 import { error, info } from '../lib/log'
 import Booking from './Booking'
-import Vehicle from './vehicle'
+import Vehicle from './vehicles/Vehicle'
 import Citizen from './Citizen'
 import Municipality from './Municipality'
 
@@ -90,8 +90,8 @@ class Region {
     id: string
     name: string
     geometry: any
-    stops: Observable<any>
-    municipalities: Observable<any>
+    stops: Observable<Stop>
+    municipalities: Observable<Municipality>
   }) {
     this.id = id
     this.geometry = geometry
