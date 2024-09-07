@@ -1,8 +1,31 @@
+interface Position {
+  lat: number;
+  lon: number;
+}
+
+interface Point {
+  position: Position;
+  meters: number;
+  duration: number;
+  passed?: number;
+  distance?: number;
+}
+
+interface InterpolatedPosition {
+  lat: number;
+  lon: number;
+  speed: number;
+  instruction: Point;
+  next: Point | null;
+  remainingPoints: Point[];
+  skippedPoints: Point[];
+}
+
 function interpolatePositionFromRoute(
-  routeStarted,
-  time,
-  remainingPointsInRoute
-) {
+  routeStarted: number,
+  time: number,
+  remainingPointsInRoute: Point[]
+): InterpolatedPosition {
   const timeSinceRouteStarted = (time - routeStarted) / 1000
 
   if (routeStarted > time) {
@@ -18,15 +41,15 @@ function interpolatePositionFromRoute(
     }
   }
 
-  const futurePoints = remainingPointsInRoute.filter(
+  const futurePoints: Point[] = remainingPointsInRoute.filter(
     (point) => point.passed + point.duration > timeSinceRouteStarted
   )
-  const nrOfPointsSkipped = remainingPointsInRoute.indexOf(futurePoints[0]) + 1
-  const skippedPoints = remainingPointsInRoute.slice(0, nrOfPointsSkipped)
-  const current = futurePoints[0]
-  const next = futurePoints[1]
-  const lastPoint = remainingPointsInRoute[remainingPointsInRoute.length - 1]
-  const remainingPoints = futurePoints
+  const nrOfPointsSkipped: number = remainingPointsInRoute.indexOf(futurePoints[0]) + 1;
+  const skippedPoints: Point[] = remainingPointsInRoute.slice(0, nrOfPointsSkipped);
+  const current: Point = futurePoints[0];
+  const next: Point = futurePoints[1];
+  const lastPoint: Point = remainingPointsInRoute[remainingPointsInRoute.length - 1];
+  const remainingPoints: Point[] = futurePoints;
 
   // when we reach the end
   if (!current || !next)
@@ -40,12 +63,12 @@ function interpolatePositionFromRoute(
       skippedPoints: [],
     }
 
-  const progress = (timeSinceRouteStarted - current.passed) / current.duration
+  const progress: number = (timeSinceRouteStarted - current.passed!) / current.duration;
   // or
   // var progress = (timeSinceRouteStarted - start.passed) / (end.passed - start.passed)
-  const speed = Math.round(current.meters / 1000 / (current.duration / 60 / 60))
+  const speed: number = Math.round(current.meters / 1000 / (current.duration / 60 / 60));
 
-  const interpolatedPosition = {
+  const interpolatedPosition: InterpolatedPosition = {
     lat:
       current.position.lat +
       (next.position.lat - current.position.lat) * progress,
@@ -67,8 +90,13 @@ function interpolatePositionFromRoute(
 
 const speedFactor = 1.4 // apply this to all speeds, TODO: Investigate ways to get buses to start position faster other ways. With speedFactor this high we greatly reduce the number of buses that get unassigned because it missed the first stop time due to too slowly navigating from bus depots to first stop. Might be improved by improving knowledge about the Swedish road network in OSRM/OSM (speeds might not be correct for roads in sweden)
 
-function extractPoints(route) {
-  const annotation = route.legs
+interface Route {
+  legs: { annotation: { duration: number[]; distance: number[] } }[];
+  geometry: { coordinates: Position[] };
+}
+
+function extractPoints(route: Route): Point[] {
+  const annotation: { duration: number[]; distance: number[] } = route.legs
     .map((leg) => leg.annotation)
     .reduce((a, b) => ({
       duration: a.duration.concat(b.duration) / speedFactor,
@@ -78,7 +106,7 @@ function extractPoints(route) {
   annotation.distance.push(0)
   annotation.duration.push(0)
 
-  const points = route.geometry.coordinates.map((pos, i) => ({
+  const points: Point[] = route.geometry.coordinates.map((pos, i) => ({
     position: pos,
     meters: annotation.distance[i],
     duration: annotation.duration[i],
@@ -97,7 +125,4 @@ function extractPoints(route) {
   return points
 }
 
-module.exports = {
-  route: interpolatePositionFromRoute,
-  points: extractPoints,
-}
+export { interpolatePositionFromRoute as route, extractPoints as points };
