@@ -14,18 +14,18 @@ import {
 import { error } from '../lib/log';
 
 const reduceMap = (idProp: string = 'id') =>
-  pipe(reduce((map: Map<string, any>, item: any) => map.set(item[idProp], item), new Map<string, any>()));
+  pipe(reduce((map: Map<string, any>, item: Record<string, any>) => map.set(item[idProp], item), new Map<string, any>()));
 
-const addProp = (prop: string, fn: (item: any) => any) =>
+const addProp = (prop: string, fn: (item: Record<string, any>) => any) =>
   pipe(
-    map((item: any) =>
+    map((item: Record<string, any>) =>
       Object.assign(item, {
         [prop]: fn(item),
       })
     )
   );
 
-async function getStopsForDate(date: string, operator: string): Promise<Observable<any>> {
+async function getStopsForDate(date: string, operator: string): Promise<Observable<Record<string, any>>> {
   const {
     stops,
     busStops,
@@ -71,7 +71,7 @@ async function getStopsForDate(date: string, operator: string): Promise<Observab
   )
 }
 
-function publicTransport(operator: string): { stops: Observable<any> } {
+function publicTransport(operator: string): { stops: Observable<Record<string, any>> } {
   // stop_times.trip_id -> trips.service_id -> calendar_dates.service_id
   const todaysDate = moment().format('YYYYMMDD')
 
