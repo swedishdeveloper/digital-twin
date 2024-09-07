@@ -1,4 +1,13 @@
 import moment from 'moment';
+
+interface Stop {
+  tripId: string;
+  routeId: string;
+  stopId: string;
+  lineNumber: string;
+  position: any;
+  services: any;
+}
 import gtfs from './gtfs';
 
 import { shareReplay, from, firstValueFrom, groupBy, pipe, Observable } from 'rxjs';
@@ -25,7 +34,7 @@ const addProp = (prop: string, fn: (item: Record<string, any>) => any) =>
     )
   );
 
-async function getStopsForDate(date: string, operator: string): Promise<Observable<Record<string, any>>> {
+async function getStopsForDate(date: string, operator: string): Promise<Observable<Stop>> {
   const {
     stops,
     busStops,
@@ -71,7 +80,7 @@ async function getStopsForDate(date: string, operator: string): Promise<Observab
   )
 }
 
-function publicTransport(operator: string): { stops: Observable<Record<string, any>> } {
+function publicTransport(operator: string): { stops: Observable<Stop> } {
   // stop_times.trip_id -> trips.service_id -> calendar_dates.service_id
   const todaysDate = moment().format('YYYYMMDD')
 
