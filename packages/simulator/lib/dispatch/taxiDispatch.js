@@ -3,16 +3,16 @@ import moment from 'moment';
 import { error, debug, write, info } from '../log';
 import { virtualTime } from '../../models/VirtualTime';
 
-interface Taxi {
+type Taxi = {
   // Define the properties of a Taxi
-}
+};
 
-interface Booking {
+type Booking = {
   pickup: {
     departureTime: string;
   };
   // Define other properties of a Booking
-}
+};
 
 const taxiDispatch = async (taxis: Taxi[], bookings: Booking[]) => {
   const vehicles = taxis.map(taxiToVehicle)
@@ -25,7 +25,7 @@ const taxiDispatch = async (taxis: Taxi[], bookings: Booking[]) => {
   const virtualNow = await virtualTime.getTimeInMillisecondsAsPromise()
   const now = moment(new Date(virtualNow))
 
-  return result?.routes.map((route: any) => {
+  return result?.routes.map((route: any) => ({
     write('✅')
     return {
       taxi: taxis[route.vehicle],
@@ -55,7 +55,18 @@ const findBestRouteToPickupBookings = async (taxi: Taxi, bookings: Booking[]) =>
     return null
   }
 
-  return result.routes[0].steps.map((step: any) => {
+  return result.routes[0].steps
+    .filter(({ type }) => ['pickup', 'delivery', 'start'].includes(type))
+    .map(({ id, type, arrival, departure }) => {
+      const booking = bookings[id];
+      const instruction = {
+        action: type,
+        arrival,
+        departure,
+        booking,
+      };
+      return instruction;
+    });
     .filter(({ type }) => ['pickup', 'delivery', 'start'].includes(type))
     .map(({ id, type, arrival, departure }) => {
       const booking = bookings[id]
