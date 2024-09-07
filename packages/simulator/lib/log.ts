@@ -32,4 +32,35 @@ const print = (
   }
 }
 
+const debug = (message: string, data?: any, ...rest: any[]) => {
+  if (logLevelIsAtLeastDebug) {
+    print(console.debug, chalk.blue, chalk.white, 'DEBUG', message, data, ...rest)
+    logStream.next(`DEBUG: ${message}`)
+  }
+}
+
+const info = (message: string, data?: any, ...rest: any[]) => {
+  if (logLevelIsAtLeastInfo) {
+    print(console.info, chalk.green, chalk.white, 'INFO', message, data, ...rest)
+    logStream.next(`INFO: ${message}`)
+  }
+}
+
+const warn = (message: string, data?: any, ...rest: any[]) => {
+  if (logLevelIsAtLeastWarn) {
+    print(console.warn, chalk.yellow, chalk.white, 'WARN', message, data, ...rest)
+    logStream.next(`WARN: ${message}`)
+  }
+}
+
+const error = (message: string, data?: any, ...rest: any[]) => {
+  print(console.error, chalk.red, chalk.white, 'ERROR', message, data, ...rest)
+  logStream.next(`ERROR: ${message}`)
+}
+
+const write = (message: string) => {
+  console.log(message)
+  logStream.next(message)
+}
+
 export { logStream, debug, error, info, warn, write }
