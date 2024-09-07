@@ -25,7 +25,22 @@ function execute(): Observable<RecycleData> {
   return from(fs.readFile(filePath, 'utf8')).pipe(
     mergeMap((fileContent) => {
       // Parse the JSON data from the file
-      const data = JSON.parse(fileContent)
+      const data: {
+        Lat: any;
+        Lng: any;
+        Turid: any;
+        Datum: any;
+        Bil: any;
+        Kundnr: any;
+        Hsnr: any;
+        Tjnr: any;
+        Dec: any;
+        Turordningsnr: any;
+        Avftyp: any;
+        Tjtyp: any;
+        Frekvens: any;
+        Schemalagd: any;
+      }[] = JSON.parse(fileContent)
       return from(data)
     }),
     map(
