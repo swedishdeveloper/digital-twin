@@ -1,8 +1,8 @@
-const moment = require('moment')
-const gtfs = require('./gtfs.js')
+import moment from 'moment';
+import gtfs from './gtfs';
 
-const { shareReplay, from, firstValueFrom, groupBy, pipe } = require('rxjs')
-const {
+import { shareReplay, from, firstValueFrom, groupBy, pipe, Observable } from 'rxjs';
+import {
   map,
   mergeMap,
   filter,
@@ -10,22 +10,22 @@ const {
   reduce,
   toArray,
   mergeAll,
-} = require('rxjs/operators')
-const { error } = require('../lib/log.js')
+} from 'rxjs/operators';
+import { error } from '../lib/log';
 
-const reduceMap = (idProp = 'id') =>
-  pipe(reduce((map, item) => map.set(item[idProp], item), new Map()))
+const reduceMap = (idProp: string = 'id') =>
+  pipe(reduce((map: Map<any, any>, item: any) => map.set(item[idProp], item), new Map<any, any>()));
 
-const addProp = (prop, fn) =>
+const addProp = (prop: string, fn: (item: any) => any) =>
   pipe(
-    map((item) =>
+    map((item: any) =>
       Object.assign(item, {
         [prop]: fn(item),
       })
     )
-  )
+  );
 
-async function getStopsForDate(date, operator) {
+async function getStopsForDate(date: string, operator: string): Promise<Observable<any>> {
   const {
     stops,
     busStops,
@@ -64,7 +64,7 @@ async function getStopsForDate(date, operator) {
   )
 }
 
-function publicTransport(operator) {
+function publicTransport(operator: string) {
   // stop_times.trip_id -> trips.service_id -> calendar_dates.service_id
   const todaysDate = moment().format('YYYYMMDD')
 
@@ -78,4 +78,4 @@ function publicTransport(operator) {
   }
 }
 
-module.exports = publicTransport
+export default publicTransport;
