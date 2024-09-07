@@ -6,6 +6,6 @@ const nanoid = customAlphabet(
   4
 )
 
-const safeId = (): string => `${nanoid()}-${nanoid()}` // more human readable with a hyphen
+const safeId = () => `${nanoid()}-${nanoid()}` // more human readable with a hyphen
 
 export { safeId }
