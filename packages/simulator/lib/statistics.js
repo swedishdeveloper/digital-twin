@@ -13,7 +13,7 @@ interface Booking {
 
 class Statistics {
   static collectExperimentMetadata(experiment: Experiment): Promise<any> {
-    return save(experiment, 'experiments')
+    return save(experiment, 'experiments');
   }
 
   static collectBooking(booking: Booking, experimentSettings: any): Promise<any> {
@@ -25,7 +25,7 @@ class Statistics {
         passenger: booking.passenger?.toObject(),
       },
       'bookings'
-    )
+    );
   }
 }
 
