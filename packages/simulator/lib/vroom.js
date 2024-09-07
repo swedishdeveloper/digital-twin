@@ -8,8 +8,8 @@ const queue = require('./queueSubject')
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
-const vroom = (module.exports = {
-  bookingToShipment({ id, pickup, destination }, i) {
+class Vroom {
+  static bookingToShipment({ id, pickup, destination }, i) {
     return {
       id: i,
       //description: id,
@@ -44,7 +44,7 @@ const vroom = (module.exports = {
       },
     }
   },
-  taxiToVehicle({ position, passengerCapacity, heading, passengers }, i) {
+  static taxiToVehicle({ position, passengerCapacity, heading, passengers }, i) {
     return {
       id: i,
       //description: id,
@@ -53,7 +53,7 @@ const vroom = (module.exports = {
       end: heading ? [heading.lon, heading.lat] : undefined,
     }
   },
-  truckToVehicle({ position, parcelCapacity, heading, cargo }, i) {
+  static truckToVehicle({ position, parcelCapacity, heading, cargo }, i) {
     return {
       id: i,
       //description: id,
@@ -66,7 +66,7 @@ const vroom = (module.exports = {
       end: heading ? [heading.lon, heading.lat] : undefined,
     }
   },
-  async plan({ jobs, shipments, vehicles }) {
+  static async plan({ jobs, shipments, vehicles }) {
     if (shipments.length > 200) throw new Error('Too many shipments to plan')
     if (vehicles.length > 200) throw new Error('Too many vehicles to plan')
     if (vehicles.length < 2) throw new Error('Need at least 2 vehicles to plan')
@@ -115,4 +115,6 @@ const vroom = (module.exports = {
         })
     )
   },
-})
+}
+
+module.exports = Vroom
