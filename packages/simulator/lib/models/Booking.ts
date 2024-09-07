@@ -1,5 +1,5 @@
-import { virtualTime } from '../virtualTime'
-import { safeId } from '../id'
+import { virtualTime } from '../../lib/virtualTime'
+import { safeId } from '../../lib/id'
 
 import { ReplaySubject, merge } from 'rxjs'
 

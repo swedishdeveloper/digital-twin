@@ -16,13 +16,13 @@ import {
   delay,
   take,
 } from 'rxjs'
-import { virtualTime } from '../virtualTime'
+import { virtualTime } from '../../lib/virtualTime'
 
-import { safeId } from '../id'
+import { safeId } from '../../lib/id'
 import moment from 'moment'
-import Booking from './booking'
-import pelias from '../pelias'
-import { error } from '../log'
+import Booking from '../../models/Booking'
+import pelias from '../../lib/pelias'
+import { error } from '../../lib/log'
 import { getHours, getISODay } from 'date-fns'
 import Position from './Position'
 
