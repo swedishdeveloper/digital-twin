@@ -36,7 +36,7 @@ const createIndices = (): Promise<void> =>
               '>>>= Cannot create indices, Malformed Elasticsearch Error',
               e,
               err
-            )
+            ).then(() => {})
           }
           if (errorType === 'resource_already_exists_exception') {
             error(`
