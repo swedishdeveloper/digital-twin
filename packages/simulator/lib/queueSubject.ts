@@ -49,4 +49,4 @@ queueSubject
   )
   .subscribe()
 
-module.exports = queue
+export default queue
