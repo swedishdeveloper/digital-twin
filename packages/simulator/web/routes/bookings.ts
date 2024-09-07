@@ -1,4 +1,6 @@
-const { pipe, map, bufferTime, filter } = require('rxjs')
+import { pipe, map, bufferTime, filter } from 'rxjs'
+import { Socket } from 'socket.io'
+import { Experiment } from '../../../../types/Experiment'
 
 const cleanBookings = () =>
   // TODO: Replace cleanBookings with .toObject() on Booking
@@ -32,7 +34,7 @@ const cleanBookings = () =>
     )
   )
 
-const register = (experiment, socket) => {
+const register = (experiment: Experiment, socket: Socket): void => {
   return [
     experiment.dispatchedBookings
       .pipe(
@@ -56,6 +58,4 @@ const register = (experiment, socket) => {
   ]
 }
 
-module.exports = {
-  register,
-}
+export { register }

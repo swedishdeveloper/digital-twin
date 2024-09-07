@@ -1,4 +1,4 @@
-const {
+import {
   map,
   bufferTime,
   filter,
@@ -6,7 +6,9 @@ const {
   mergeMap,
   groupBy,
   windowTime,
-} = require('rxjs')
+} from 'rxjs'
+import { Socket } from 'socket.io'
+import { Experiment } from '../../../../types/Experiment'
 
 const cleanCars = ({
   // TODO: Replace cleanCars with .toObject() on Vehicle
@@ -48,7 +50,7 @@ const cleanCars = ({
   vehicleType,
 })
 
-const register = (experiment, socket) => {
+const register = (experiment: Experiment, socket: Socket): void => {
   return [
     experiment.cars.pipe(map(cleanCars)).subscribe((car) => {
       socket.emit('cars', [car])
@@ -96,6 +98,4 @@ const register = (experiment, socket) => {
   ]
 }
 
-module.exports = {
-  register,
-}
+export { register }

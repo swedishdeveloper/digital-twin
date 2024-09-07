@@ -13,7 +13,8 @@ import {
 
 const count = () => pipe(scan((acc: number) => acc + 1, 0))
 
-import { Booking } from '../../../../types/Booking';
+import { Socket } from 'socket.io'
+import { Experiment } from '../../../../types/Experiment'
 
 interface DeliveredEvent {
   type: string
