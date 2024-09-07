@@ -1,4 +1,4 @@
-const { customAlphabet } = require('nanoid')
+import { customAlphabet } from 'nanoid'
 
 // ignore all characters that might look the same in different fonts - l1 O0 il etc
 const nanoid = customAlphabet(
@@ -6,6 +6,6 @@ const nanoid = customAlphabet(
   4
 )
 
-const safeId = () => `${nanoid()}-${nanoid()}` // more human readable with a hyphen
+const safeId = (): string => `${nanoid()}-${nanoid()}` // more human readable with a hyphen
 
-module.exports = { safeId }
+export { safeId }
