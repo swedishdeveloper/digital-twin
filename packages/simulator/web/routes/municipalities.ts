@@ -8,67 +8,36 @@ import {
   startWith,
   combineLatest,
   throttleTime,
-} from 'rxjs';
+  Observable,
+} from 'rxjs'
 
-interface Experiment {
-  municipalities: Observable<Municipality>;
-  return subscriptions;
-}
-
-interface Socket {
-  emit: (event: string, data: MunicipalityData) => void;
-}
-
-const count = () => pipe(scan((acc: number) => acc + 1, 0));
-
-interface Municipality {
-  id: string;
-  name: string;
-  geometry: GeoJSON.Geometry;
-  co2: number;
-  dispatchedBookings: Observable<Booking>;
-  cars: Observable<Car>;
-}
+const count = () => pipe(scan((acc: number) => acc + 1, 0))
 
 interface Booking {
-  deliveredEvents: Observable<DeliveredEvent>;
+  deliveredEvents: Observable<DeliveredEvent>
 }
 
 interface DeliveredEvent {
-  type: string;
-  cost: number;
-  deliveryTime: number;
-}
-
-interface Car {
-  id: string;
-  cargoEvents: Observable<CargoEvent>;
-  cargo: any[];
-  parcelCapacity?: number;
-  passengerCapacity?: number;
-  co2: number;
-}
-
-interface CargoEvent {
-  id: string;
-  cargo: any[];
+  type: string
+  cost: number
+  deliveryTime: number
 }
 
 interface MunicipalityData {
-  id: string;
-  name: string;
-  totalCars: number;
-  totalCargo: number;
-  totalCo2: number;
-  totalPassengerCapacity: number;
-  totalParcelCapacity: number;
-  totalDelivered: number;
-  averagePassengerDeliveryTime: number;
-  averagePassengerCost: number;
-  averagePassengerLoad: number;
-  averageParcelLoad: number;
-  averageParcelDeliveryTime: number;
-  averageParcelCost: number;
+  id: string
+  name: string
+  totalCars: number
+  totalCargo: number
+  totalCo2: number
+  totalPassengerCapacity: number
+  totalParcelCapacity: number
+  totalDelivered: number
+  averagePassengerDeliveryTime: number
+  averagePassengerCost: number
+  averagePassengerLoad: number
+  averageParcelLoad: number
+  averageParcelDeliveryTime: number
+  averageParcelCost: number
 }
 
 const register = (experiment: Experiment, socket: Socket): void => {
@@ -240,4 +209,4 @@ const register = (experiment: Experiment, socket: Socket): void => {
   ]
 }
 
-export { register };
+export { register }
