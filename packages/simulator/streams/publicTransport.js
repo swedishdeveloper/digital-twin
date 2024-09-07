@@ -1,13 +1,13 @@
 import * as moment from 'moment';
 
-type Stop = {
+interface Stop {
   tripId: string;
   routeId: string;
   stopId: string;
   lineNumber: string;
   position: any;
   services: any;
-};
+}
 import gtfs from './gtfs';
 
 import { shareReplay, from, firstValueFrom, groupBy, pipe, Observable } from 'rxjs';
@@ -26,7 +26,7 @@ import { error } from '../lib/log';
  * Creates a reducer function that accumulates items into a Map using a specified property as the key.
  * @param idProp - The property to use as the key for the Map.
  */
-const reduceMap = <T extends Record<string, any>>(idProp: keyof T) =>
+const reduceMap = <T extends Record<string, any>>(idProp: keyof T = 'id') =>
   pipe(
     reduce(
       (map: Map<T[keyof T], T>, item: T) => {
@@ -73,7 +73,7 @@ async function getStopsForDate(date: string, operator: string): Promise<Observab
   const allTrips = await firstValueFrom(trips.pipe(reduceMap()))
   const allRouteNames = await firstValueFrom(routeNames.pipe(reduceMap()))
   const allStops = await firstValueFrom(stops.pipe(reduceMap()))
-  const allServices = await firstValueFrom(serviceDates.pipe(reduceMap('date')))
+  const allServices = await firstValueFrom(serviceDates.pipe(reduceMap('serviceId')))
   const todaysServices = allServices.get(date).services
 
   const excludedLineNumberArray = []
