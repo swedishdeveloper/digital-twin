@@ -7,7 +7,7 @@ import { read } from './config'
 import statistics from './lib/statistics'
 import { info, error, logStream } from './lib/log'
 
-interface ExperimentParameters {
+type ExperimentParameters = {
   id: string;
   startDate: Date;
   fixedRoute: number;
@@ -15,7 +15,7 @@ interface ExperimentParameters {
   fleets: any;
 }
 
-interface Experiment {
+type Experiment = {
   logStream: any;
   busStops: any;
   lineShapes: any;
