@@ -7,14 +7,14 @@ const osrmUrl =
   'http://localhost:5000'
 import { warn, write } from './log';
 
-const decodePolyline = function (geometry: string): Position[] {
+const decodePolyline = function (geometry: string): { lat: number; lon: number }[] {
   return polyline.decode(geometry).map((point) => ({
     lat: point[0],
     lon: point[1],
   }))
 }
 
-const encodePolyline = function (geometry: Position[]): string {
+const encodePolyline = function (geometry: { lat: number; lon: number }[]): string {
   return polyline.encode(geometry.map(({ lat, lon }) => [lat, lon]))
 }
 
@@ -29,7 +29,7 @@ interface Route {
 }
 
 export const osrm = {
-  route(from: Position, to: Position): Promise<Route | Record<string, never>> {
+  route(from: Position, to: Position): Promise<Route | {}> {
     // http://{server}/route/v1/{profile}/{coordinates}?alternatives={true|false}&steps={true|false}&geometries={polyline|geojson}&overview={full|simplified|false}&annotations={true|false}
     const coordinates = [
       [from.lon, from.lat],
