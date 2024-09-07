@@ -1,10 +1,10 @@
-import { filter, share, merge, shareReplay } from 'rxjs'
-import { mergeMap, catchError } from 'rxjs/operators'
+import { filter, share, merge, shareReplay } from 'rxjs';
+import { mergeMap, catchError } from 'rxjs/operators';
 
-import { read } from './config'
-import { info, error, logStream } from './lib/log'
+import { read } from './config';
+import { info, error, logStream } from './lib/log';
 
-import { Experiment, ExperimentParameters } from '../../../types/Experiment'
+import { Experiment, ExperimentParameters } from '../../../types/Experiment';
 
 class Engine {
   subscriptions: any[];
@@ -17,8 +17,10 @@ class Engine {
     defaultEmitters,
     id = safeId(),
   }: { defaultEmitters: any; id?: string } = {}): Experiment {
-    console.log('Creating experiment')
-    const savedParams = read()
+    console.log('Creating experiment');
+    const savedParams = read();
+
+    // Log experiment start information
     info(`*** Starting experiment ${id} with params:`, {
       id: savedParams.id,
       fixedRoute: savedParams.fixedRoute,
@@ -28,8 +30,10 @@ class Engine {
       }),
     })
 
-    const regions = require('./streams/regions')(savedParams)
+    // Initialize regions stream
+    const regions = require('./streams/regions')(savedParams);
 
+    // Define experiment parameters
     const parameters: ExperimentParameters = {
       id,
       startDate: new Date(),
@@ -37,7 +41,8 @@ class Engine {
       emitters: defaultEmitters,
       fleets: savedParams.fleets,
     }
-    //statistics.collectExperimentMetadata(parameters)
+    // statistics.collectExperimentMetadata(parameters)
+    // Create experiment object
     const experiment: Experiment = {
       logStream,
       busStops: regions.pipe(
@@ -84,6 +89,7 @@ class Engine {
         catchError((err) => error('Experiment -> RecycleCollectionPoints', err))
       ),
     }
+    // Handle passenger bookings
     experiment.passengers
       .pipe(
         mergeMap((passenger) => passenger.bookings),
@@ -99,12 +105,14 @@ class Engine {
         }
       })
 
+    // Setup booking updates stream
     experiment.bookingUpdates = experiment.dispatchedBookings.pipe(
       mergeMap((booking) => booking.statusEvents),
       catchError((err) => error('bookingUpdates', err)),
       share()
     )
 
+    // Setup passenger updates stream
     experiment.passengerUpdates = experiment.passengers.pipe(
       mergeMap(({ deliveredEvents, pickedUpEvents }) =>
         merge(deliveredEvents, pickedUpEvents)
@@ -113,11 +121,11 @@ class Engine {
       share()
     )
 
-    // TODO: Rename to vehicleUpdates
+    // Setup vehicle updates stream
     experiment.carUpdates = merge(
-      // experiment.buses,
-      // experiment.cars,
-      // experiment.taxis,
+      // experiment.buses, // Uncomment if needed
+      // experiment.cars,  // Uncomment if needed
+      // experiment.taxis, // Uncomment if needed
       experiment.recycleTrucks
     ).pipe(
       mergeMap((car) => car.movedEvents),
