@@ -99,4 +99,4 @@ class Municipality {
   }
 }
 
-module.exports = Municipality
+export { default } from '../models/municipality';
