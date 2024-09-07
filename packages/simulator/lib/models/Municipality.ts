@@ -1,4 +1,4 @@
-const {
+import {
   from,
   shareReplay,
   Subject,
@@ -8,12 +8,52 @@ const {
   filter,
   catchError,
   first,
-} = require('rxjs')
-const Fleet = require('./fleet')
-const { error } = require('./log')
-const { searchOne } = require('./pelias')
+} from 'rxjs'
+import Fleet from '../lib/fleet'
+import { error } from '../log'
+import { searchOne } from '../pelias'
+
+interface MunicipalityArgs {
+  geometry: any
+  name: string
+  id: string
+  packageVolumes: any
+  email: string
+  zip: string
+  center: any
+  telephone: string
+  postombud: any
+  population: number
+  recycleCollectionPoints: any
+  citizens: any
+  squares: any
+  fleets: any
+}
 
 class Municipality {
+  squares: any
+  geometry: any
+  name: string
+  id: string
+  email: string
+  zip: string
+  center: any
+  telephone: string
+  postombud: any
+  recycleCollectionPoints: any
+  packageVolumes: any
+  busesPerCapita: number
+  population: number
+  privateCars: ReplaySubject<any>
+  unhandledBookings: Subject<any>
+  co2: number
+  citizens: any
+  fleets: any
+  buses: any
+  recycleTrucks: any
+  dispatchedBookings: any
+  cars: any
+
   constructor({
     geometry,
     name,
@@ -29,7 +69,7 @@ class Municipality {
     citizens,
     squares,
     fleets,
-  }) {
+  }: MunicipalityArgs) {
     this.squares = squares
     this.geometry = geometry
     this.name = name
@@ -67,6 +107,7 @@ class Municipality {
       filter((car) => car.type === 'bus'),
       catchError((err) => {
         error('buses -> fleet', err)
+        return []
       })
     )
 
@@ -75,11 +116,11 @@ class Municipality {
       filter((car) => car.vehicleType === 'recycleTruck'),
       catchError((err) => {
         error('recycleTrucks -> fleet', err)
+        return []
       })
     )
 
     this.dispatchedBookings = merge(
-      // add recycle collection points to fleet of recycle trucks
       this.recycleCollectionPoints.pipe(
         mergeMap((booking) =>
           this.fleets.pipe(
@@ -87,9 +128,11 @@ class Municipality {
             mergeMap((fleet) => fleet.handleBooking(booking))
           )
         ),
-        catchError((err) => error('municipality dispatchedBookings err', err))
+        catchError((err) => {
+          error('municipality dispatchedBookings err', err)
+          return []
+        })
       )
-      // Should we add more types of bookings?
     )
 
     this.cars = merge(
@@ -99,4 +142,4 @@ class Municipality {
   }
 }
 
-export { default } from '../models/municipality';
+export default Municipality
