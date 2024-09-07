@@ -1,4 +1,4 @@
 export interface Position {
-  lat: number;
   lon: number;
+  lat: number;
 }
