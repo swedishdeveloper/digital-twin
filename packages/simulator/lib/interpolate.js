@@ -42,7 +42,7 @@ function interpolatePositionFromRoute(
   }
 
   const futurePoints: Point[] = remainingPointsInRoute.filter(
-    (point) => point.passed + point.duration > timeSinceRouteStarted
+    (point) => (point.passed || 0) + point.duration > timeSinceRouteStarted
   )
   const nrOfPointsSkipped: number = remainingPointsInRoute.indexOf(futurePoints[0]) + 1;
   const skippedPoints: Point[] = remainingPointsInRoute.slice(0, nrOfPointsSkipped);
@@ -63,7 +63,7 @@ function interpolatePositionFromRoute(
       skippedPoints: [],
     }
 
-  const progress: number = (timeSinceRouteStarted - current.passed!) / current.duration;
+  const progress: number = (timeSinceRouteStarted - (current.passed || 0)) / current.duration;
   // or
   // var progress = (timeSinceRouteStarted - start.passed) / (end.passed - start.passed)
   const speed: number = Math.round(current.meters / 1000 / (current.duration / 60 / 60));
@@ -96,11 +96,11 @@ interface Route {
 }
 
 function extractPoints(route: Route): Point[] {
-  const annotation: { duration: number[]; distance: number[] } = route.legs
+  const annotation = route.legs
     .map((leg) => leg.annotation)
     .reduce((a, b) => ({
-      duration: a.duration.concat(b.duration) / speedFactor,
-      distance: b.distance.concat(b.distance),
+      duration: a.duration.map((d) => d / speedFactor).concat(b.duration),
+      distance: a.distance.concat(b.distance),
     }))
   // destination is the last step, will not have an annotation
   annotation.distance.push(0)
