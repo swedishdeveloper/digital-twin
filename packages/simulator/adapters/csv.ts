@@ -1,7 +1,7 @@
-const fs = require('fs')
-const parse = require('csv-parse')
+import fs from 'fs';
+import parse from 'csv-parse';
 
-const readCsv = (path) => {
+const readCsv = (path: string): any => {
   const input = fs.readFileSync(path)
   return parse(input, {
     columns: true,
@@ -9,4 +9,4 @@ const readCsv = (path) => {
   })
 }
 
-module.exports = { readCsv }
+export { readCsv };
