@@ -1,14 +1,12 @@
-const elastic = require('@elastic/elasticsearch')
+import { Client, ClientOptions, RequestParams } from '@elastic/elasticsearch'
+import mappings from '../data/elasticsearch_mappings.json'
+import { error, info } from './log'
 
-const mappings = require('../data/elasticsearch_mappings.json')
-
-const { error, info } = require('./log')
-
-const host = process.env.ELASTICSEARCH_URL
+const host: string | undefined = process.env.ELASTICSEARCH_URL
 
 if (!host) {
   info('No elasticsearch url provided, skipping statistics collection')
-  const noOp = () => () => {
+  const noOp = (name: string) => () => {
     // info(`noOp: ${name}`)
   }
   module.exports = {
@@ -20,9 +18,9 @@ if (!host) {
   info(`Elasticsearch url provided, collecting statistics to ${host}`)
 }
 
-const client = new elastic.Client({ node: host, log: 'error' })
+const client = new Client({ node: host, log: 'error' } as ClientOptions)
 
-const createIndices = () =>
+const createIndices = (): Promise<void[]> =>
   Promise.all(
     Object.keys(mappings).map((index) => {
       return client.indices
@@ -56,7 +54,7 @@ const createIndices = () =>
     })
   )
 
-const save = (booking, indexName) => {
+const save = (booking: Record<string, any>, indexName: string): Promise<void> => {
   return client
     .index({
       index: indexName,
@@ -69,7 +67,7 @@ const save = (booking, indexName) => {
     })
 }
 
-const search = (searchQuery) => {
+const search = (searchQuery: RequestParams.Search): Promise<any> => {
   return client.search(searchQuery)
 }
 
