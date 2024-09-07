@@ -1,13 +1,13 @@
-import moment from 'moment';
+import * as moment from 'moment';
 
-interface Stop {
+type Stop = {
   tripId: string;
   routeId: string;
   stopId: string;
   lineNumber: string;
   position: any;
   services: any;
-}
+};
 import gtfs from './gtfs';
 
 import { shareReplay, from, firstValueFrom, groupBy, pipe, Observable } from 'rxjs';
