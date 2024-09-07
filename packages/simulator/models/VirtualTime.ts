@@ -1,23 +1,18 @@
-import { interval, firstValueFrom } from 'rxjs';
+import { interval, firstValueFrom } from 'rxjs'
 import {
   scan,
   shareReplay,
   map,
   filter,
   distinctUntilChanged,
-} from 'rxjs/operators';
-import {
-  addMilliseconds,
-  startOfDay,
-  addHours,
-  getUnixTime,
-} from 'date-fns';
+} from 'rxjs/operators'
+import { addMilliseconds, startOfDay, addHours, getUnixTime } from 'date-fns'
 
 class VirtualTime {
-  private startHour: number;
-  private timeMultiplier: number;
-  private internalTimeScale: number;
-  private currentTime: any;
+  private startHour: number
+  private timeMultiplier: number
+  private internalTimeScale: number
+  private currentTime: any
 
   constructor(timeMultiplier: number = 1, startHour: number = 6.8) {
     this.startHour = startHour
@@ -87,5 +82,5 @@ class VirtualTime {
   }
 }
 
-export const virtualTime = new VirtualTime(); // static global time
-export { VirtualTime };
+export const virtualTime = new VirtualTime() // static global time
+export { VirtualTime }
