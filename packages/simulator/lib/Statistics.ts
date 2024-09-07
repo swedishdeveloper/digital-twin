@@ -1,26 +1,8 @@
 import { save } from './elastic'
 
-interface Experiment {
-  // Define the structure of the experiment object
-}
-
-interface Position {
-  lon: number
-  lat: number
-}
-
-interface Booking {
-  toObject(): object
-  passenger?: {
-    toObject(): object
-  }
-  pickup: {
-    position: Position
-  }
-  destination: {
-    position: Position
-  }
-}
+import { Experiment } from '../../../types/Experiment';
+import { Position } from '../../../types/Position';
+import { Booking } from '../../../types/Booking';
 
 class Statistics {
   static collectExperimentMetadata(experiment: Experiment): Promise<any> {

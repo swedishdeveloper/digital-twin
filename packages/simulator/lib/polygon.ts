@@ -1,9 +1,6 @@
 import inside from 'point-in-polygon'
 
-type Coordinates = {
-  lon: number
-  lat: number
-}
+import { Position as Coordinates } from '../../../types/Position';
 
 function isInsideCoordinates(
   { lon, lat }: Coordinates,

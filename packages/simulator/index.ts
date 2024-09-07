@@ -4,34 +4,7 @@ import { mergeMap, catchError } from 'rxjs/operators'
 import { read } from './config'
 import { info, error, logStream } from './lib/log'
 
-type ExperimentParameters = {
-  id: string
-  startDate: Date
-  fixedRoute: number
-  emitters: any
-  fleets: any
-}
-
-type Experiment = {
-  logStream: any
-  busStops: any
-  lineShapes: any
-  postombud: any
-  municipalities: any
-  subscriptions: any[]
-  virtualTime: any
-  dispatchedBookings: any
-  cars: any
-  buses: any
-  taxis: any
-  recycleTrucks: any
-  parameters: ExperimentParameters
-  passengers: any
-  recycleCollectionPoints: any
-  bookingUpdates: any
-  passengerUpdates: any
-  carUpdates: any
-}
+import { Experiment, ExperimentParameters } from '../../../types/Experiment';
 
 const engine = {
   subscriptions: [] as any[],

@@ -1,4 +1,4 @@
-type Position = { lon: number; lat: number }
+import { Position } from '../../../types/Position';
 
 function convertPosition(pos: { [key: string]: any } | any[]): Position {
   return {

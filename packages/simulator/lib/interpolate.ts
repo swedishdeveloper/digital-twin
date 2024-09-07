@@ -1,7 +1,4 @@
-interface Position {
-  lat: number;
-  lon: number;
-}
+import { Position } from '../../../types/Position';
 
 interface Point {
   position: Position;

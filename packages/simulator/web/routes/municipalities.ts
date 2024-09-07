@@ -13,9 +13,7 @@ import {
 
 const count = () => pipe(scan((acc: number) => acc + 1, 0))
 
-interface Booking {
-  deliveredEvents: Observable<DeliveredEvent>
-}
+import { Booking } from '../../../../types/Booking';
 
 interface DeliveredEvent {
   type: string

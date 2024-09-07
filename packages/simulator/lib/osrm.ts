@@ -18,10 +18,7 @@ const encodePolyline = function (geometry: Position[]): string {
   return polyline.encode(geometry.map(({ lat, lon }) => [lat, lon]))
 }
 
-interface Position {
-  lat: number
-  lon: number
-}
+import { Position } from '../../../types/Position';
 
 interface Route {
   geometry: { coordinates: Position[] }

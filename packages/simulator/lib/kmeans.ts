@@ -3,10 +3,7 @@ import assert from 'assert';
 import { write } from './log';
 import { info } from 'console';
 
-interface Position {
-  lon: number;
-  lat: number;
-}
+import { Position } from '../../../types/Position';
 
 interface Input {
   pickup?: { position: Position };
