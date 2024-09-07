@@ -6,12 +6,17 @@ import { info, error, logStream } from './lib/log'
 
 import { Experiment, ExperimentParameters } from '../../../types/Experiment'
 
-const engine = {
-  subscriptions: [] as any[],
-  createExperiment: ({
+class Engine {
+  subscriptions: any[];
+
+  constructor() {
+    this.subscriptions = [];
+  }
+
+  createExperiment({
     defaultEmitters,
     id = safeId(),
-  }: { defaultEmitters: any; id?: string } = {}): Experiment => {
+  }: { defaultEmitters: any; id?: string } = {}): Experiment {
     console.log('Creating experiment')
     const savedParams = read()
     info(`*** Starting experiment ${id} with params:`, {
@@ -122,5 +127,7 @@ const engine = {
     )
 
     return experiment
-  },
+  }
 }
+
+const engine = new Engine();
