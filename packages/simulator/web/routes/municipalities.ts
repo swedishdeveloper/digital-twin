@@ -11,16 +11,66 @@ import {
 } from 'rxjs';
 
 interface Experiment {
-  municipalities: any;
+  municipalities: Observable<Municipality>;
 }
 
 interface Socket {
-  emit: (event: string, data: any) => void;
+  emit: (event: string, data: MunicipalityData) => void;
 }
 
 const count = () => pipe(scan((acc: number) => acc + 1, 0));
 
-const register = (experiment: Experiment, socket: Socket) => {
+interface Municipality {
+  id: string;
+  name: string;
+  geometry: any;
+  co2: number;
+  dispatchedBookings: Observable<Booking>;
+  cars: Observable<Car>;
+}
+
+interface Booking {
+  deliveredEvents: Observable<DeliveredEvent>;
+}
+
+interface DeliveredEvent {
+  type: string;
+  cost: number;
+  deliveryTime: number;
+}
+
+interface Car {
+  id: string;
+  cargoEvents: Observable<CargoEvent>;
+  cargo: any[];
+  parcelCapacity?: number;
+  passengerCapacity?: number;
+  co2: number;
+}
+
+interface CargoEvent {
+  id: string;
+  cargo: any[];
+}
+
+interface MunicipalityData {
+  id: string;
+  name: string;
+  totalCars: number;
+  totalCargo: number;
+  totalCo2: number;
+  totalPassengerCapacity: number;
+  totalParcelCapacity: number;
+  totalDelivered: number;
+  averagePassengerDeliveryTime: number;
+  averagePassengerCost: number;
+  averagePassengerLoad: number;
+  averageParcelLoad: number;
+  averageParcelDeliveryTime: number;
+  averageParcelCost: number;
+}
+
+const register = (experiment: Experiment, socket: Socket): void => {
   return [
     experiment.municipalities
       .pipe(
