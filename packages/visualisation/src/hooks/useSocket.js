@@ -9,7 +9,7 @@ export const useSocket = (eventKey: string, callback: Callback) => {
 
   callbackRef.current = callback;
 
-  const socketHandlerRef = useRef<Callback>(function (...args: any[]) {
+  const socketHandlerRef = useRef<(...args: any[]) => void>(function (...args: any[]) {
     if (callbackRef.current) {
       callbackRef.current.apply(this, args);
     }
