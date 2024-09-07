@@ -1,9 +1,24 @@
-const kmeans = require('node-kmeans')
-const assert = require('assert')
-const { write } = require('./log')
-const { info } = require('console')
+import kmeans from 'node-kmeans';
+import assert from 'assert';
+import { write } from './log';
+import { info } from 'console';
 
-const clusterPositions = (input, nrOfClusters = 5) => {
+interface Position {
+  lon: number;
+  lat: number;
+}
+
+interface Input {
+  pickup?: { position: Position };
+  position?: Position;
+}
+
+interface Cluster {
+  center: Position;
+  items: Input[];
+}
+
+const clusterPositions = (input: Input[], nrOfClusters: number = 5): Promise<Cluster[]> => {
   const vectors = input.map(({ pickup, position = pickup.position }) => [
     position.lon,
     position.lat,
@@ -41,7 +56,7 @@ const clusterPositions = (input, nrOfClusters = 5) => {
   )
 }
 
-module.exports = { clusterPositions }
+export { clusterPositions };
 /*
 test:
 
