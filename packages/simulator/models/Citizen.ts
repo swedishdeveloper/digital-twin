@@ -24,7 +24,7 @@ import Booking from '../../models/Booking'
 import pelias from '../../lib/pelias'
 import { error } from '../../lib/log'
 import { getHours, getISODay } from 'date-fns'
-import Position from './Position'
+import Position from '../../models/Position'
 
 interface Workplace {
   name: string
