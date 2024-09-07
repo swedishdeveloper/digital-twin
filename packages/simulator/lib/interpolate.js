@@ -85,11 +85,7 @@ function interpolatePositionFromRoute(
       (next.position.lon - current.position.lon) * progress,
     speed: speed,
     instruction: current,
-    next: {
-      lat: next.position.lat,
-      lon: next.position.lon,
-      instruction: next,
-    },
+    next: next,
     skippedPoints,
     remainingPoints,
   }
