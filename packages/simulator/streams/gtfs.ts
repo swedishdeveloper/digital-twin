@@ -1,4 +1,12 @@
 import fs from 'fs'
+
+interface Stop {
+  id: string;
+  name: string;
+  position: Position;
+  station: string | null;
+  platform: string | null;
+}
 import path from 'path'
 import AdmZip from 'adm-zip'
 import { shareReplay, Observable } from 'rxjs'
