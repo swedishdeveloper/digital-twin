@@ -22,7 +22,7 @@ class Booking {
   weight: number
   position: any
   pickup?: { departureTime?: Date; position: Position }
-  destination?: { deliveryTime?: Date; position: Position }
+  destination?: { arrivalTime?: Date; position: Position }
   queuedEvents: ReplaySubject<any>
   pickedUpEvents: ReplaySubject<any>
   assignedEvents: ReplaySubject<any>
