@@ -105,14 +105,14 @@ function gtfs(operator: string) {
         stop_name: name,
         stop_lat: lat,
         stop_lon: lon,
-        parent_station,
-        platform_code,
-      }) => ({
+        parent_station: station,
+        platform_code: platform,
+      }): Stop => ({
         id,
         name,
         position: new Position({ lat: +lat, lon: +lon }),
-        station: parent_station,
-        platform: platform_code,
+        station,
+        platform,
       })
     ),
     shareReplay()
