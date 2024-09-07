@@ -13,7 +13,6 @@ if (!host) {
     save: noOp('save'),
     createIndices: noOp('createIndices'),
   }
-  return
 } else {
   info(`Elasticsearch url provided, collecting statistics to ${host}`)
 }
@@ -52,10 +51,10 @@ const createIndices = (): Promise<void> =>
           }
         })
     })
-  )
+  ).then(() => {})
 
-const save = (booking: Record<string, any>, indexName: string): Promise<void> =>
-  return client
+const save = (booking: Record<string, any>, indexName: string): Promise<void> => 
+  client
     .index({
       index: indexName,
       id: booking.id,
@@ -67,9 +66,8 @@ const save = (booking: Record<string, any>, indexName: string): Promise<void> =>
     })
 }
 
-const search = (searchQuery: RequestParams.Search): Promise<unknown> => {
-  return client.search(searchQuery)
-}
+const search = (searchQuery: RequestParams.Search): Promise<unknown> => 
+  client.search(searchQuery).then(response => response.body)
 
 module.exports = {
   createIndices,
