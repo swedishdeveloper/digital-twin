@@ -1,7 +1,12 @@
-const inside = require('point-in-polygon')
+import inside from 'point-in-polygon';
 
-function isInsideCoordinates({ lon, lat }, coordinates) {
+interface Coordinates {
+  lon: number;
+  lat: number;
+}
+
+function isInsideCoordinates({ lon, lat }: Coordinates, coordinates: number[][][]): boolean {
   return coordinates.some((coordinates) => inside([lon, lat], coordinates))
 }
 
-module.exports = { isInsideCoordinates }
+export { isInsideCoordinates };
