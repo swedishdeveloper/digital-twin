@@ -13,7 +13,8 @@ const nearest = (position: Position, layers: string = 'address,venue'): Promise<
     .then((response) => {
       if (!response.ok) throw new Error('pelias error: ' + response.statusText);
       return response.json()
-    })
+      return Promise.reject(new Error('Error in pelias nearest'));
+    });
     .then((p) =>
       p.features[0]?.geometry?.coordinates?.length
         ? p
@@ -81,7 +82,10 @@ const cache = new Map()
 const searchOne = async (name: string, near: Position | null = null, layers: string = 'address,venue'): Promise<any> => {
   const cacheKey = !near ? name + layers : null;
   if (cacheKey && cache.has(cacheKey)) return cache.get(cacheKey)
-  const results = await search(name, near, layers, 1)
+  const results = await search(name, near, layers, 1).catch((e) => {
+    error(`Error in pelias searchOne\n${e}\n\n`);
+    return [];
+  });
   if (cacheKey && results.length > 0) cache.set(cacheKey, results[0]);
   return results[0]
 }
