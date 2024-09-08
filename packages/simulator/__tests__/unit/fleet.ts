@@ -1,5 +1,4 @@
 const Fleet = require('../../lib/fleet')
-const { from } = require('rxjs')
 const { first } = require('rxjs/operators')
 const Booking = require('../../lib/booking')
 const { virtualTime } = require('../../lib/virtualTime')
