@@ -60,7 +60,7 @@ describe('dispatch', () => {
 
   it('should dispatch two bookings even when they arrive async', function (done) {
     const bookingStream = new Subject<Booking>()
-    dispatch(cars, bookingStream).subscribe((booking) => {
+    dispatch(cars, bookingStream).subscribe((booking: Booking) => {
       if (booking.id === '1') {
         expect(booking.car?.position).toEqual(ljusdal)
         bookingStream.next(
