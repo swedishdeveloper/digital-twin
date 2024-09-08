@@ -1,13 +1,13 @@
-const Car = require('../../lib/vehicles/car')
-const Booking = require('../../lib/booking')
-const { virtualTime } = require('../../lib/virtualTime')
+import Car from '../../lib/vehicles/car'
+import Booking from '../../lib/booking'
+import { virtualTime } from '../../lib/virtualTime'
 
-const range = (length) => Array.from({ length }).map((_, i) => i)
+const range = (length: number): number[] => Array.from({ length }).map((_, i) => i)
 
 describe('A car', () => {
   const arjeplog = { lon: 17.886855, lat: 66.041054 }
   const ljusdal = { lon: 14.44681991219, lat: 61.59465992477 }
-  let car
+  let car: Car
 
   beforeEach(() => {
     virtualTime.setTimeMultiplier(Infinity)
@@ -17,19 +17,19 @@ describe('A car', () => {
     car.dispose()
   })
 
-  it('should initialize correctly', function (done) {
+  it('should initialize correctly', function (done: jest.DoneCallback) {
     car = new Car()
     expect(car.id).toHaveLength(9)
     done()
   })
 
-  it('should have initial position', function (done) {
+  it('should have initial position', function (done: jest.DoneCallback) {
     car = new Car({ id: 1, position: arjeplog })
     expect(car.position).toEqual(arjeplog)
     done()
   })
 
-  it('should be able to teleport', function (done) {
+  it('should be able to teleport', function (done: jest.DoneCallback) {
     car = new Car({ id: 1, position: arjeplog })
     car.navigateTo(ljusdal)
     car.on('stopped', () => {
@@ -39,7 +39,7 @@ describe('A car', () => {
     })
   })
 
-  it('should be able to handle one booking and navigate to pickup', function (done) {
+  it('should be able to handle one booking and navigate to pickup', function (done: jest.DoneCallback) {
     car = new Car({ id: 1, position: arjeplog })
     car.handleBooking(
       new Booking({
@@ -56,7 +56,7 @@ describe('A car', () => {
     })
   })
 
-  it('should be able to handle one booking and emit correct events', function (done) {
+  it('should be able to handle one booking and emit correct events', function (done: jest.DoneCallback) {
     car = new Car({ id: 1, position: arjeplog })
     car.handleBooking(
       new Booking({
@@ -77,7 +77,7 @@ describe('A car', () => {
     })
   })
 
-  it('should be able to pickup a booking and deliver it to its destination', function (done) {
+  it('should be able to pickup a booking and deliver it to its destination', function (done: jest.DoneCallback) {
     car = new Car({ id: 1, position: arjeplog })
     car.handleBooking(
       new Booking({
@@ -119,7 +119,7 @@ describe('A car', () => {
     expect(car.queue).toHaveLength(10)
   })
 
-  it('should be able to handle the bookings from the same place in the queue', function (done) {
+  it('should be able to handle the bookings from the same place in the queue', function (done: jest.DoneCallback) {
     car = new Car({ id: 1, position: arjeplog })
     expect(car.queue).toHaveLength(0)
     const ljusdalToArjeplog = {
