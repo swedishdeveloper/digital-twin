@@ -2,9 +2,9 @@ const Municipality = require('../../models/Municipality')
 const { from } = require('rxjs')
 const { first, map } = require('rxjs/operators')
 const Booking = require('../../models/Booking')
-const { virtualTime } = require('../../lib/virtualTime')
+const { virtualTime } = require('../../models/VirtualTime')
 
-const dispatch = require('../../lib/dispatch/dispatchCentral')
+const dispatch = require('../../lib/dispatch/taxiDispatch')
 
 jest.mock('../../lib/dispatch/dispatchCentral')
 
@@ -16,8 +16,18 @@ describe('A municipality', () => {
   let municipality
 
   let testBooking = new Booking({
-    pickup: arjeplog,
-    destination: ljusdal,
+    id: 'b-123',
+    status: 'pending',
+    co2: 0,
+    passenger: null,
+    type: 'taxi',
+    cost: 100,
+    distance: 50,
+    weight: 1,
+    position: arjeplog,
+    pickup: { departureTime: new Date().toISOString(), position: arjeplog },
+    destination: ljusdal
+    municipality.dispose()
   })
 
   beforeEach(() => {
