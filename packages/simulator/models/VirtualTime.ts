@@ -12,7 +12,7 @@ class VirtualTime {
   private startHour: number
   private timeMultiplier: number
   private internalTimeScale: number
-  private currentTime: any
+  private currentTime: Observable<number>
 
   constructor(timeMultiplier: number = 1, startHour: number = 6.8) {
     this.startHour = startHour

@@ -11,7 +11,12 @@ class Taxi extends Vehicle {
   id
   position
   heading
-  constructor({ id = 't-' + safeId(), position, startPosition, ...vehicle }) {
+  constructor({
+    id = 't-' + safeId(),
+    position,
+    passengerCapacity,
+    ...vehicle
+  }) {
     super({ position, id, fleet, ...vehicle })
     this.id = id
     this.position = position
@@ -19,11 +24,11 @@ class Taxi extends Vehicle {
     this.cargo = []
     this.passengers = []
     this.queue = []
-    this.passengerCapacity = 4 // TODO: Set this when constructing the vehicle
+    this.passengerCapacity = passengerCapacity || 4 // TODO: Set this when constructing the vehicle
     this.parcelCapacity = 0 // TODO: Set this when constructing the vehicle
     this.booking = true
     this.vehicleType = 'taxi'
-    this.startPosition = startPosition || position
+    this.startPosition = position
     this.co2PerKmKg = 0.1201 // NOTE: From a quick google. Needs to be verified.
     this.plan = []
     this.instruction = null

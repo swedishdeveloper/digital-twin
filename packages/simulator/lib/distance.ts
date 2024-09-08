@@ -1,15 +1,8 @@
-import { Position } from '../../../types/Position';
-
-function convertPosition(pos: { [key: string]: any } | any[]): Position {
-  return {
-    lon: pos.longitude || pos.lon || pos.lng || pos[0],
-    lat: pos.latitude || pos.lat || pos[1],
-  }
-}
+import Position from '../models/Position'
 
 function pythagoras(from: Position | any, to: Position | any): number {
-  from = convertPosition(from)
-  to = convertPosition(to)
+  from = Position.convertPosition(from)
+  to = Position.convertPosition(to)
   // quick approximation with pythagoras theorem
   return Math.sqrt(
     Math.pow(Math.abs(from.lat - to.lat), 2) +
@@ -24,8 +17,8 @@ function rad(x: number): number {
 /* Distance in meters between two points using the Haversine algo.
  */
 function haversine(p1: Position | any, p2: Position | any): number {
-  p1 = convertPosition(p1)
-  p2 = convertPosition(p2)
+  p1 = Position.convertPosition(p1)
+  p2 = Position.convertPosition(p2)
 
   const R = 6371000
   const dLat = rad(p2.lat - p1.lat)
@@ -57,17 +50,24 @@ function bearing(p1: Position | any, p2: Position | any): number {
 
 /* Add meters to a position
  */
-function addMeters(p1: Position | any, { x, y }: { x: number; y: number }): Position {
-  p1 = convertPosition(p1)
+function addMeters(
+  p1: Position | any,
+  { x, y }: { x: number; y: number }
+): Position {
+  p1 = Position.convertPosition(p1)
   const R = 6371000
 
   const lat = p1.lat + (y / R) * (180 / Math.PI)
   const lon =
     p1.lon + ((x / R) * (180 / Math.PI)) / Math.cos((p1.lat * Math.PI) / 180)
 
-  return { lon, lat }
+  return new Position({ lon, lat })
 }
-function getNrOfPointsBetween(p1: Position, p2: Position, quantity: number): Position[] {
+function getNrOfPointsBetween(
+  p1: Position,
+  p2: Position,
+  quantity: number
+): Position[] {
   const points: Position[] = []
   var latDiff = p2.lat - p1.lat,
     lonDiff = p2.lon - p1.lon
@@ -84,16 +84,9 @@ function getNrOfPointsBetween(p1: Position, p2: Position, quantity: number): Pos
       lon = lat / slope
     }
 
-    points.push({ lon: lon + p1.lon, lat: lat + p1.lat })
+    points.push(new Position({ lon: lon + p1.lon, lat: lat + p1.lat }))
   }
 
   return points
 }
-export {
-  pythagoras,
-  haversine,
-  bearing,
-  convertPosition,
-  addMeters,
-  getNrOfPointsBetween,
-}
+export { pythagoras, haversine, bearing, addMeters, getNrOfPointsBetween }

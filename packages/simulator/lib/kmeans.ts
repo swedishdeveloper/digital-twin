@@ -1,28 +1,27 @@
-import kmeans from 'node-kmeans';
-import assert from 'assert';
-import { write } from './log';
-import { info } from 'console';
+import kmeans from 'node-kmeans'
+import assert from 'assert'
+import { write } from './log'
+import { info } from 'console'
 
-import { Position } from '../../../types/Position';
-
-interface Input {
-  pickup?: { position: Position };
-  position?: Position;
-}
+import Booking from '../models/Booking'
+import Position from '../models/Position'
 
 interface Cluster {
-  center: Position;
-  items: Input[];
+  center: Position
+  bookings: Booking[]
 }
 
-const clusterPositions = (input: Input[], nrOfClusters: number = 5): Promise<Cluster[]> => {
-  const vectors = input.map(({ pickup, position }) => {
-    const pos = position || (pickup && pickup.position);
+export const clusterBookings = (
+  bookings: Booking[],
+  nrOfClusters: number = 5
+): Promise<Cluster[]> => {
+  const vectors = bookings.map(({ pickup, position }) => {
+    const pos = position || (pickup && pickup.position)
     if (!pos) {
-      throw new Error('Position is undefined');
+      throw new Error('Position is undefined')
     }
-    return [pos.lon, pos.lat];
-  });
+    return [pos.lon, pos.lat]
+  })
   info('Clustering', vectors.length, 'positions into', nrOfClusters, 'clusters')
   assert(
     vectors.length < 301,
@@ -32,31 +31,33 @@ const clusterPositions = (input: Input[], nrOfClusters: number = 5): Promise<Clu
     assert(
       vector.length === 2,
       `Expected 2 coordinates at index ${index}, got: ${vector.length}`
-    );
+    )
     assert(
       vector[0] > -180 && vector[0] < 180,
       `Longitude out of range at index ${index}: ${vector[0]}`
-    );
+    )
     assert(
       vector[1] > -90 && vector[1] < 90,
       `Latitude out of range at index ${index}: ${vector[1]}`
-    );
-  });
+    )
+  })
   write('k..')
   return new Promise((resolve, reject) =>
     kmeans.clusterize(vectors, { k: nrOfClusters }, (err, res) => {
       write('.m')
       if (err) return reject(err)
       const clusters = res.map((cluster) => ({
-        center: { lon: cluster.centroid[0], lat: cluster.centroid[1] },
-        items: cluster.clusterInd.map((i) => input[i]),
+        center: new Position({
+          lon: cluster.centroid[0],
+          lat: cluster.centroid[1],
+        }),
+        bookings: cluster.clusterInd.map((i) => bookings[i] as Booking),
       }))
       resolve(clusters)
     })
   )
 }
 
-export { clusterPositions };
 /*
 test:
 

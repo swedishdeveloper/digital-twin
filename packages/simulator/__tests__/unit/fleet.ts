@@ -1,15 +1,24 @@
-import Fleet from '../../lib/fleet';
-import { first, from } from 'rxjs';
-import Booking from '../../lib/booking';
-import { virtualTime } from '../../lib/virtualTime';
-import dispatch from '../../lib/dispatchCentral';
-import { jest, describe, beforeEach, afterEach, it, expect } from '@jest/globals';
+import {
+  jest,
+  describe,
+  beforeEach,
+  afterEach,
+  it,
+  expect,
+} from '@jest/globals'
+import Booking from '../../models/Booking'
+import Fleet from '../../models/Fleet'
+import Position from '../../models/Position'
 
-jest.mock('../../lib/dispatchCentral');
+jest.mock('../../lib/dispatchCentral')
 
 describe('A fleet', () => {
-  const arjeplog = { lon: 17.886855, lat: 66.041054 }
-  const ljusdal = { lon: 14.44681991219, lat: 61.59465992477 }
+  const arjeplog = {
+    position: new Position({ lon: 17.886855, lat: 66.041054 }),
+  }
+  const ljusdal = {
+    position: new Position({ lon: 14.44681991219, lat: 61.59465992477 }),
+  }
   let fleet
 
   let testBooking = new Booking({
@@ -30,7 +39,6 @@ describe('A fleet', () => {
     fleet = new Fleet({
       name: 'postnord',
       marketshare: 1,
-      numberOfCars: 1,
       hub: arjeplog,
     })
     expect(fleet.name).toHaveLength(8)

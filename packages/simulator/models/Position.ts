@@ -1,21 +1,21 @@
 import { PositionType } from '../../../types/Position'
 import { haversine } from '../lib/distance'
 
-function convertPosition(pos: any): { lon: number; lat: number } {
-  return {
-    lon: pos.longitude || pos.lon || pos.lng || pos[0],
-    lat: pos.latitude || pos.lat || pos[1],
-  }
-}
-
 class Position implements PositionType {
   lon: number
   lat: number
 
   constructor(pos: any) {
-    const { lon, lat } = convertPosition(pos)
+    const { lon, lat } = Position.convertPosition(pos)
     this.lon = lon
     this.lat = lat
+  }
+
+  static convertPosition(pos: any): { lon: number; lat: number } {
+    return {
+      lon: pos.longitude || pos.lon || pos.lng || pos[0],
+      lat: pos.latitude || pos.lat || pos[1],
+    }
   }
 
   isValid(): boolean {
@@ -27,7 +27,7 @@ class Position implements PositionType {
     return true
   }
 
-  distanceTo(position: Position): number {
+  distanceTo(position: PositionType): number {
     return haversine(this, position)
   }
 

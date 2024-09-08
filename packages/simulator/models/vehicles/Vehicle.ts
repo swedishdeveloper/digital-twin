@@ -2,7 +2,7 @@ import { ReplaySubject, Subscription } from 'rxjs'
 import { scan } from 'rxjs/operators'
 import moment from 'moment'
 import { assert, warn } from 'console'
-import { bearing } from '../../lib/distance'
+import { bearing, haversine } from '../../lib/distance'
 import Position from '../Position'
 import Booking from '../Booking'
 import * as interpolate from '../../lib/interpolate'
@@ -41,7 +41,7 @@ class Vehicle {
   movementSubscription?: Subscription
   heading?: Position
   route?: any
-  booking?: Booking
+  booking?: Booking | null
   _disposed?: boolean
   lastPositionUpdate?: number
   ema?: number
@@ -237,19 +237,19 @@ class Vehicle {
   pickNextFromCargo(): Booking | undefined {
     this.cargo.sort(
       (a, b) =>
-        haversine(this.position, a.destination.position) -
-        haversine(this.position, b.destination.position)
+        haversine(this.position, a.destination!.position) -
+        haversine(this.position, b.destination!.position)
     )
     const booking = this.cargo.shift()
     this.cargoEvents.next(this)
 
     if (booking) {
-      this.navigateTo(this.booking!.destination.position)
+      this.navigateTo(this.booking!.destination!.position)
     } else {
       this.queue.sort(
         (a, b) =>
-          haversine(this.position, a.destination.position) -
-          haversine(this.position, b.destination.position)
+          haversine(this.position, a.destination!.position) -
+          haversine(this.position, b.destination!.position)
       )
 
       const nextBooking = this.queue.shift()

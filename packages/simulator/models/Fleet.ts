@@ -4,11 +4,9 @@ import {
   from,
   merge,
   of,
-  firstValueFrom,
   Observable,
 } from 'rxjs'
 import { shareReplay, mergeMap, share, catchError, first } from 'rxjs/operators'
-import { FleetConstructorArgs } from './FleetTypes'
 import RecycleTruck from './vehicles/RecycleTruck'
 import Municipality from './Municipality'
 import Position from './Position'
@@ -48,8 +46,8 @@ class Fleet {
     vehicles,
     hub,
     type,
-    municipality,
-  }: FleetConstructorArgs) {
+    municipality?,
+  }) {
     this.name = name
     this.type = type
     this.marketshare = marketshare

@@ -1,7 +1,8 @@
-import { ReplaySubject, merge } from 'rxjs'
+import { Observable, ReplaySubject, merge, share } from 'rxjs'
 
 import { BookingData } from '../../../types/BookingData'
 import Position from './Position'
+import Vehicle from './vehicles/Vehicle'
 
 class Booking {
   id: string
@@ -12,22 +13,25 @@ class Booking {
   cost: number
   distance: number
   weight: number
-  position: any
+  position: Position
   pickup: { departureTime?: Date; position: Position }
   destination?: { arrivalTime?: Date; position: Position }
-  queuedEvents: ReplaySubject<any>
-  pickedUpEvents: ReplaySubject<any>
-  assignedEvents: ReplaySubject<any>
-  deliveredEvents: ReplaySubject<any>
-  statusEvents: any
-  queuedDateTime?: number
-  car?: any
+  queuedEvents: ReplaySubject<Booking>
+  pickedUpEvents: ReplaySubject<Booking>
+  assignedEvents: ReplaySubject<Booking>
+  deliveredEvents: ReplaySubject<Booking>
+  statusEvents: Observable<Booking>
+  car?: Vehicle
   assigned?: number
-  pickupDateTime?: number
-  pickupPosition?: any
-  deliveredDateTime?: number
+
+  queuedDateTime?: number // Date
+  pickupDateTime?: number // Date
+  pickupPosition?: Position
+  deliveredDateTime?: number // Date
+  deliveryTime?: number // seconds
+
+  // REMOVE?
   deliveredPosition?: any
-  deliveryTime?: number
 
   constructor(booking: BookingData) {
     Object.assign(this, booking)
@@ -44,16 +48,16 @@ class Booking {
     this.distance = 0 //TODO: räkna med sträcka innan?
     this.weight = Math.random() * 10 // kg TODO: find reference kg // TODO: passagerare väger mer..
     this.position = this.pickup?.position
-    this.queuedEvents = new ReplaySubject()
-    this.pickedUpEvents = new ReplaySubject()
-    this.assignedEvents = new ReplaySubject()
-    this.deliveredEvents = new ReplaySubject()
+    this.queuedEvents = new ReplaySubject<Booking>()
+    this.pickedUpEvents = new ReplaySubject<Booking>()
+    this.assignedEvents = new ReplaySubject<Booking>()
+    this.deliveredEvents = new ReplaySubject<Booking>()
     this.statusEvents = merge(
       this.queuedEvents,
       this.assignedEvents,
       this.pickedUpEvents,
       this.deliveredEvents
-    )
+    ).pipe(share())
   }
 
   async queued(car: any): Promise<void> {
@@ -129,9 +133,9 @@ class Booking {
       pickupPosition: this.pickupPosition?.toObject(),
       deliveredPosition: this.deliveredPosition?.toObject(),
       pickupDateTime: this.pickupDateTime,
-      deliveredDateTime: this.deliveredDateTime,
       deliveryTime: this.deliveryTime,
       queued: this.queued,
+      deliveredDateTime: this.deliveredDateTime,
       assigned: this.assigned,
     }
   }
