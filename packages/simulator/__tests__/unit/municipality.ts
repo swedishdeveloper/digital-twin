@@ -6,7 +6,7 @@ const { virtualTime } = require('../../models/VirtualTime')
 
 const dispatch = require('../../lib/dispatch/taxiDispatch')
 
-jest.mock('../../lib/dispatch/dispatchCentral')
+jest.mock('../../lib/dispatch/taxiDispatch')
 
 describe('A municipality', () => {
   const arjeplog = { lon: 17.886855, lat: 66.041054 }
@@ -42,7 +42,7 @@ describe('A municipality', () => {
   })
 
   it('should initialize correctly', function (done) {
-    municipality = new Municipality({ name: 'stockholm', squares, fleets })
+    municipality = new Municipality({ name: 'stockholm', squares, fleets, virtualTime })
     expect(municipality.name).toBe('stockholm')
     done()
   })
