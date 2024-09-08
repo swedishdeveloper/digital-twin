@@ -9,8 +9,8 @@ describe('dispatch', () => {
   const arjeplog = { lon: 17.886855, lat: 66.041054 }
   const ljusdal = { lon: 14.44681991219, lat: 61.59465992477 }
   const stockholm = { lon: 18.06324, lat: 59.334591 }
-  let cars
-  let bookings
+  let cars;
+  let bookings;
 
   beforeEach(() => {
     virtualTime.setTimeMultiplier(Infinity)
@@ -59,7 +59,7 @@ describe('dispatch', () => {
   })
 
   it('should dispatch two bookings even when they arrive async', function (done) {
-    const asyncBookings = new Subject()
+    const asyncBookings = new Subject();
     dispatch(cars, asyncBookings).subscribe(({ booking: { id }, car }) => {
       if (id === 1) {
         expect(car.position).toEqual(ljusdal)
