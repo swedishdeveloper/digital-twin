@@ -6,7 +6,8 @@
   "scripts": {
     "start": "concurrently \"npm:simulator\" \"npm:visualisation\"",
     "simulator": "cd packages/simulator && npm run dev",
-    "visualisation": "cd packages/visualisation && npm run dev"
+    "visualisation": "cd packages/visualisation && npm run dev",
+    "test": "npx jest"
   },
   "repository": {
     "type": "git",
