@@ -1,5 +1,4 @@
 import Vehicle from '../../models/vehicles/Vehicle'
-import { expect, describe, beforeEach, afterEach, it } from '@jest/globals'
 
 const range = (length: number): number[] =>
   Array.from({ length }).map((_, i) => i)
