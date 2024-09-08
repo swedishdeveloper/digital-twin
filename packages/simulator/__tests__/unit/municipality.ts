@@ -1,7 +1,7 @@
-const Municipality = require('../../lib/Municipality')
+const Municipality = require('../../models/Municipality')
 const { from } = require('rxjs')
 const { first, map } = require('rxjs/operators')
-const Booking = require('../../lib/booking')
+const Booking = require('../../models/Booking')
 const { virtualTime } = require('../../lib/virtualTime')
 
 const dispatch = require('../../lib/dispatch/dispatchCentral')
@@ -45,7 +45,7 @@ describe('A municipality', () => {
     expect(dispatch.dispatch.mock.calls.length).toBe(1)
   })
 
-  it.only('handled bookings are dispatched', function (done) {
+  it('handled bookings are dispatched', function (done) {
     dispatch.dispatch.mockImplementation((cars, bookings) =>
       bookings.pipe(
         map((booking) => ({
@@ -59,7 +59,7 @@ describe('A municipality', () => {
     municipality.handleBooking(testBooking)
 
     municipality.dispatchedBookings.pipe(first()).subscribe(({ booking }) => {
-      expect(booking.fleet.name).toBe('bring')
+      expect(booking.fleet.name).toBe('postnord')
       expect(booking.id).toBe(testBooking.id)
       done()
     })
