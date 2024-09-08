@@ -6,8 +6,8 @@
   "scripts": {
     "test": "jest __tests__",
     "watch": "jest --watch __tests__",
-    "dev": "node --import tsx --watch web/index.ts",
-    "start": "node --import tsx web/index.ts"
+    "dev": "tsx watch web/index.ts",
+    "start": "tsx web/index.ts"
   },
   "author": "Iteam",
   "license": "MIT",
@@ -30,7 +30,7 @@
     "rxjs": "^7.2.0",
     "socket.io": "^4.6",
     "swe-coords": "^1.0.0",
-    "ts-node": "^10.9.2",
+    "tsx": "^3.12.7",
     "xlsx": "^0.17.0"
   },
   "directories": {
