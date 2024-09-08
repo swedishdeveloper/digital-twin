@@ -4,11 +4,12 @@
   "description": "",
   "main": "web/index.ts",
   "scripts": {
-    "dev": "nodemon web/index.js",
+    "build": "tsc",
+    "dev": "npm run build && nodemon dist/web/index.js",
     "test": "jest __tests__",
     "watch": "jest --watch __tests__",
     "preboot": "node preboot.js",
-    "start": "node web/index.js"
+    "start": "node dist/web/index.js"
   },
   "author": "Iteam",
   "license": "MIT",
