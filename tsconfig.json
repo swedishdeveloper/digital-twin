@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "types": ["jest"],
+    "types": ["jest", "@jest/globals"],
     "target": "ES6",
     "module": "esnext",
     "strict": true,
