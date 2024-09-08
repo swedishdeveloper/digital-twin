@@ -4,7 +4,7 @@ import { first, map } from 'rxjs/operators'
 import Booking from '../../models/Booking'
 import { virtualTime } from '../../models/VirtualTime'
 
-import dispatch from '../../lib/dispatch/taxiDispatch'
+import * as dispatch from '../../lib/dispatch/taxiDispatch'
 
 jest.mock('../../lib/dispatch/taxiDispatch')
 
@@ -25,7 +25,7 @@ describe('A municipality', () => {
     distance: 50,
     weight: 1,
     position: arjeplog,
-    pickup: { departureTime: new Date().toISOString(), position: arjeplog },
+    pickup: { departureTime: new Date(), position: arjeplog },
     destination: ljusdal
   })
 
@@ -42,7 +42,19 @@ describe('A municipality', () => {
   })
 
   it('should initialize correctly', function (done) {
-    municipality = new Municipality({ name: 'stockholm', squares, fleets, virtualTime })
+    municipality = new Municipality({
+      name: 'stockholm',
+      squares,
+      geometry: null,
+      id: 'm-123',
+      email: 'test@example.com',
+      zip: '12345',
+      center: null,
+      co2: 0,
+      telephone: '123456789',
+      fleets,
+      virtualTime
+    })
     expect(municipality.name).toBe('stockholm')
     done()
   })
