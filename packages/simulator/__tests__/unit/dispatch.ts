@@ -13,8 +13,8 @@ describe('dispatch', () => {
   beforeEach(() => {
     virtualTime.setTimeMultiplier(Infinity)
     cars = from([
-      new Car({ id: 1, position: ljusdal }),
-      new Car({ id: 2, position: arjeplog }),
+      new Vehicle({ id: 1, position: ljusdal }),
+      new Vehicle({ id: 2, position: arjeplog }),
     ]).pipe(shareReplay())
     bookings = from([
       new Booking({
@@ -86,8 +86,8 @@ describe('dispatch', () => {
   it('should have cars available even the second time', function (done) {
     const asyncBookings = new Subject()
     const cars = new ReplaySubject()
-    cars.next(new Car({ position: ljusdal }))
-    cars.next(new Car({ position: arjeplog }))
+    cars.next(new Vehicle({ position: ljusdal }))
+    cars.next(new Vehicle({ position: arjeplog }))
 
     dispatch(cars, asyncBookings).subscribe(
       ({ booking: { id }, car: { position } }) => {
@@ -118,7 +118,7 @@ describe('dispatch', () => {
   })
 
   it.only('should dispatch two bookings to one car', function (done) {
-    cars = from([new Car({ id: 1, position: ljusdal })])
+    cars = from([new Vehicle({ id: 1, position: ljusdal })])
     bookings = from([
       new Booking({
         id: 1337,
@@ -151,7 +151,7 @@ describe('dispatch', () => {
   })
 
   it('should dispatch three bookings to one car with only capacity for one and still deliver them all', function (done) {
-    cars = from([new Car({ id: 1, position: ljusdal, capacity: 1 })])
+    cars = from([new Vehicle({ id: 1, position: ljusdal, capacity: 1 })])
     bookings = from([
       new Booking({
         id: 1337,
