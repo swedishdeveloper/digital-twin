@@ -69,7 +69,8 @@ describe('A car', () => {
   })
 
   it('should be able to pickup multiple bookings and queue the all except the first', function () {
-    car = new Car({ id: '1', position: new Position(arjeplog) })
+    car = new Car({ id: '1', position: new Position(arjeplog) });
+    car.handleBooking(
       new Booking({
         id: '1',
         pickup: {
@@ -85,7 +86,8 @@ describe('A car', () => {
   })
 
   it('should be able to handle one booking and emit correct events', function (done: jest.DoneCallback) {
-    car = new Car({ id: '1', position: new Position(arjeplog) })
+    car = new Car({ id: '1', position: new Position(arjeplog) });
+    car.handleBooking(
       new Booking({
         id: 1,
         pickup: {
