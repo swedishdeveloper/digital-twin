@@ -4,6 +4,7 @@
   "description": "## Background",
   "main": "index.js",
   "scripts": {
+    "dev": "concurrently \"npm:simulator\" \"npm:visualisation\"",
     "start": "concurrently \"npm:simulator\" \"npm:visualisation\"",
     "simulator": "cd packages/simulator && npm run dev",
     "visualisation": "cd packages/visualisation && npm run dev",
