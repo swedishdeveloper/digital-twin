@@ -1,7 +1,8 @@
-import { VirtualTime } from '../../lib/virtualTime'
+import { expect, describe, beforeEach, it } from '@jest/globals'
+import { VirtualTime } from '../../models/VirtualTime'
 
 expect.extend({
-  toBeNear(x, y) {
+  toBeCloseTo(x, y) {
     return {
       pass: Math.round(x / 100) === Math.round(y / 100),
       message: () =>
@@ -21,7 +22,7 @@ describe('VirtualTime', () => {
     let start = virtualTime.time()
 
     setTimeout(() => {
-      expect(virtualTime.time()).toBeNear(start + 1000)
+      expect(virtualTime.time()).toBeCloseTo(start + 1000)
       done()
     }, 1000)
   })
@@ -31,7 +32,7 @@ describe('VirtualTime', () => {
     virtualTime.pause()
 
     setTimeout(() => {
-      expect(virtualTime.time()).toBeNear(start)
+      expect(virtualTime.time()).toBeCloseTo(start)
       done()
     }, 1000)
   })
@@ -42,7 +43,7 @@ describe('VirtualTime', () => {
 
     setTimeout(() => {
       virtualTime.play()
-      expect(virtualTime.time()).toBeNear(start)
+      expect(virtualTime.time()).toBeCloseTo(start)
       done()
     }, 1000)
   })
@@ -53,11 +54,11 @@ describe('VirtualTime', () => {
     virtualTime.pause()
 
     setTimeout(() => {
-      expect(virtualTime.time()).toBeNear(start)
+      expect(virtualTime.time()).toBeCloseTo(start)
       virtualTime.play()
 
       setTimeout(() => {
-        expect(virtualTime.time()).toBeNear(start + 1000)
+        expect(virtualTime.time()).toBeCloseTo(start + 1000)
         done()
       }, 1000)
     }, 1000)
