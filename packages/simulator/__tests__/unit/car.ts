@@ -1,4 +1,8 @@
+import Car from '../../models/vehicles/Car'
 import Vehicle from '../../models/vehicles/Vehicle'
+import Booking from '../../models/Booking'
+import { virtualTime } from '../../models/VirtualTime'
+import Position from '../../models/Position'
 
 const range = (length: number): number[] =>
   Array.from({ length }).map((_, i) => i)
@@ -17,21 +21,21 @@ describe('A car', () => {
   })
 
   it('should initialize correctly', function (done: jest.DoneCallback) {
-    car = new Car()
+    car = new Car({ id: '1', position: new Position(arjeplog) })
     expect(car.id).toHaveLength(9)
     done()
   })
 
   it('should have initial position', function (done: jest.DoneCallback) {
-    car = new Car({ id: 1, position: arjeplog })
+    car = new Car({ id: '1', position: new Position(arjeplog) })
     expect(car.position).toEqual(arjeplog)
     done()
   })
 
   it('should be able to teleport', function (done: jest.DoneCallback) {
-    car = new Car({ id: 1, position: arjeplog })
-    car.navigateTo(ljusdal)
-    car.on('stopped', () => {
+    car = new Car({ id: '1', position: new Position(arjeplog) })
+    car.navigateTo(new Position(ljusdal))
+    car.once('stopped', () => {
       expect(car.position?.lon).toEqual(ljusdal.lon)
       expect(car.position?.lat).toEqual(ljusdal.lat)
       done()
@@ -39,8 +43,48 @@ describe('A car', () => {
   })
 
   it('should be able to handle one booking and navigate to pickup', function (done: jest.DoneCallback) {
-    car = new Car({ id: 1, position: arjeplog })
+    car = new Car({ id: '1', position: new Position(arjeplog) })
     car.handleBooking(
+      new Booking({
+        id: '1',
+        pickup: {
+          position: new Position(ljusdal),
+        },
+        destination: {
+          position: new Position(arjeplog),
+        },
+      })
+    )
+    car.once('pickup', () => {
+      expect(car.position?.lon).toEqual(ljusdal.lon)
+      expect(car.position?.lat).toEqual(ljusdal.lat)
+    })
+
+    car.once('dropoff', () => {
+      expect(car.position?.lon).toEqual(arjeplog.lon)
+      expect(car.position?.lat).toEqual(arjeplog.lat)
+      done()
+    })
+  })
+
+  it('should be able to pickup multiple bookings and queue the all except the first', function () {
+    car = new Car({ id: '1', position: new Position(arjeplog) })
+      new Booking({
+        id: '1',
+        pickup: {
+          position: new Position(ljusdal),
+        },
+      })
+    )
+    car.once('pickup', () => {
+      expect(car.position?.lon).toEqual(ljusdal.lon)
+      expect(car.position?.lat).toEqual(ljusdal.lat)
+      done()
+    })
+  })
+
+  it('should be able to handle one booking and emit correct events', function (done: jest.DoneCallback) {
+    car = new Car({ id: '1', position: new Position(arjeplog) })
       new Booking({
         id: 1,
         pickup: {
@@ -56,7 +100,7 @@ describe('A car', () => {
   })
 
   it('should be able to handle one booking and emit correct events', function (done: jest.DoneCallback) {
-    car = new Car({ id: 1, position: arjeplog })
+    car = new Car({ id: '1', position: new Position(arjeplog) })
     car.handleBooking(
       new Booking({
         id: 1,
@@ -77,7 +121,7 @@ describe('A car', () => {
   })
 
   it('should be able to pickup a booking and deliver it to its destination', function (done: jest.DoneCallback) {
-    car = new Car({ id: 1, position: arjeplog })
+    car = new Car({ id: '1', position: new Position(arjeplog) })
     car.handleBooking(
       new Booking({
         id: 1,
@@ -153,16 +197,18 @@ describe('A car', () => {
     car.handleBooking(last)
 
     const bookings = range(10).map((id) =>
+      car.handleBooking(new Booking({ id: id.toString(), ...ljusdalToArjeplog }))
+    )
       car.handleBooking(new Booking({ id, ...ljusdalToArjeplog }))
     )
 
     const [firstBooking, secondBooking] = bookings
 
-    firstBooking.once('delivered', () => {
+    firstBooking.then(() => {
       expect(car.queue).toHaveLength(1)
     })
 
-    secondBooking.once('delivered', () => {
+    secondBooking.then(() => {
       expect(car.queue).toHaveLength(1)
     })
 
