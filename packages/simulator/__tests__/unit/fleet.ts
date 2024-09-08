@@ -1,11 +1,11 @@
-const Fleet = require('../../lib/fleet')
-const { first } = require('rxjs/operators')
-const Booking = require('../../lib/booking')
-const { virtualTime } = require('../../lib/virtualTime')
+import Fleet from '../../lib/fleet';
+import { first } from 'rxjs/operators';
+import Booking from '../../lib/booking';
+import { virtualTime } from '../../lib/virtualTime';
 
-const dispatch = require('../../lib/dispatchCentral')
+import dispatch from '../../lib/dispatchCentral';
 
-jest.mock('../../lib/dispatchCentral')
+jest.mock('../../lib/dispatchCentral');
 
 describe('A fleet', () => {
   const arjeplog = { lon: 17.886855, lat: 66.041054 }
