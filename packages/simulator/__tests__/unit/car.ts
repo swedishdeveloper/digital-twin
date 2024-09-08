@@ -1,8 +1,9 @@
-import Car from '../../models/vehicles/Car'
-import Vehicle from '../../models/vehicles/Vehicle'
-import Booking from '../../models/Booking'
-import { virtualTime } from '../../models/VirtualTime'
-import Position from '../../models/Position'
+import Car from '../../models/vehicles/Car';
+import Vehicle from '../../models/vehicles/Vehicle';
+import Booking from '../../models/Booking';
+import { virtualTime } from '../../models/VirtualTime';
+import Position from '../../models/Position';
+import { jest } from '@jest/globals';
 
 const range = (length: number): number[] =>
   Array.from({ length }).map((_, i) => i)
@@ -10,7 +11,7 @@ const range = (length: number): number[] =>
 describe('A car', () => {
   const arjeplog = { lon: 17.886855, lat: 66.041054 }
   const ljusdal = { lon: 14.44681991219, lat: 61.59465992477 }
-  let car: Vehicle
+  let car: Car;
 
   beforeEach(() => {
     virtualTime.setTimeMultiplier(Infinity)
@@ -21,19 +22,19 @@ describe('A car', () => {
   })
 
   it('should initialize correctly', function (done: jest.DoneCallback) {
-    car = new Car({ id: '1', position: new Position(arjeplog) })
+    car = new Car({ id: '1', position: new Position(arjeplog) });
     expect(car.id).toHaveLength(9)
     done()
   })
 
   it('should have initial position', function (done: jest.DoneCallback) {
-    car = new Car({ id: '1', position: new Position(arjeplog) })
+    car = new Car({ id: '1', position: new Position(arjeplog) });
     expect(car.position).toEqual(arjeplog)
     done()
   })
 
   it('should be able to teleport', function (done: jest.DoneCallback) {
-    car = new Car({ id: '1', position: new Position(arjeplog) })
+    car = new Car({ id: '1', position: new Position(arjeplog) });
     car.navigateTo(new Position(ljusdal))
     car.once('stopped', () => {
       expect(car.position?.lon).toEqual(ljusdal.lon)
@@ -43,7 +44,7 @@ describe('A car', () => {
   })
 
   it('should be able to handle one booking and navigate to pickup', function (done: jest.DoneCallback) {
-    car = new Car({ id: '1', position: new Position(arjeplog) })
+    car = new Car({ id: '1', position: new Position(arjeplog) });
     car.handleBooking(
       new Booking({
         id: '1',
@@ -146,7 +147,7 @@ describe('A car', () => {
   })
 
   it('should be able to pickup multiple bookings and queue the all except the first', function () {
-    car = new Car({ id: 1, position: arjeplog })
+    car = new Car({ id: '1', position: new Position(arjeplog) });
     car.handleBooking(
       new Booking({
         id: 1,
@@ -163,7 +164,7 @@ describe('A car', () => {
   })
 
   it('should be able to handle the bookings from the same place in the queue', function (done: jest.DoneCallback) {
-    car = new Car({ id: 1, position: arjeplog })
+    car = new Car({ id: '1', position: new Position(arjeplog) });
     expect(car.queue).toHaveLength(0)
     const ljusdalToArjeplog = {
       pickup: {
