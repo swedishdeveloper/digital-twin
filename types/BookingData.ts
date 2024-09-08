@@ -1,6 +1,7 @@
 import { Position } from './Position';
 
 export interface BookingData {
+  id?: string;
   sender?: string;
   passenger?: any;
   type?: string;

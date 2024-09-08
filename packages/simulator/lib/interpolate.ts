@@ -1,6 +1,6 @@
 import Position from '../models/Position'
 
-interface Point {
+export interface Point {
   position: Position
   meters: number
   duration: number
@@ -86,8 +86,11 @@ function interpolatePositionFromRoute(
     speed: speed,
     instruction: current,
     next: {
-      lat: next.position.lat,
-      lon: next.position.lon,
+      position: next.position,
+      meters: next.meters,
+      duration: next.duration,
+      passed: next.passed,
+      distance: next.distance,
       instruction: next,
     },
     skippedPoints,

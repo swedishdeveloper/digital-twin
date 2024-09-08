@@ -1,6 +1,3 @@
-import { virtualTime } from '../../lib/virtualTime'
-import { safeId } from '../../lib/id'
-
 import { ReplaySubject, merge } from 'rxjs'
 
 import { BookingData } from '../../../types/BookingData'
@@ -87,7 +84,7 @@ class Booking {
       co2,
       cost,
       (await virtualTime.getTimeInMillisecondsAsPromise()) -
-        this.pickedUpDateTime
+        (this.pickupDateTime || 0)
     )
     this.distance += metersMoved
     this.cost += cost
@@ -110,7 +107,8 @@ class Booking {
   ): Promise<void> {
     this.deliveredDateTime = await date
     this.deliveredPosition = position
-    this.deliveryTime = ((await date) - (this.assigned || this.queued)) / 1000
+    this.deliveryTime =
+      ((await date) - (this.assigned || this.queuedDateTime || 0)) / 1000
     this.status = 'Delivered'
     this.deliveredEvents.next(this)
   }
@@ -124,7 +122,6 @@ class Booking {
       cost: this.cost,
       distance: this.distance,
       weight: this.weight,
-      sender: this.sender,
       position: this.position?.toObject(),
       pickup: this.pickup,
       carId: this.car?.id,

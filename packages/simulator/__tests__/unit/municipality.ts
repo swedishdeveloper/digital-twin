@@ -1,6 +1,4 @@
 import Municipality from '../../models/Municipality'
-import { from } from 'rxjs'
-import { first, map } from 'rxjs/operators'
 import Booking from '../../models/Booking'
 import { virtualTime } from '../../models/VirtualTime'
 
@@ -17,16 +15,10 @@ describe('A municipality', () => {
 
   let testBooking = new Booking({
     id: 'b-123',
-    status: 'pending',
-    co2: 0,
     passenger: null,
     type: 'taxi',
-    cost: 100,
-    distance: 50,
-    weight: 1,
-    position: arjeplog,
     pickup: { departureTime: new Date(), position: arjeplog },
-    destination: ljusdal
+    destination: ljusdal,
   })
 
   beforeEach(() => {
@@ -53,7 +45,6 @@ describe('A municipality', () => {
       co2: 0,
       telephone: '123456789',
       fleets,
-      virtualTime
     })
     expect(municipality.name).toBe('stockholm')
     done()

@@ -1,7 +1,19 @@
-import { Subject, range, from, merge, of, firstValueFrom } from 'rxjs'
+import {
+  Subject,
+  range,
+  from,
+  merge,
+  of,
+  firstValueFrom,
+  Observable,
+} from 'rxjs'
 import { shareReplay, mergeMap, share, catchError, first } from 'rxjs/operators'
 import { FleetConstructorArgs } from './FleetTypes'
 import RecycleTruck from './vehicles/RecycleTruck'
+import Municipality from './Municipality'
+import Position from './Position'
+import Vehicle from './vehicles/Vehicle'
+import Booking from './Booking'
 
 const vehicleTypes = {
   recycleTruck: {
@@ -18,10 +30,21 @@ const vehicleTypes = {
 }
 
 class Fleet {
+  name: string
+  type: string
+  marketshare: number
+  municipality: Municipality
+  hubAddress?: string
+  hub: { position: Position }
+  cars: Observable<Vehicle>
+
+  unhandledBookings: Subject<Booking>
+  manualDispatchedBookings: Subject<Booking>
+  dispatchedBookings: Observable<Booking>
+
   constructor({
     name,
     marketshare,
-    percentageHomeDelivery,
     vehicles,
     hub,
     type,
@@ -32,8 +55,6 @@ class Fleet {
     this.marketshare = marketshare
     this.hub = { position: new Position(hub) }
 
-    this.percentageHomeDelivery = (percentageHomeDelivery || 0) / 100 || 0.15 // based on guestimates from workshop with transport actors in oct 2021
-    this.percentageReturnDelivery = 0.1
     this.municipality = municipality
     this.cars = from(Object.entries(vehicles)).pipe(
       mergeMap(([type, count]) =>
@@ -49,19 +70,15 @@ class Fleet {
               })
             )
           }),
-          catchError((err) => {
-            error(
-              `Error creating vehicle for fleet ${name}: ${err}\n\n${
-                new Error().stack
-              }\n\n`
-            )
-          })
+          catchError(async (err) =>
+            error(`Error vehicle for fleet ${name}`, err)
+          )
         )
       ),
       shareReplay()
     )
-    this.unhandledBookings = new Subject()
-    this.manualDispatchedBookings = new Subject()
+    this.unhandledBookings = new Subject<Booking>()
+    this.manualDispatchedBookings = new Subject<Booking>()
     this.dispatchedBookings = merge(
       this.manualDispatchedBookings,
       dispatch(this.cars, this.unhandledBookings)

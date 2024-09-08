@@ -5,6 +5,7 @@ import { assert, warn } from 'console'
 import { bearing } from '../../lib/distance'
 import Position from '../Position'
 import Booking from '../Booking'
+import * as interpolate from '../../lib/interpolate'
 
 const wait = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms))
@@ -100,7 +101,7 @@ class Vehicle {
     this.movementSubscription = virtualTime
       .getTimeInMilliseconds()
       .pipe(
-        scan((prevRemainingPointsInRoute, currentTimeInMs) => {
+        scan((prevRemainingPointsInRoute, currentTimeInMs: number) => {
           if (!prevRemainingPointsInRoute.length) {
             this.stopped()
             return []
@@ -117,7 +118,7 @@ class Vehicle {
             return []
           }
           this.updatePosition(newPosition, skippedPoints, currentTimeInMs)
-          return remainingPoints
+          return remainingPoints || []
         }, interpolate.points(route))
       )
       .subscribe(() => null)

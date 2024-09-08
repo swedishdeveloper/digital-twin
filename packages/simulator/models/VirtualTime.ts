@@ -1,4 +1,4 @@
-import { interval, firstValueFrom } from 'rxjs'
+import { interval, firstValueFrom, Observable } from 'rxjs'
 import {
   scan,
   shareReplay,
@@ -42,10 +42,10 @@ class VirtualTime {
     return this.currentTime
   }
 
-  getTimeInMilliseconds(): any {
+  getTimeInMilliseconds(): Observable<number> {
     return this.currentTime.pipe(
       map(getUnixTime),
-      map((e) => e * 1000),
+      map((e: number) => e * 1000),
       distinctUntilChanged()
     )
   }

@@ -17,19 +17,35 @@ import Booking from './Booking'
 import Fleet from './Fleet'
 import { searchOne } from '../lib/pelias'
 
+interface MunicipalityParams {
+  geometry?: any
+  name: string
+  id: string
+  packageVolumes?: any
+  email?: string
+  zip?: string
+  center?: any
+  telephone?: string
+  population?: number
+  recycleCollectionPoints?: any
+  citizens?: Observable<Citizen>
+  squares?: any
+  fleets?: any
+}
+
 class Municipality {
   squares: any
   geometry: any
   name: string
   id: string
-  email: string
-  zip: string
-  center: any
+  email?: string
+  zip?: string
+  center?: any
   co2: number
-  telephone: string
+  telephone?: string
   packageVolumes: any
   busesPerCapita: number
-  population: number
+  population?: number
   privateCars: ReplaySubject<Vehicle>
   unhandledBookings: Subject<Booking>
   recycleCollectionPoints: any
@@ -54,7 +70,7 @@ class Municipality {
     citizens,
     squares,
     fleets,
-  }: Municipality) {
+  }: MunicipalityParams) {
     this.squares = squares
     this.geometry = geometry
     this.name = name

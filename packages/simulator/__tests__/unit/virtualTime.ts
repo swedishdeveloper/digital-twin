@@ -1,5 +1,5 @@
-import { expect, describe, beforeEach, it } from '@jest/globals';
-import { VirtualTime } from '../../models/VirtualTime';
+import { expect, describe, beforeEach, it } from '@jest/globals'
+import { VirtualTime } from '../../models/VirtualTime'
 
 expect.extend({
   toBeCloseTo(x, y) {
