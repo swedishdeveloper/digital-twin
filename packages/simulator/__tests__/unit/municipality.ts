@@ -27,7 +27,6 @@ describe('A municipality', () => {
     position: arjeplog,
     pickup: { departureTime: new Date().toISOString(), position: arjeplog },
     destination: ljusdal
-    municipality.dispose()
   })
 
   beforeEach(() => {
