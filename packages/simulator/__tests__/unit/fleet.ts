@@ -1,9 +1,9 @@
 import Fleet from '../../lib/fleet';
-import { first } from 'rxjs/operators';
+import { first, from } from 'rxjs';
 import Booking from '../../lib/booking';
 import { virtualTime } from '../../lib/virtualTime';
-
 import dispatch from '../../lib/dispatchCentral';
+import { jest, describe, beforeEach, afterEach, it, expect } from '@jest/globals';
 
 jest.mock('../../lib/dispatchCentral');
 

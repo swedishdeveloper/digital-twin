@@ -1,7 +1,9 @@
 import { from, Subject, ReplaySubject } from 'rxjs'
 import { toArray, shareReplay } from 'rxjs/operators'
 import { dispatch } from '../../lib/dispatch/dispatchCentral'
-import { beforeEach, describe } from '@jest/globals'
+import { beforeEach, describe, it, expect, jest } from '@jest/globals'
+import Booking from '../../lib/booking'
+import Vehicle from '../../lib/vehicle'
 
 describe('dispatch', () => {
   const arjeplog = { lon: 17.886855, lat: 66.041054 }
