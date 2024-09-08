@@ -1,10 +1,10 @@
-const Municipality = require('../../models/Municipality')
-const { from } = require('rxjs')
-const { first, map } = require('rxjs/operators')
-const Booking = require('../../models/Booking')
-const { virtualTime } = require('../../models/VirtualTime')
+import Municipality from '../../models/Municipality'
+import { from } from 'rxjs'
+import { first, map } from 'rxjs/operators'
+import Booking from '../../models/Booking'
+import { virtualTime } from '../../models/VirtualTime'
 
-const dispatch = require('../../lib/dispatch/taxiDispatch')
+import dispatch from '../../lib/dispatch/taxiDispatch'
 
 jest.mock('../../lib/dispatch/taxiDispatch')
 
