@@ -140,7 +140,7 @@ describe('dispatch', () => {
         expect(booking1.id).toEqual(1337)
         expect(booking2.car?.id).toEqual(1)
         expect(booking2.id).toEqual(1338)
-        booking1.deliveredEvents.pipe(first()).subscribe((booking) => {
+        booking1.deliveredEvents.pipe(first()).subscribe((booking: Booking) => {
           expect(booking.id).toEqual(1337)
         })
         booking2.deliveredEvents.pipe(first()).subscribe((booking) => {
