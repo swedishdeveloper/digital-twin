@@ -1,9 +1,9 @@
-const { from, Subject, ReplaySubject } = require('rxjs')
-const { toArray, shareReplay } = require('rxjs/operators')
-const { dispatch } = require('../../lib/dispatch/dispatchCentral')
-const Car = require('../../lib/car')
-const Booking = require('../../lib/booking')
-const { virtualTime } = require('../../lib/virtualTime')
+import { from, Subject, ReplaySubject } from 'rxjs';
+import { toArray, shareReplay } from 'rxjs/operators';
+import { dispatch } from '../../lib/dispatch/dispatchCentral';
+import Car from '../../lib/car';
+import Booking from '../../lib/booking';
+import { virtualTime } from '../../lib/virtualTime';
 
 describe('dispatch', () => {
   const arjeplog = { lon: 17.886855, lat: 66.041054 }
