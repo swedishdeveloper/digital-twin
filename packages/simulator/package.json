@@ -4,24 +4,20 @@
   "description": "",
   "main": "web/index.ts",
   "scripts": {
-    "build": "tsc",
-    "dev": "npm run build && nodemon dist/web/index.js",
     "test": "jest __tests__",
     "watch": "jest --watch __tests__",
-    "preboot": "node preboot.js",
-    "start": "node dist/web/index.js"
+    "dev": "node --import tsx --watch web/index.ts",
+    "start": "node --import tsx web/index.ts"
   },
   "author": "Iteam",
   "license": "MIT",
   "dependencies": {
     "@elastic/elasticsearch": "^7.17.0",
-    "adm-zip": "^0.5.10",
     "cookie": "^0.5.0",
     "csv-parse": "^4.16.0",
     "csv-stream": "^0.2.0",
     "date-fns": "^2.29.3",
     "dotenv": "^10.0.0",
-    "gtfs-stream": "^2.2.0",
     "lerna": "8.1.8",
     "moment": "^2.29.1",
     "nanoid": "^3.1.23",
