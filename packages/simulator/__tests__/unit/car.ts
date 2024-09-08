@@ -1,13 +1,13 @@
-import Car from '../../lib/vehicles/car'
-import Booking from '../../lib/booking'
-import { virtualTime } from '../../lib/virtualTime'
+import Vehicle from '../../models/vehicles/Vehicle'
+import { expect, describe, beforeEach, afterEach, it } from '@jest/globals'
 
-const range = (length: number): number[] => Array.from({ length }).map((_, i) => i)
+const range = (length: number): number[] =>
+  Array.from({ length }).map((_, i) => i)
 
 describe('A car', () => {
   const arjeplog = { lon: 17.886855, lat: 66.041054 }
   const ljusdal = { lon: 14.44681991219, lat: 61.59465992477 }
-  let car: Car
+  let car: Vehicle
 
   beforeEach(() => {
     virtualTime.setTimeMultiplier(Infinity)
