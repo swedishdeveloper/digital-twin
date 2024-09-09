@@ -11,6 +11,9 @@ expect.extend({
   },
 })
 
+const timeout = (fn, ms: number) =>
+  new Promise((resolve) => setTimeout(() => resolve(ms), ms))
+
 describe('VirtualTime', () => {
   let virtualTime
 
@@ -18,47 +21,55 @@ describe('VirtualTime', () => {
     virtualTime = new VirtualTime(1)
   })
 
-  it('can pass the time', (done) => {
-    let start = virtualTime.time()
+  it('can pass the time', async () => {
+    let start = await virtualTime.getTimeInMillisecondsAsPromise()
 
-    setTimeout(() => {
-      expect(virtualTime.time()).toBeCloseTo(start + 1000)
-      done()
+    setTimeout(async () => {
+      expect(await virtualTime.getTimeInMillisecondsAsPromise()).toBeCloseTo(
+        start + 1000
+      )
     }, 1000)
   })
 
-  it('can pause and receive same time', (done) => {
-    let start = virtualTime.time()
+  it('can pause and receive same time', async () => {
+    let start = await virtualTime.getTimeInMillisecondsAsPromise()
     virtualTime.pause()
 
-    setTimeout(() => {
-      expect(virtualTime.time()).toBeCloseTo(start)
-      done()
+    await timeout(async () => {
+      expect(await virtualTime.getTimeInMillisecondsAsPromise()).toBeCloseTo(
+        start
+      )
     }, 1000)
   })
 
   it('can pause and receive same time after play', (done) => {
-    let start = virtualTime.time()
+    let start = await virtualTime.getTimeInMillisecondsAsPromise()
     virtualTime.pause()
 
     setTimeout(() => {
       virtualTime.play()
-      expect(virtualTime.time()).toBeCloseTo(start)
+      expect(await virtualTime.getTimeInMillisecondsAsPromise()).toBeCloseTo(
+        start
+      )
       done()
     }, 1000)
   })
 
   it('can pause and resume and receive same time plus extra time', (done) => {
-    let start = virtualTime.time()
+    let start = await virtualTime.getTimeInMillisecondsAsPromise()
     console.log('start', start)
     virtualTime.pause()
 
     setTimeout(() => {
-      expect(virtualTime.time()).toBeCloseTo(start)
+      expect(await virtualTime.getTimeInMillisecondsAsPromise()).toBeCloseTo(
+        start
+      )
       virtualTime.play()
 
       setTimeout(() => {
-        expect(virtualTime.time()).toBeCloseTo(start + 1000)
+        expect(await virtualTime.getTimeInMillisecondsAsPromise()).toBeCloseTo(
+          start + 1000
+        )
         done()
       }, 1000)
     }, 1000)
