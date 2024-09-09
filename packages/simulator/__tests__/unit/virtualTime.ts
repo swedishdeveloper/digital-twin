@@ -11,8 +11,8 @@ expect.extend({
   },
 })
 
-const timeout = (fn, ms: number) =>
-  new Promise((resolve) => setTimeout(() => resolve(ms), ms))
+const timeout = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms))
 
 describe('VirtualTime', () => {
   let virtualTime
