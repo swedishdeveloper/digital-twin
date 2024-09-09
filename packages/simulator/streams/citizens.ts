@@ -29,7 +29,7 @@ export const getCitizensInSquare = (
       return (
         home &&
         new Citizen({
-          ...name,
+          name,
           home,
           // age: ages[Math.floor(Math.random() * ages.length)],
           workplace,

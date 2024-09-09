@@ -1,6 +1,17 @@
-import { from, repeat, map, zip, filter, toArray, pipe, mergeAll } from 'rxjs'
+import {
+  from,
+  repeat,
+  map,
+  zip,
+  filter,
+  toArray,
+  pipe,
+  mergeAll,
+  Observable,
+} from 'rxjs'
 import fornamnData from '../data/svenska_tilltalsnamn_2021.json'
 import efternamnData from '../data/svenska_efternamn_2021.json'
+import { Name } from '@elastic/elasticsearch/api/types'
 
 const fornamn: string[] = fornamnData.data
 const efternamn: string[] = efternamnData.data
@@ -51,11 +62,14 @@ const randomLastName = (): any =>
 
 function randomNames() {
   return zip<Name[]>(randomFirstName(), randomLastName()).pipe(
-    map(([firstName, lastName]) => ({
-      firstName,
-      lastName,
-      name: `${firstName} ${lastName}`,
-    })),
+    map(
+      ([firstName, lastName]) =>
+        ({
+          firstName,
+          lastName,
+          name: `${firstName} ${lastName}`,
+        } as unknown as Name)
+    ),
     repeat()
   )
 }

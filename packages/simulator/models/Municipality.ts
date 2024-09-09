@@ -48,13 +48,13 @@ class Municipality {
   population?: number
   privateCars: ReplaySubject<Vehicle>
   unhandledBookings: Subject<Booking>
-  recycleCollectionPoints: any
+  recycleCollectionPoints: Observable<Booking>
   citizens: Observable<Citizen>
   fleets: Observable<Fleet>
   buses: Observable<Vehicle>
   recycleTrucks: Observable<RecycleTruck>
   dispatchedBookings: Observable<Booking>
-  cars: any
+  cars: Observable<Vehicle>
 
   constructor({
     geometry,

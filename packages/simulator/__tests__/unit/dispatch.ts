@@ -129,7 +129,7 @@ describe('dispatch', () => {
     )
   })
 
-  it.only('should dispatch two bookings to one car', function (done) {
+  it('should dispatch two bookings to one car', function (done) {
     cars = from([new Vehicle({ id: '1', position: ljusdal })])
     bookings = from([
       new Booking({

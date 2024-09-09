@@ -3,6 +3,7 @@ import Booking from '../../models/Booking'
 import { virtualTime } from '../../models/VirtualTime'
 
 import * as dispatch from '../../lib/dispatch/taxiDispatch'
+import { from } from 'rxjs'
 
 jest.mock('../../lib/dispatch/taxiDispatch')
 
@@ -51,14 +52,19 @@ describe('A municipality', () => {
   })
 
   it('dispatches handled bookings', function () {
-    municipality = new Municipality({ name: 'stockholm', squares, fleets })
+    municipality = new Municipality({
+      id: '1',
+      name: 'stockholm',
+      squares,
+      fleets,
+    })
     municipality.handleBooking(testBooking)
 
-    expect(dispatch.dispatch.mock.calls.length).toBe(1)
+    expect(dispatch.taxiDispatch.mock.calls.length).toBe(1)
   })
 
   it('handled bookings are dispatched', function (done) {
-    dispatch.dispatch.mockImplementation((cars, bookings) =>
+    dispatch.taxiDispatch((cars, bookings) =>
       bookings.pipe(
         map((booking) => ({
           booking,

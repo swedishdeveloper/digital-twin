@@ -15,16 +15,10 @@ import {
   retryWhen,
   delay,
   take,
+  Observable,
 } from 'rxjs'
-import { virtualTime } from '../../lib/virtualTime'
-
-import { safeId } from '../../lib/id'
-import moment from 'moment'
-import Booking from '../../models/Booking'
-import pelias from '../../lib/pelias'
-import { error } from '../../lib/log'
-import { getHours, getISODay } from 'date-fns'
-import Position from '../../models/Position'
+import Position from './Position'
+import Booking from './Booking'
 
 interface Workplace {
   name: Name
@@ -41,28 +35,29 @@ interface Municipality {
 }
 
 interface Name {
-  firstName: string;
-  lastName: string;
+  name: string
+  firstName: string
+  lastName: string
 }
 
-interface CitizenData {
-  name: Name;
-  name: string
+interface CitizenData extends Name {
   position: any
   workplace: Workplace
   home: Home
   startPosition?: any
-  municipality: Municipality
+  municipality: string
 }
 
-class Citizen {
+class Citizen implements CitizenData {
   id: string
   workplace: Workplace
-  home: Home
   name: string
+  firstName: string
+  lastName: string
+  home: Home
   position: Position
   startPosition: Position
-  municipality: Municipality
+  municipality: string
   distance: number
   cost: number
   co2: number
@@ -70,12 +65,14 @@ class Citizen {
   moveTime: number
   waitTime: number
   intents: any
-  bookings: any
+  bookings: Observable<Booking>
   pickedUpEvents: any
   deliveredEvents: any
 
   constructor({
     name,
+    firstName,
+    lastName,
     position,
     workplace,
     home,
@@ -92,6 +89,8 @@ class Citizen {
       position: new Position(home.position),
     }
     this.name = name
+    this.firstName = firstName
+    this.lastName = lastName
     this.position = new Position(position)
     this.startPosition = new Position(startPosition || this.position)
     this.municipality = municipality

@@ -1,18 +1,8 @@
 import { expect, describe, beforeEach, it } from '@jest/globals'
 import { VirtualTime } from '../../models/VirtualTime'
 
-expect.extend({
-  toBeCloseTo(x, y) {
-    return {
-      pass: Math.round(x / 100) === Math.round(y / 100),
-      message: () =>
-        `Not close enough: expected: ${x}, received: ${y} Diff: ${x - y}`,
-    }
-  },
-})
-
-const timeout = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms))
+const timeout = (fn, ms: number) =>
+  new Promise((resolve) => timeout(() => resolve(fn()), ms))
 
 describe('VirtualTime', () => {
   let virtualTime
@@ -24,11 +14,11 @@ describe('VirtualTime', () => {
   it('can pass the time', async () => {
     let start = await virtualTime.getTimeInMillisecondsAsPromise()
 
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    expect(await virtualTime.getTimeInMillisecondsAsPromise()).toBeCloseTo(
-      start + 1000
-    )
+    timeout(async () => {
+      expect(await virtualTime.getTimeInMillisecondsAsPromise()).toBeCloseTo(
+        start + 1000
+      )
+    }, 1000)
   })
 
   it('can pause and receive same time', async () => {
@@ -36,9 +26,8 @@ describe('VirtualTime', () => {
     virtualTime.pause()
 
     await timeout(async () => {
-      expect(await virtualTime.getTimeInMillisecondsAsPromise()).toBeCloseTo(
-        start
-      )
+      const time = await virtualTime.getTimeInMillisecondsAsPromise()
+      expect(time).toBeCloseTo(start)
     }, 1000)
   })
 
@@ -46,12 +35,11 @@ describe('VirtualTime', () => {
     let start = await virtualTime.getTimeInMillisecondsAsPromise()
     virtualTime.pause()
 
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    virtualTime.play()
-    expect(await virtualTime.getTimeInMillisecondsAsPromise()).toBeCloseTo(
-      start
-    )
+    timeout(async () => {
+      virtualTime.play()
+      const time = await virtualTime.getTimeInMillisecondsAsPromise()
+      expect(time.toBeCloseTo(start))
+    }, 1000)
   })
 
   it('can pause and resume and receive same time plus extra time', async () => {
@@ -59,18 +47,16 @@ describe('VirtualTime', () => {
     console.log('start', start)
     virtualTime.pause()
 
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    timeout(async () => {
+      expect(await virtualTime.getTimeInMillisecondsAsPromise()).toBeCloseTo(
+        start
+      )
+      virtualTime.play()
 
-    expect(await virtualTime.getTimeInMillisecondsAsPromise()).toBeCloseTo(
-      start
-    )
-    virtualTime.play()
-
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    expect(await virtualTime.getTimeInMillisecondsAsPromise()).toBeCloseTo(
-      start + 1000
-    )
-  })
+      timeout(async () => {
+        const time = await virtualTime.getTimeInMillisecondsAsPromise()
+        expect(time.toBeCloseTo(start + 1000))
+      }, 1000)
+    }, 1000)
   })
 })

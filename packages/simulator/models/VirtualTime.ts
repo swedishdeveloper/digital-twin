@@ -12,17 +12,17 @@ class VirtualTime {
   private startHour: number
   private timeMultiplier: number
   private internalTimeScale: number
-  private currentTime: Observable<number>
+  private currentTime: Observable<Date>
 
   constructor(timeMultiplier: number = 1, startHour: number = 6.8) {
     this.startHour = startHour
     this.timeMultiplier = timeMultiplier
     this.startHour = startHour
     this.internalTimeScale = 1
-    this.reset()
+    this.currentTime = this.reset()
   }
 
-  reset(): void {
+  reset(): Observable<Date> {
     const startDate = addHours(startOfDay(new Date()), this.startHour)
     const msUpdateFrequency = 100
     this.currentTime = interval(msUpdateFrequency).pipe(
@@ -36,6 +36,7 @@ class VirtualTime {
       ),
       shareReplay(1)
     )
+    return this.currentTime
   }
 
   getTimeStream(): any {
@@ -66,8 +67,8 @@ class VirtualTime {
     if (this.timeMultiplier === 0) return // don't wait when time is stopped
     if (this.timeMultiplier === Infinity) return // return directly if time is set to infinity
     const waitUntil = time
-    return await firstValueFrom(
-      this.currentTime.pipe(filter((e) => e >= waitUntil))
+    await firstValueFrom(
+      this.currentTime.pipe(filter((e) => e.getTime() >= waitUntil))
     )
   }
 

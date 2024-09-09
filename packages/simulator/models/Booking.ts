@@ -22,7 +22,7 @@ class Booking {
   deliveredEvents: ReplaySubject<Booking>
   statusEvents: Observable<Booking>
   car?: Vehicle
-  assigned?: number
+  assigned?: Date
 
   queuedDateTime?: number // Date
   pickupDateTime?: number // Date
