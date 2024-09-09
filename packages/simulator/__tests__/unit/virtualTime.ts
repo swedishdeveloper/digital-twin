@@ -24,11 +24,11 @@ describe('VirtualTime', () => {
   it('can pass the time', async () => {
     let start = await virtualTime.getTimeInMillisecondsAsPromise()
 
-    setTimeout(async () => {
-      expect(await virtualTime.getTimeInMillisecondsAsPromise()).toBeCloseTo(
-        start + 1000
-      )
-    }, 1000)
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    expect(await virtualTime.getTimeInMillisecondsAsPromise()).toBeCloseTo(
+      start + 1000
+    )
   })
 
   it('can pause and receive same time', async () => {
@@ -42,36 +42,35 @@ describe('VirtualTime', () => {
     }, 1000)
   })
 
-  it('can pause and receive same time after play', (done) => {
+  it('can pause and receive same time after play', async () => {
     let start = await virtualTime.getTimeInMillisecondsAsPromise()
     virtualTime.pause()
 
-    setTimeout(() => {
-      virtualTime.play()
-      expect(await virtualTime.getTimeInMillisecondsAsPromise()).toBeCloseTo(
-        start
-      )
-      done()
-    }, 1000)
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    virtualTime.play()
+    expect(await virtualTime.getTimeInMillisecondsAsPromise()).toBeCloseTo(
+      start
+    )
   })
 
-  it('can pause and resume and receive same time plus extra time', (done) => {
+  it('can pause and resume and receive same time plus extra time', async () => {
     let start = await virtualTime.getTimeInMillisecondsAsPromise()
     console.log('start', start)
     virtualTime.pause()
 
-    setTimeout(() => {
-      expect(await virtualTime.getTimeInMillisecondsAsPromise()).toBeCloseTo(
-        start
-      )
-      virtualTime.play()
+    await new Promise((resolve) => setTimeout(resolve, 1000))
 
-      setTimeout(() => {
-        expect(await virtualTime.getTimeInMillisecondsAsPromise()).toBeCloseTo(
-          start + 1000
-        )
-        done()
-      }, 1000)
-    }, 1000)
+    expect(await virtualTime.getTimeInMillisecondsAsPromise()).toBeCloseTo(
+      start
+    )
+    virtualTime.play()
+
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
+    expect(await virtualTime.getTimeInMillisecondsAsPromise()).toBeCloseTo(
+      start + 1000
+    )
+  })
   })
 })
