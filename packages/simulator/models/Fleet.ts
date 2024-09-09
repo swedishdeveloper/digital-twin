@@ -5,6 +5,7 @@ import {
   merge,
   of,
   Observable,
+  firstValueFrom,
 } from 'rxjs'
 import { shareReplay, mergeMap, share, catchError, first } from 'rxjs/operators'
 import RecycleTruck from './vehicles/RecycleTruck'
@@ -12,6 +13,7 @@ import Municipality from './Municipality'
 import Position from './Position'
 import Vehicle from './vehicles/Vehicle'
 import Booking from './Booking'
+import { dispatch } from '../lib/dispatch/dispatchCentral'
 
 const vehicleTypes = {
   recycleTruck: {
@@ -27,11 +29,17 @@ const vehicleTypes = {
   },
 }
 
+interface FleetParams {
+  name: string
+  marketshare: number
+  vehicles: { [key: string]: number }
+  hub: any
+}
+
 class Fleet {
   name: string
-  type: string
   marketshare: number
-  municipality: Municipality
+  municipality?: Municipality
   hubAddress?: string
   hub: { position: Position }
   cars: Observable<Vehicle>
@@ -40,20 +48,11 @@ class Fleet {
   manualDispatchedBookings: Subject<Booking>
   dispatchedBookings: Observable<Booking>
 
-  constructor({
-    name,
-    marketshare,
-    vehicles,
-    hub,
-    type,
-    municipality?,
-  }) {
+  constructor({ name, marketshare, vehicles, hub }: FleetParams) {
     this.name = name
-    this.type = type
     this.marketshare = marketshare
     this.hub = { position: new Position(hub) }
 
-    this.municipality = municipality
     this.cars = from(Object.entries(vehicles)).pipe(
       mergeMap(([type, count]) =>
         range(0, count).pipe(
@@ -93,7 +92,7 @@ class Fleet {
     )
   }
 
-  async handleBooking(booking, car) {
+  async handleBooking(booking, car?) {
     booking.fleet = this
     if (car) {
       debug(`📦 Dispatching ${booking.id} to ${this.name} (manual)`)

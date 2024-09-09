@@ -19,7 +19,6 @@ class Region {
   name: string
   geometry: any
   municipalities: Observable<Municipality>
-  buses: Observable<Vehicle>
   cars: Observable<Vehicle>
   taxis: Observable<Vehicle>
   recycleTrucks: Observable<RecycleTruck>
@@ -34,12 +33,6 @@ class Region {
     this.geometry = geometry
     this.name = name
     this.municipalities = municipalities
-
-    this.buses = municipalities.pipe(
-      map((municipality) => municipality.buses),
-      mergeAll(),
-      shareReplay()
-    )
 
     this.cars = municipalities.pipe(
       mergeMap((municipality) => municipality.cars)
@@ -62,7 +55,7 @@ class Region {
     )
 
     this.citizens = municipalities.pipe(
-      mergeMap((municipality) => municipality.citizens)
+      mergeMap((municipality) => municipality.citizens || of())
     )
 
     this.manualBookings = new Subject()
@@ -79,7 +72,7 @@ class Region {
         mergeMap((municipality) => municipality.dispatchedBookings)
       ),
       this.municipalities.pipe(
-        mergeMap((municipality) => municipality.fleets),
+        mergeMap((municipality) => municipality.fleets || of()),
         mergeMap((fleet) => fleet.dispatchedBookings)
       )
     ).pipe(share())

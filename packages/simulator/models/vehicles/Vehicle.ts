@@ -6,6 +6,7 @@ import { bearing, haversine } from '../../lib/distance'
 import Position from '../Position'
 import Booking from '../Booking'
 import * as interpolate from '../../lib/interpolate'
+import { osrm } from '../../lib/osrm'
 
 const wait = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms))
@@ -153,6 +154,10 @@ class Vehicle {
           error('Route error, retrying in 1s...', err) ||
           wait(1000).then(() => this.navigateTo(position))
       )
+  }
+
+  canHandleBooking(booking: Booking): boolean {
+    return true
   }
 
   async handleBooking(booking: Booking): Promise<Booking> {

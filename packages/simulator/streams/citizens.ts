@@ -1,8 +1,11 @@
 import { take, map, filter, mergeAll } from 'rxjs/operators'
 import { randomNames } from './personNames'
-import { from, zip } from 'rxjs'
+import { from, zip, Observable } from 'rxjs'
 import { getAddressesInArea } from './address'
 import Citizen from '../models/Citizen'
+import { Workplace } from '../../../types/Citizen'
+
+const PERCENT_POPULATION = 1 / 100 // percentage of the population to sample
 
 interface Square {
   position: any
@@ -12,33 +15,31 @@ interface Square {
 
 export const getCitizensInSquare = (
   { position, area, population }: Square,
-  workplaces: any,
+  workplaces: Observable<Workplace>,
   municipalityName: string
-): any => {
-  const nrOfCitizens = Math.floor(population * 0.01) // sample x% of the population
+): Observable<Citizen> => {
+  const nrOfCitizens = Math.floor(population * PERCENT_POPULATION) // sample x% of the population
   if (nrOfCitizens === 0) return from([])
+
   const addresses = from(getAddressesInArea(position, area, nrOfCitizens)).pipe(
     mergeAll()
   )
-  return zip([
+  const names = randomNames()
+
+  return zip(
     addresses.pipe(take(nrOfCitizens)),
-    randomNames.pipe(take(nrOfCitizens)),
-    workplaces.pipe(take(nrOfCitizens)),
-  ]).pipe(
+    names.pipe(take(nrOfCitizens)),
+    workplaces.pipe(take(nrOfCitizens))
+  ).pipe(
     map(([home, name, workplace]) => {
-      return (
-        home &&
-        new Citizen({
-          name,
-          home,
-          // age: ages[Math.floor(Math.random() * ages.length)],
-          workplace,
-          municipality: municipalityName,
-          position: home.position,
-        })
-      )
+      return new Citizen({
+        ...name,
+        home,
+        workplace,
+        municipality: municipalityName,
+        position: home.position,
+      })
     }),
-    filter((citizen) => citizen),
     take(nrOfCitizens)
   )
 }

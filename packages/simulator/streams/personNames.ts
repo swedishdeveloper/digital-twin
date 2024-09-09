@@ -11,7 +11,7 @@ import {
 } from 'rxjs'
 import fornamnData from '../data/svenska_tilltalsnamn_2021.json'
 import efternamnData from '../data/svenska_efternamn_2021.json'
-import { Name } from '@elastic/elasticsearch/api/types'
+import { Name } from '../../../types/Citizen'
 
 const fornamn: string[] = fornamnData.data
 const efternamn: string[] = efternamnData.data
@@ -49,10 +49,10 @@ const toToTitleCase = (str: string): string =>
     .map((word) => word.charAt(0).toUpperCase() + word.substr(1).toLowerCase())
     .join(' ')
 
-const randomFirstName = (): any =>
+const randomFirstName = (): Observable<string> =>
   from(fornamn).pipe(zipfDistribution(), shuffle(), weightedRandom())
 
-const randomLastName = (): any =>
+const randomLastName = (): Observable<string> =>
   from(efternamn).pipe(
     zipfDistribution(),
     shuffle(),
@@ -60,16 +60,15 @@ const randomLastName = (): any =>
     map((name: string) => toToTitleCase(name))
   )
 
+const name = (firstName: string, lastName: string): Name => ({
+  firstName,
+  lastName,
+  name: `${firstName} ${lastName}`,
+})
+
 function randomNames() {
-  return zip<Name[]>(randomFirstName(), randomLastName()).pipe(
-    map(
-      ([firstName, lastName]) =>
-        ({
-          firstName,
-          lastName,
-          name: `${firstName} ${lastName}`,
-        } as unknown as Name)
-    ),
+  return zip(randomFirstName(), randomLastName()).pipe(
+    map(([firstName, lastName]) => name(firstName, lastName)),
     repeat()
   )
 }

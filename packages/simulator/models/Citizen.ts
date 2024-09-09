@@ -19,28 +19,13 @@ import {
 } from 'rxjs'
 import Position from './Position'
 import Booking from './Booking'
+import { getHours, getISODay } from 'date-fns'
+import type { CitizenType, Home, Workplace } from '../../../types/Citizen'
 
-interface Workplace {
-  name: Name
-  position: any
-}
-
-interface Home {
-  name: string
-  position: any
-}
-
-interface Municipality {
-  name: string
-}
-
-interface Name {
+type CitizenParams = {
   name: string
   firstName: string
   lastName: string
-}
-
-interface CitizenData extends Name {
   position: any
   workplace: Workplace
   home: Home
@@ -48,13 +33,14 @@ interface CitizenData extends Name {
   municipality: string
 }
 
-class Citizen implements CitizenData {
+class Citizen implements CitizenType {
   id: string
-  workplace: Workplace
+  home: Home
   name: string
   firstName: string
   lastName: string
-  home: Home
+  workplace: Workplace
+
   position: Position
   startPosition: Position
   municipality: string
@@ -64,7 +50,7 @@ class Citizen implements CitizenData {
   inVehicle: boolean
   moveTime: number
   waitTime: number
-  intents: any
+  intents: Observable<string>
   bookings: Observable<Booking>
   pickedUpEvents: any
   deliveredEvents: any
@@ -76,9 +62,8 @@ class Citizen implements CitizenData {
     position,
     workplace,
     home,
-    startPosition,
     municipality,
-  }: CitizenData) {
+  }: CitizenParams) {
     this.id = 'p-' + safeId()
     this.workplace = {
       name: workplace.name || 'arbetsplats',
@@ -92,7 +77,7 @@ class Citizen implements CitizenData {
     this.firstName = firstName
     this.lastName = lastName
     this.position = new Position(position)
-    this.startPosition = new Position(startPosition || this.position)
+    this.startPosition = new Position(position)
     this.municipality = municipality
     this.distance = 0
     this.cost = 0

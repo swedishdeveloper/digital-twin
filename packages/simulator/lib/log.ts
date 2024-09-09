@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import { ReplaySubject } from 'rxjs'
+import { NEVER, Observable, of, ReplaySubject } from 'rxjs'
 
 const LOG_LEVEL = process.env.LOG_LEVEL || 'info'
 
@@ -82,7 +82,7 @@ const warn = (message: string, data?: any, ...rest: any[]) => {
 const error = (message: string, data?: any, ...rest: any[]) => {
   print(console.error, chalk.red, chalk.white, 'ERROR', message, data, ...rest)
   logStream.next(`ERROR: ${message}`)
-  return Promise.reject(data)
+  return NEVER
 }
 
 const write = (message: string) => {

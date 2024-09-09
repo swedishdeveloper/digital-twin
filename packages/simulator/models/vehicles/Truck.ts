@@ -72,9 +72,7 @@ class Truck extends Vehicle {
   }
 
   canHandleBooking(booking: Booking): boolean {
-    return (
-      booking.type === 'recycle' && this.cargo.length < this.parcelCapacity!
-    )
+    return booking.type === 'parcel' && this.cargo.length < this.parcelCapacity!
   }
 
   async handleBooking(booking: Booking): Promise<Booking> {

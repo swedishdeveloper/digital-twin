@@ -1,3 +1,4 @@
+import Booking from '../Booking'
 import Position from '../Position'
 import Truck from './Truck'
 
@@ -13,6 +14,11 @@ class RecycleTruck extends Truck {
 
     this.position = args.position
     this.startPosition = args.startPosition || args.position
+  }
+  canHandleBooking(booking: Booking): boolean {
+    return (
+      booking.type === 'recycleBin' && this.cargo.length < this.parcelCapacity!
+    )
   }
 }
 
