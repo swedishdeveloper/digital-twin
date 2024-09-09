@@ -1,20 +1,12 @@
 import { from, mergeMap, merge, Subject, of, Observable } from 'rxjs'
 import {
   map,
-  groupBy,
   filter,
-  pairwise,
   mergeAll,
   share,
-  toArray,
   catchError,
-  retryWhen,
-  delay,
-  take,
   shareReplay,
-  first,
 } from 'rxjs/operators'
-import { isInsideCoordinates } from '../lib/polygon'
 import { error, info } from '../lib/log'
 import Booking from './Booking'
 import Vehicle from './vehicles/Vehicle'
