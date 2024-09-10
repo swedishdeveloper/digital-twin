@@ -1,15 +1,15 @@
 import React, { useState } from 'react'
 import 'jsoneditor-react/es/editor.min.css'
-import { useSocket } from './hooks/useSocket.js'
 
-import Map from './Map.jsx'
+import Map from './Map'
 import Loading from './components/Loading'
 import PlaybackOptions from './components/PlaybackOptions'
 import ResetExperiment from './components/ResetExperiment'
 import EditExperimentModal from './components/EditExperimentModal'
 import Logo from './components/Logo'
-import ExperimentDoneModal from './components/ExperimentDoneModal/index.jsx'
+import ExperimentDoneModal from './components/ExperimentDoneModal/index'
 import { Snackbar, SnackbarContent } from '@mui/material'
+import { useSocket, useSocketEvent } from 'socket.io-react-hook'
 
 import Slide from '@mui/material/Slide'
 
@@ -38,8 +38,12 @@ const App = () => {
 
   const [connected, setConnected] = useState(false)
 
-  const { socket } = useSocket()
+  const simulatorUrl =
+    import.meta.env.VITE_SIMULATOR_URL || `ws://localhost:4000`
 
+  const { socket } = useSocket({
+    path: simulatorUrl,
+  })
   const activeLayers = {
     carLayer,
     setCarLayer,
@@ -66,7 +70,7 @@ const App = () => {
     socket.emit('experimentParameters', experimentParameters)
   }
 
-  useSocket('init', () => {
+  socket.on('init', () => {
     console.log('Init experiment')
     setBookings([])
     setPassengers([])
@@ -80,7 +84,7 @@ const App = () => {
     socket.emit('speed', speed) // reset speed on server
   })
 
-  useSocket('reset', () => {
+  socket.on('reset', () => {
     console.log('Reset experiment')
     setPreviousExperimentId(experimentParameters.id)
     setShowExperimentDoneModal(true)
@@ -105,7 +109,7 @@ const App = () => {
   }
 
   const [cars, setCars] = React.useState([])
-  useSocket('cars', (newCars) => {
+  socket.on('cars', (newCars) => {
     setReset(false)
     setCars((cars) => [
       ...cars.filter((car) => !newCars.some((nc) => nc.id === car.id)),
@@ -113,17 +117,17 @@ const App = () => {
     ])
   })
 
-  useSocket('time', (time) => {
+  socket.on('time', (time) => {
     setTime(time)
   })
 
-  useSocket('log', (message) => {
+  socket.on('log', (message) => {
     setLatestLogMessage(message)
     setSnackbarOpen(true)
   })
 
   const [bookings, setBookings] = React.useState([])
-  useSocket('bookings', (newBookings) => {
+  socket.on('bookings', (newBookings) => {
     setReset(false)
     setBookings((bookings) => [
       ...bookings.filter(
@@ -138,7 +142,7 @@ const App = () => {
   })
 
   const [postombud, setPostombud] = React.useState([])
-  useSocket('postombud', (newPostombud) => {
+  socket.on('postombud', (newPostombud) => {
     setReset(false)
     setPostombud((current) => [
       ...current,
@@ -150,7 +154,7 @@ const App = () => {
   })
 
   const [recycleCollectionPoints, setRecycleCollection] = React.useState([])
-  useSocket('recycleCollection', (newRecycleCollectionPoints) => {
+  socket.on('recycleCollection', (newRecycleCollectionPoints) => {
     setReset(false)
     setRecycleCollection((current) => [
       ...current,
@@ -161,7 +165,7 @@ const App = () => {
     ])
   })
 
-  useSocket('recycleCollectionUpdates', (recycleCollectionUpdates) => {
+  socket.on('recycleCollectionUpdates', (recycleCollectionUpdates) => {
     setRecycleCollection((current) =>
       current.map((recycleCollectionPoint) => {
         const recycleCollectionIds = recycleCollectionUpdates.map(
@@ -179,7 +183,7 @@ const App = () => {
   })
 
   const [busStops, setBusStops] = React.useState([])
-  useSocket('busStops', (busStops) => {
+  socket.on('busStops', (busStops) => {
     setReset(false)
     setBusStops(
       busStops.map(({ position, ...rest }) => ({
@@ -190,12 +194,12 @@ const App = () => {
   })
 
   const [lineShapes, setLineShapes] = React.useState([])
-  useSocket('lineShapes', (lineShapes) => {
+  socket.on('lineShapes', (lineShapes) => {
     setLineShapes(lineShapes)
   })
 
   const [municipalities, setmunicipalities] = React.useState([])
-  useSocket('municipality', (municipality) => {
+  socket.on('municipality', (municipality) => {
     setReset(false)
     setmunicipalities((current) => {
       console.log('Received municipality data:', municipality)
@@ -203,7 +207,7 @@ const App = () => {
     })
   })
 
-  useSocket('parameters', (currentParameters) => {
+  socket.on('parameters', (currentParameters) => {
     console.log('ExperimentId', currentParameters.id)
 
     if (!previousExperimentId) {
@@ -235,7 +239,7 @@ const App = () => {
     console.log('Received parameters:', currentParameters)
   })
   const [passengers, setPassengers] = React.useState([])
-  useSocket('passengers', (passengers) => {
+  socket.on('passengers', (passengers) => {
     setPassengers((currentPassengers) => [
       ...currentPassengers.filter(
         (cp) => !passengers.some((p) => p.id === cp.id)
