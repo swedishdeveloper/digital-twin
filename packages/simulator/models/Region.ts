@@ -1,12 +1,13 @@
-import { from, mergeMap, merge, Subject, of, Observable } from 'rxjs'
 import {
-  map,
+  mergeMap,
+  merge,
+  Subject,
+  of,
+  Observable,
   filter,
-  mergeAll,
   share,
   catchError,
-  shareReplay,
-} from 'rxjs/operators'
+} from 'rxjs'
 import { error, info } from '../lib/log'
 import Booking from './Booking'
 import Vehicle from './vehicles/Vehicle'
@@ -14,10 +15,17 @@ import Citizen from './Citizen'
 import Municipality from './Municipality'
 import RecycleTruck from './vehicles/RecycleTruck'
 
+interface RegionParams {
+  id: string
+  name: string
+  municipalities: Observable<Municipality>
+  geometry?: any
+}
+
 class Region {
   id: string
   name: string
-  geometry: any
+  geometry?: any
   municipalities: Observable<Municipality>
   cars: Observable<Vehicle>
   taxis: Observable<Vehicle>
@@ -28,7 +36,7 @@ class Region {
   unhandledBookings: Observable<Booking>
   dispatchedBookings: Observable<Booking>
 
-  constructor({ id, name, geometry, municipalities }: Region) {
+  constructor({ id, name, geometry, municipalities }: RegionParams) {
     this.id = id
     this.geometry = geometry
     this.name = name

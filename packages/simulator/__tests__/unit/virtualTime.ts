@@ -14,7 +14,7 @@ describe('VirtualTime', () => {
   it('can pass the time', async () => {
     let start = await virtualTime.getTimeInMillisecondsAsPromise()
 
-    timeout(async () => {
+    await timeout(async () => {
       expect(await virtualTime.getTimeInMillisecondsAsPromise()).toBeCloseTo(
         start + 1000
       )
@@ -35,7 +35,7 @@ describe('VirtualTime', () => {
     let start = await virtualTime.getTimeInMillisecondsAsPromise()
     virtualTime.pause()
 
-    timeout(async () => {
+    await timeout(async () => {
       virtualTime.play()
       const time = await virtualTime.getTimeInMillisecondsAsPromise()
       expect(time.toBeCloseTo(start))
@@ -47,7 +47,7 @@ describe('VirtualTime', () => {
     console.log('start', start)
     virtualTime.pause()
 
-    timeout(async () => {
+    await timeout(async () => {
       expect(await virtualTime.getTimeInMillisecondsAsPromise()).toBeCloseTo(
         start
       )

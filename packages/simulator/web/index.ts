@@ -1,11 +1,10 @@
 import { config } from 'dotenv'
 import { save } from '../config'
 import { info } from '../lib/log'
-import { emitters, ignoreWelcomeMessage } from '../config'
+import { emitters } from '../config'
 import cookie from 'cookie'
 import moment from 'moment'
-import { Experiment } from '../../../../types/Experiment'
-import engine from '../index'
+import { Experiment } from '../index'
 import { createServer, IncomingMessage, ServerResponse } from 'http'
 import { Server, Socket } from 'socket.io'
 import { env } from 'process'
@@ -44,7 +43,7 @@ function subscribe(experiment: Experiment, socket: Socket): any[] {
 }
 
 function start(socket: Socket): void {
-  const experiment = engine.createExperiment({ defaultEmitters })
+  const experiment = new Experiment({ emitters: defaultEmitters })
   socket.data.experiment = experiment
   experiment.subscriptions = subscribe(experiment, socket)
   experiment.virtualTime.waitUntil(moment().endOf('day').valueOf()).then(() => {
@@ -55,14 +54,6 @@ function start(socket: Socket): void {
 }
 
 function register(io: Socket): void {
-  if (ignoreWelcomeMessage) {
-    io.engine.on('initial_headers', (headers) => {
-      headers['set-cookie'] = cookie.serialize('hideWelcomeBox', 'true', {
-        path: '/',
-      })
-    })
-  }
-
   io.on('connection', function (socket) {
     if (!socket.data.experiment) {
       start(socket)

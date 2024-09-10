@@ -16,14 +16,12 @@ import { error } from '../../lib/log'
 import Booking from '../../models/Booking'
 import Position from '../../models/Position'
 import { searchOne } from '../../lib/pelias'
-import { createReadStream } from 'fs'
+import { VirtualTime } from '../../models/VirtualTime'
+import json from '../../data/telge/ruttdata_2024-09-03.json'
 
-function read(): Observable<Booking> {
-  const stream = createReadStream('../../data/telge/ruttdata_2024-09-03.json')
-  // TODO: add error handling
-  return from(stream)
+function read(virtualTime: VirtualTime): Observable<Booking> {
+  return from(json)
     .pipe(
-      map((buffer) => JSON.parse(buffer.toString())),
       map(
         ({
           Turid: id,
@@ -63,7 +61,7 @@ function read(): Observable<Booking> {
       }, 1),
       mergeAll(),
       take(5), // Start with just a few bookings for debug reasons
-      map((row) => new Booking({ type: 'recycleBin', ...row })),
+      map((row) => new Booking({ type: 'recycleBin', ...row, virtualTime })),
       share()
     )
     .pipe(
@@ -74,4 +72,4 @@ function read(): Observable<Booking> {
     )
 }
 
-export default read()
+export default read

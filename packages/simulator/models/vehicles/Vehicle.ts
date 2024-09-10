@@ -7,6 +7,8 @@ import Position from '../Position'
 import Booking from '../Booking'
 import * as interpolate from '../../lib/interpolate'
 import { osrm } from '../../lib/osrm'
+import { safeId } from '../../lib/id'
+import { VirtualTime, virtualTime } from '../VirtualTime'
 
 const wait = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms))
@@ -50,6 +52,7 @@ class Vehicle {
   pointsPassedSinceLastUpdate?: any[]
   bearing?: number
   passengers?: any[]
+  virtualTime: VirtualTime
 
   constructor({
     id = 'v-' + safeId(),
@@ -58,6 +61,7 @@ class Vehicle {
     weight = 10000,
     fleet,
     co2PerKmKg = 0.013 / 1000,
+    virtualTime,
   }: VehicleArgs) {
     this.id = id
     this.position = position
@@ -74,6 +78,8 @@ class Vehicle {
     this.created = this.time()
     this.co2PerKmKg = co2PerKmKg
     this.vehicleType = 'default'
+    this.passengers = []
+    this.virtualTime = virtualTime
 
     this.movedEvents = new ReplaySubject<Vehicle>()
     this.cargoEvents = new ReplaySubject<Vehicle>()

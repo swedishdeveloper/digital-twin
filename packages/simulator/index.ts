@@ -1,42 +1,83 @@
-import { filter, share, merge, shareReplay } from 'rxjs'
+import {
+  filter,
+  share,
+  merge,
+  shareReplay,
+  Subscription,
+  Observable,
+} from 'rxjs'
 import { mergeMap, catchError } from 'rxjs/operators'
 
 import { read } from './config'
 import { info, error, logStream } from './lib/log'
 
+import { createMunicipalities } from './streams/municipalities'
 import { createRegions } from './streams/regions'
-import { Experiment, ExperimentParameters } from '../../types/Experiment'
+import { ExperimentParameters } from '../../types/Experiment'
+import { safeId } from './lib/id'
+import { VirtualTime } from './models/VirtualTime'
+import Municipality from './models/Municipality'
+import RecycleTruck from './models/vehicles/RecycleTruck'
+import Vehicle from './models/vehicles/Vehicle'
+import Booking from './models/Booking'
+import Citizen from './models/Citizen'
 
-class Engine {
-  subscriptions: any[]
+export class Experiment {
+  subscriptions: Subscription[]
+  logStream: Observable<string>
+  parameters: ExperimentParameters
+  municipalities: Observable<Municipality>
+  virtualTime: VirtualTime
 
-  constructor() {
-    this.subscriptions = []
+  // VEHICLES
+  cars: Observable<Vehicle>
+  recycleTrucks: Observable<RecycleTruck>
+  carUpdates: Observable<Vehicle>
+
+  // BOOKINGS
+  recycleCollectionPoints: Observable<Booking>
+  dispatchedBookings: Observable<Booking>
+  bookingUpdates: Observable<Booking>
+
+  // PASSENGERS
+  passengerUpdates: Observable<Citizen>
+  passengers: Observable<Citizen>
+
+  // EVENTS
+  stop = async () => {
+    this.virtualTime.stop()
+    this.subscriptions.forEach((sub) => sub.unsubscribe())
+    logStream.complete()
   }
 
-  createExperiment({ id = safeId() }: ExperimentParameters) {
-    const savedParams = read()
+  constructor({ id = safeId(), emitters }: ExperimentParameters) {
+    this.subscriptions = []
+    this.parameters = { ...read(), emitters }
+    this.virtualTime = new VirtualTime()
 
     // Log experiment start information
     info(`*** Starting experiment ${id} with params:`, {
-      id: savedParams.id,
-      fixedRoute: savedParams.fixedRoute,
-      emitters: savedParams.emitters,
-      municipalities: Object.keys(savedParams.fleets).map((municipality) => {
-        return `${municipality} (${savedParams.fleets[municipality].fleets.length} fleets)`
-      }),
+      id: this.parameters.id,
+      emitters: this.parameters?.emitters,
+      municipalities: Object.keys(this.parameters.municipalities).map(
+        (municipality) => {
+          return `${municipality} (${this.parameters.municipalities[municipality].fleets.length} fleets)`
+        }
+      ),
     })
 
     // Rregions and municipalities
-    const regions = createRegions(savedParams)
-    const municipalities = regions.pipe(
+    const regions = createRegions(
+      createMunicipalities(this.parameters, this.virtualTime)
+    )
+    this.municipalities = regions.pipe(
       mergeMap((region) => region.municipalities),
       catchError((err) => error('Experiment -> municipalities', err)),
       shareReplay()
     )
 
     // BOOKINGS
-    const dispatchedBookings = merge(
+    this.dispatchedBookings = merge(
       regions.pipe(
         mergeMap((region) => region.dispatchedBookings),
         catchError((err) => error('Experiment -> dispatchedBookings', err)),
@@ -44,13 +85,13 @@ class Engine {
       )
     )
 
-    const recycleCollectionPoints = regions.pipe(
+    this.recycleCollectionPoints = regions.pipe(
       mergeMap((region) => region.recycleCollectionPoints),
       catchError((err) => error('Experiment -> RecycleCollectionPoints', err)),
       shareReplay()
     )
 
-    const bookingUpdates = dispatchedBookings.pipe(
+    this.bookingUpdates = this.dispatchedBookings.pipe(
       mergeMap((booking) => booking.statusEvents),
       catchError((err) => error('Experiment -> bookingUpdates', err)),
       share()
@@ -58,69 +99,36 @@ class Engine {
 
     // PASSENGERS
 
-    const passengers = regions.pipe(
-      filter((region) => !!region.citizens),
+    this.passengers = regions.pipe(
       mergeMap((region) => region.citizens),
-      catchError(async (err) => error('Experiment -> Passengers', err)),
       shareReplay()
     )
-    const passengerUpdates = passengers.pipe(
+    this.passengerUpdates = this.passengers.pipe(
       mergeMap(({ deliveredEvents, pickedUpEvents }) =>
         merge(deliveredEvents, pickedUpEvents)
       ),
       catchError(async (err) => error('passengerUpdates', err)),
+      filter((f) => f instanceof Citizen),
       share()
     )
+    this.logStream = logStream // create new logstream for each experiment?
 
     // VEHICLES
-    const cars = regions.pipe(mergeMap((region) => region.cars))
-    const recycleTrucks = regions.pipe(
+    this.cars = regions.pipe(mergeMap((region) => region.cars))
+    this.recycleTrucks = regions.pipe(
       mergeMap((region) => region.recycleTrucks),
       share()
     )
-    const carUpdates = merge(
+    this.carUpdates = merge(
       // experiment.buses, // Uncomment if needed
       // experiment.cars,  // Uncomment if needed
       // experiment.taxis, // Uncomment if needed
-      recycleTrucks
+      this.cars
     ).pipe(
       mergeMap((car) => car.movedEvents),
       catchError(async (err) => error('Experiment -> carUpdates', err)),
+      filter((f) => f instanceof Vehicle),
       share()
     )
-
-    // Define experiment parameters
-    const parameters: ExperimentParameters = {
-      id,
-      startDate: new Date(),
-      fleets: savedParams.fleets,
-    }
-    // statistics.collectExperimentMetadata(parameters)
-    // Create experiment object
-    const experiment: Experiment = {
-      logStream,
-      parameters,
-
-      municipalities,
-      subscriptions: [],
-      virtualTime,
-      dispatchedBookings,
-
-      // VEHICLES
-      cars,
-      recycleTrucks,
-      passengers,
-
-      // Adding recycle collection points
-      recycleCollectionPoints,
-
-      bookingUpdates,
-      passengerUpdates,
-      carUpdates,
-    }
-
-    return experiment
   }
 }
-
-const engine = new Engine()

@@ -9,8 +9,11 @@ import {
 import { addMilliseconds, startOfDay, addHours, getUnixTime } from 'date-fns'
 
 class VirtualTime {
+  stop() {
+    throw new Error('Method not implemented.')
+  }
   private startHour: number
-  private timeMultiplier: number
+  public timeMultiplier: number
   private internalTimeScale: number
   private currentTime: Observable<Date>
 
@@ -39,7 +42,7 @@ class VirtualTime {
     return this.currentTime
   }
 
-  getTimeStream(): any {
+  getTimeStream() {
     return this.currentTime
   }
 
@@ -83,5 +86,4 @@ class VirtualTime {
   }
 }
 
-export const virtualTime = new VirtualTime() // static global time
 export { VirtualTime }

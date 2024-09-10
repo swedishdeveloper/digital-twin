@@ -1,16 +1,19 @@
-const { findBestRouteToPickupBookings } = require('../dispatch/taxiDispatch')
-const { safeId } = require('../id')
-const { debug } = require('../log')
-const Vehicle = require('../vehicles/vehicle')
-const { virtualTime } = require('../virtualTime')
+import { safeId } from '../../lib/id'
+import { debug } from '../../lib/log'
+import Vehicle from './Vehicle'
+import Position from '../Position'
 const fleet = {
   name: 'taxi',
 }
 
-class Taxi extends Vehicle {
-  id
-  position
+export default class Taxi extends Vehicle {
   heading
+  startPosition: Position
+  passengers: any[]
+  passengerCapacity: number
+  plan: any[]
+  instruction?: any
+
   constructor({
     id = 't-' + safeId(),
     position,
@@ -25,8 +28,6 @@ class Taxi extends Vehicle {
     this.passengers = []
     this.queue = []
     this.passengerCapacity = passengerCapacity || 4 // TODO: Set this when constructing the vehicle
-    this.parcelCapacity = 0 // TODO: Set this when constructing the vehicle
-    this.booking = true
     this.vehicleType = 'taxi'
     this.startPosition = position
     this.co2PerKmKg = 0.1201 // NOTE: From a quick google. Needs to be verified.
@@ -42,7 +43,7 @@ class Taxi extends Vehicle {
   }
 
   canPickupMorePassengers() {
-    if (this.passengerCapacity > this.passengers.length) return true
+    if (this.passengerCapacity > (this.passengers?.length || 0)) return true
     return false
   }
 
@@ -55,11 +56,11 @@ class Taxi extends Vehicle {
       case 'pickup':
         await virtualTime.waitUntil(this.instruction.arrival)
         this.status = 'toPickup'
-        return this.navigateTo(this.booking.pickup.position)
+        return this.navigateTo(this.booking!.pickup.position)
       case 'delivery':
         this.status = 'toDelivery'
         await virtualTime.waitUntil(this.instruction.arrival)
-        return this.navigateTo(this.booking.destination.position)
+        return this.navigateTo(this.booking!.destination!.position)
       case 'start':
         return this.pickNextInstructionFromPlan()
       case 'returning':
@@ -74,7 +75,7 @@ class Taxi extends Vehicle {
 
   async pickup() {
     debug('Pickup passenger', this.id, this.booking?.passenger?.name)
-    this.passengers.push(this.booking.passenger)
+    this.passengers.push(this.booking!.passenger)
     this.cargoEvents.next(this)
     this.booking.pickedUp(this.position)
   }
@@ -117,5 +118,3 @@ class Taxi extends Vehicle {
     return booking
   }
 }
-
-module.exports = Taxi

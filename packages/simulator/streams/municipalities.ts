@@ -1,7 +1,7 @@
 /**
  * TODO: Describe the stream that this file exports and what its data means
  */
-import { from, shareReplay } from 'rxjs'
+import { from, Observable, shareReplay } from 'rxjs'
 import {
   map,
   filter,
@@ -20,16 +20,15 @@ import { getCitizensInSquare } from './citizens'
 import { getAddressesInArea } from './address'
 import { municipalities } from '../config/index.js'
 
+import { info } from '../lib/log'
+
 const activeMunicipalities = municipalities()
 
 import telgeBookings from './orders/telge.js'
 import Fleet from '../models/Fleet'
 import Municipality from '../models/Municipality'
 import Position from '../models/Position'
-
-const bookings = {
-  telge: telgeBookings,
-}
+import { ExperimentParameters } from '../../../types/Experiment'
 
 function getPopulationSquares({ geometry: { coordinates } }) {
   return population.pipe(
@@ -52,30 +51,20 @@ async function getWorkplaces(position, nrOfWorkplaces = 100) {
 }
 
 // function read() {
-function read({
-  fleets,
-}: {
-  fleets: {
-    [key: string]: {
-      fleets: {
-        name: string
-        hubAddress: string
-        marketshare: number
-        vehicles: { [key: string]: number }
-      }[]
-    }
-  }
-}) {
+function createMunicipalities(
+  parameters: ExperimentParameters,
+  virtualTime
+): Observable<Municipality> {
   return from(data).pipe(
     filter(({ namn }) =>
       activeMunicipalities.some((name) => namn.startsWith(name))
     ),
     map((municipality) => {
+      const name = municipality.namn
+      info('Processing municipality', name, parameters)
       return {
         ...municipality,
-        fleets: fleets[municipality.namn]?.fleets?.length
-          ? fleets[municipality.namn].fleets
-          : [],
+        fleets: parameters.municipalities[name].fleets,
       }
     }),
     mergeMap(
@@ -87,7 +76,6 @@ function read({
         telefon,
         address,
         kod,
-        pickupPositions,
         fleets,
       }) => {
         console.log('Processing municipality', name)
@@ -130,6 +118,8 @@ function read({
           shareReplay()
         )
 
+        const recyclingPoints = telgeBookings(virtualTime)
+
         const municipality = new Municipality({
           geometry,
           name,
@@ -137,7 +127,7 @@ function read({
           email: epost,
           zip: postnummer,
           telephone: telefon,
-          recycleCollectionPoints: bookings.telge, // if södertälje..
+          recycleCollectionPoints: recyclingPoints, // if södertälje..
           center,
           fleets: fleetsStream,
           squares,
@@ -154,4 +144,4 @@ function read({
   )
 }
 
-export { read }
+export { createMunicipalities }

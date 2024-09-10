@@ -41,9 +41,7 @@ const App = () => {
   const simulatorUrl =
     import.meta.env.VITE_SIMULATOR_URL || `ws://localhost:4000`
 
-  const { socket } = useSocket({
-    path: simulatorUrl,
-  })
+  const { socket } = useSocket(simulatorUrl)
   const activeLayers = {
     carLayer,
     setCarLayer,
