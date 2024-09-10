@@ -9,7 +9,8 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "outDir": "./dist",
-    "moduleResolution":"node"
+    "moduleResolution":"node",
+    "jsx": "react"
   },
   "include": ["packages/**/*.ts"],
   "exclude": ["node_modules", "**/*.spec.ts"]
