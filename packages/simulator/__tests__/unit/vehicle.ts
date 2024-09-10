@@ -1,18 +1,30 @@
 import Vehicle from '../../models/vehicles/Vehicle'
 import Booking from '../../models/Booking'
-import { virtualTime } from '../../models/VirtualTime'
+import { VirtualTime } from '../../models/VirtualTime'
 import Position from '../../models/Position'
-import { filter, Subscription, take } from 'rxjs'
+import {
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  Subscription,
+  take,
+  tap,
+  toArray,
+} from 'rxjs'
 
 const range = (length: number): number[] =>
   Array.from({ length }).map((_, i) => i)
 
 describe('A vehicle', () => {
-  const arjeplog = { lon: 17.886855, lat: 66.041054 }
-  const ljusdal = { lon: 14.44681991219, lat: 61.59465992477 }
+  const arjeplog = new Position({ lon: 17.886855, lat: 66.041054 })
+  const ljusdal = new Position({ lon: 14.44681991219, lat: 61.59465992477 })
   let vehicle: Vehicle
   let subscriptions = [] as Subscription[]
+  let virtualTime
+
   beforeEach(() => {
+    virtualTime = new VirtualTime()
     virtualTime.setTimeMultiplier(Infinity)
   })
 
@@ -21,43 +33,84 @@ describe('A vehicle', () => {
     subscriptions.forEach((sub) => sub.unsubscribe())
   })
 
-  const on = async (vehicle: Vehicle, event: string) => {
+  const on = async (stream: Observable<Booking | Vehicle>, event: string) => {
     return new Promise((resolve) => {
-      vehicle.statusEvents.pipe(filter((vehicle) => vehicle.status === event), take(1)).subscribe((vehicle) => {
-        resolve(vehicle)
-      }
-    )
+      stream
+        .pipe(
+          tap((vehicle) => {
+            console.log(vehicle.status)
+          }),
+          filter((vehicle) => vehicle.status === event),
+          take(1)
+        )
+        .subscribe((vehicle) => {
+          resolve(vehicle)
+        })
+    })
   }
 
-  it('should initialize correctly', function (done) {
-    vehicle = new Vehicle({ id: '1', position: new Position(arjeplog) })
-    expect(vehicle.id).toHaveLength(9)
-    done()
+  it('should initialize correctly', function () {
+    vehicle = new Vehicle({
+      virtualTime,
+      position: new Position(arjeplog),
+    })
+    expect(vehicle.id).toHaveLength(11)
   })
 
-  it('should have initial position', function (done) {
-    vehicle = new Vehicle({ id: '1', position: new Position(arjeplog) })
+  it('should have initial position', function () {
+    vehicle = new Vehicle({
+      id: '1',
+      virtualTime,
+      position: new Position(arjeplog),
+    })
     expect(vehicle.position).toEqual(arjeplog)
-    done()
   })
 
-  it('should be able to teleport', function (done) {
-    vehicle = new Vehicle({ id: '1', position: new Position(arjeplog) })
+  it('should be able to teleport', async function () {
+    virtualTime.setTimeMultiplier(Infinity)
+    vehicle = new Vehicle({
+      id: '1',
+      virtualTime,
+      position: new Position(arjeplog),
+    })
     vehicle.navigateTo(new Position(ljusdal))
-    vehicle.statusEvents
-      .pipe(filter((vehicle) => vehicle.status === 'stopped'))
-      .subscribe((vehicle) => {
-        expect(vehicle.position?.lon).toEqual(ljusdal.lon)
-        expect(vehicle.position?.lat).toEqual(ljusdal.lat)
-        done()
-      })
+    await on(vehicle.statusEvents, 'stopped')
+    expect(vehicle.position?.lon).toEqual(ljusdal.lon)
+    expect(vehicle.position?.lat).toEqual(ljusdal.lat)
   })
 
-  it('should be able to handle one booking and navigate to pickup', function (done) {
-    vehicle = new Vehicle({ id: '1', position: new Position(arjeplog) })
-    vehicle.handleBooking(
+  it('should be able to handle one booking and navigate to pickup', async function () {
+    vehicle = new Vehicle({
+      id: '1',
+      virtualTime,
+      position: new Position(arjeplog),
+    })
+    await vehicle.handleBooking(
       new Booking({
         id: '1',
+        virtualTime,
+        pickup: {
+          position: new Position(ljusdal),
+        },
+      })
+    )
+    await on(vehicle.statusEvents, 'atPickup')
+    expect(vehicle.position?.lon).toEqual(ljusdal.lon)
+    expect(vehicle.position?.lat).toEqual(ljusdal.lat)
+  })
+  it('should handle status events in the correct order', async function () {
+    // Skapa ett fordon
+    const vehicle = new Vehicle({
+      id: '1',
+      virtualTime,
+      position: new Position(arjeplog),
+    })
+
+    // Hantera bokning med pickup i Ljusdal och destination i Arjeplog
+    await vehicle.handleBooking(
+      new Booking({
+        id: '1',
+        virtualTime,
         pickup: {
           position: new Position(ljusdal),
         },
@@ -66,46 +119,78 @@ describe('A vehicle', () => {
         },
       })
     )
-    vehicle.statusEvents
-      .pipe(filter((vehicle) => vehicle.status === 'pickup'))
-      .subscribe((vehicle) => {
-        expect(vehicle.position?.lon).toEqual(ljusdal.lon)
-        expect(vehicle.position?.lat).toEqual(ljusdal.lat)
-      })
 
-    vehicle.statusEvents
-      .pipe(filter((vehicle) => vehicle.status === 'dropoff'))
-      .subscribe((vehicle) => {
-        expect(vehicle.position?.lon).toEqual(arjeplog.lon)
-        expect(vehicle.position?.lat).toEqual(arjeplog.lat)
-        done()
-      })
+    // Fånga de första fyra statusuppdateringarna från fordonet
+    const log = await firstValueFrom(
+      vehicle.statusEvents.pipe(
+        map((vehicle) => vehicle.status),
+        take(4),
+        toArray()
+      )
+    )
+
+    // Förväntat statusflöde: 'toPickup', 'atPickup', 'toDelivery', 'atDropoff'
+    expect(log).toEqual(['toPickup', 'atPickup', 'toDelivery', 'atDropoff'])
   })
 
-  it('should be able to pickup multiple bookings and queue the all except the first', function (done) {
-    vehicle = new Vehicle({ id: '1', position: new Position(arjeplog) })
+  it('should be able to handle one booking and navigate to pickup and continue to dropoff', async function () {
+    vehicle = new Vehicle({
+      id: '1',
+      virtualTime,
+      position: new Position(arjeplog),
+    })
+    await vehicle.handleBooking(
+      new Booking({
+        id: '1',
+        virtualTime,
+        pickup: {
+          position: new Position(ljusdal),
+        },
+        destination: {
+          position: new Position(arjeplog),
+        },
+      })
+    )
+    await on(vehicle.statusEvents, 'atPickup')
+    expect(vehicle.position?.lon).toEqual(ljusdal.lon)
+    expect(vehicle.position?.lat).toEqual(ljusdal.lat)
+
+    await on(vehicle.statusEvents, 'atDropoff')
+    expect(vehicle.position?.lon).toEqual(arjeplog.lon)
+    expect(vehicle.position?.lat).toEqual(arjeplog.lat)
+  })
+
+  it('should be able to pickup multiple bookings and queue the all except the first', async function () {
+    vehicle = new Vehicle({
+      id: '1',
+      virtualTime,
+      position: new Position(arjeplog),
+    })
     vehicle.handleBooking(
       new Booking({
         id: '1',
+        virtualTime,
         pickup: {
           position: new Position(ljusdal),
         },
       })
     )
-    vehicle.statusEvents
-      .pipe(filter((vehicle) => vehicle.status === 'pickup'))
-      .subscribe((vehicle) => {
-        expect(vehicle.position?.lon).toEqual(ljusdal.lon)
-        expect(vehicle.position?.lat).toEqual(ljusdal.lat)
-        done()
-      })
+    await on(vehicle.statusEvents, 'atPickup')
+
+    expect(vehicle.position?.lon).toEqual(ljusdal.lon)
+    expect(vehicle.position?.lat).toEqual(ljusdal.lat)
   })
 
   it('should be able to handle one booking and emit correct events', function (done) {
-    vehicle = new Vehicle({ id: '1', position: new Position(arjeplog) })
+    vehicle = new Vehicle({
+      id: '1',
+      virtualTime,
+      position: new Position(arjeplog),
+    })
     vehicle.handleBooking(
       new Booking({
         id: '1',
+        virtualTime,
         pickup: {
           position: ljusdal,
         },
@@ -121,10 +206,15 @@ describe('A vehicle', () => {
   })
 
   it('should be able to handle one booking and emit correct events', function (done) {
-    vehicle = new Vehicle({ id: '1', position: new Position(arjeplog) })
+    vehicle = new Vehicle({
+      id: '1',
+      virtualTime,
+      position: new Position(arjeplog),
+    })
     vehicle.handleBooking(
       new Booking({
         id: '1',
+        virtualTime,
         pickup: {
           position: ljusdal,
         },
@@ -144,10 +234,15 @@ describe('A vehicle', () => {
   })
 
   it('should be able to pickup a booking and deliver it to its destination', function (done) {
-    vehicle = new Vehicle({ id: '1', position: new Position(arjeplog) })
+    vehicle = new Vehicle({
+      id: '1',
+      virtualTime,
+      position: new Position(arjeplog),
+    })
     vehicle.handleBooking(
       new Booking({
         id: '1',
+        virtualTime,
         pickup: {
           position: ljusdal,
         },
@@ -173,10 +268,15 @@ describe('A vehicle', () => {
   })
 
   it('should be able to pickup multiple bookings and queue the all except the first', function () {
-    vehicle = new Vehicle({ id: '1', position: new Position(arjeplog) })
+    vehicle = new Vehicle({
+      id: '1',
+      virtualTime,
+      position: new Position(arjeplog),
+    })
     vehicle.handleBooking(
       new Booking({
         id: '1',
+        virtualTime,
         pickup: {
           position: ljusdal,
         },
@@ -190,7 +290,11 @@ describe('A vehicle', () => {
   })
 
   it('should be able to handle the bookings from the same place in the queue', function (done) {
-    vehicle = new Vehicle({ id: '1', position: new Position(arjeplog) })
+    vehicle = new Vehicle({
+      id: '1',
+      virtualTime,
+      position: new Position(arjeplog),
+    })
     expect(vehicle.queue).toHaveLength(0)
     const ljusdalToArjeplog = {
       pickup: {
@@ -213,19 +317,21 @@ describe('A vehicle', () => {
     vehicle.handleBooking(
       new Booking({
         id: '1',
+        virtualTime,
         ...ljusdalToArjeplog,
       })
     )
 
     const last = new Booking({
       id: '2',
+      virtualTime,
       ...arjeplogToLjusdal,
     })
     vehicle.handleBooking(last)
 
     const bookings = range(10).map((id) =>
       vehicle.handleBooking(
-        new Booking({ id: id.toString(), ...ljusdalToArjeplog })
+        new Booking({ id: id.toString(), virtualTime, ...ljusdalToArjeplog })
       )
     )
 
@@ -239,7 +345,7 @@ describe('A vehicle', () => {
       expect(vehicle.queue).toHaveLength(1)
     })
 
-    last.once('delivered', () => {
+    on(last.statusEvents, 'delivered').then(() => {
       expect(vehicle.queue).toHaveLength(0)
       done()
     })

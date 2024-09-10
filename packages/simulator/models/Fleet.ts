@@ -6,8 +6,12 @@ import {
   of,
   Observable,
   firstValueFrom,
+  shareReplay,
+  mergeMap,
+  share,
+  catchError,
+  first,
 } from 'rxjs'
-import { shareReplay, mergeMap, share, catchError, first } from 'rxjs/operators'
 import RecycleTruck from './vehicles/RecycleTruck'
 import Taxi from './vehicles/Taxi'
 import Municipality from './Municipality'

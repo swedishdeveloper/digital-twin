@@ -1,28 +1,32 @@
 import Municipality from '../../models/Municipality'
 import Booking from '../../models/Booking'
-import { virtualTime } from '../../models/VirtualTime'
+import { VirtualTime } from '../../models/VirtualTime'
 
-import * as dispatch from '../../lib/dispatch/taxiDispatch'
-import { from } from 'rxjs'
+import { dispatch } from '../../lib/dispatch/dispatchCentral'
+import { from, take } from 'rxjs'
+import Position from '../../models/Position'
 
 jest.mock('../../lib/dispatch/taxiDispatch')
 
 describe('A municipality', () => {
-  const arjeplog = { lon: 17.886855, lat: 66.041054 }
-  const ljusdal = { lon: 14.44681991219, lat: 61.59465992477 }
+  const arjeplog = new Position({ lon: 17.886855, lat: 66.041054 })
+  const ljusdal = new Position({ lon: 14.44681991219, lat: 61.59465992477 })
   const squares = from([])
   let fleets
   let municipality
+  let virtualTime = new VirtualTime()
 
   let testBooking = new Booking({
     id: 'b-123',
     passenger: null,
     type: 'taxi',
+    virtualTime,
     pickup: { departureTime: new Date(), position: arjeplog },
     destination: ljusdal,
   })
 
   beforeEach(() => {
+    virtualTime = new VirtualTime()
     virtualTime.setTimeMultiplier(Infinity)
     fleets = [
       { name: 'postnord', marketshare: 1, numberOfCars: 1, hub: arjeplog },
@@ -43,7 +47,6 @@ describe('A municipality', () => {
       email: 'test@example.com',
       zip: '12345',
       center: null,
-      co2: 0,
       telephone: '123456789',
       fleets,
     })
@@ -64,7 +67,7 @@ describe('A municipality', () => {
   })
 
   it('handled bookings are dispatched', function (done) {
-    dispatch.taxiDispatch((cars, bookings) =>
+    dispatch((cars, bookings) =>
       bookings.pipe(
         map((booking) => ({
           booking,
@@ -73,10 +76,15 @@ describe('A municipality', () => {
       )
     )
 
-    municipality = new Municipality({ name: 'stockholm', squares, fleets })
+    municipality = new Municipality({
+      id: '1',
+      name: 'stockholm',
+      squares,
+      fleets,
+    })
     municipality.handleBooking(testBooking)
 
-    municipality.dispatchedBookings.pipe(first()).subscribe(({ booking }) => {
+    municipality.dispatchedBookings.pipe(take(1)).subscribe(({ booking }) => {
       expect(booking.fleet.name).toBe('postnord')
       expect(booking.id).toBe(testBooking.id)
       done()

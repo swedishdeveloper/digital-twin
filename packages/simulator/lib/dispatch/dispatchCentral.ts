@@ -28,7 +28,7 @@ const dispatch = (
     }),
     filter((cars) => cars.length > 0), // TODO: Move this check to the caller.
     tap((cars) => {
-      const fleet = cars[0].fleet.name
+      const fleet = cars[0].fleet?.name || 'unknown fleet'
       info(`🚚 Dispatch ${cars.length} vehicles in ${fleet}`)
     }),
     mergeMap((cars) =>
@@ -41,6 +41,24 @@ const dispatch = (
           info(
             `Clustering ${bookings.length} bookings into ${cars.length} cars`
           )
+
+          if (cars.length === 0) {
+            warn('No cars to dispatch')
+            return []
+          }
+
+          if (bookings.length === 0) {
+            warn('No bookings to dispatch')
+            return []
+          }
+
+          if (cars.length >= bookings.length) {
+            return cars.map((car, i) => ({
+              car,
+              bookings: bookings[i] ? [bookings[i]] : [],
+            }))
+          }
+
           const clusters = await clusterBookings(bookings, cars.length)
           return clusters.map(({ bookings }, i: number) => ({
             car: cars[i],
@@ -51,7 +69,9 @@ const dispatch = (
         filter(({ bookings }) => bookings.length > 0),
         tap(({ car, bookings }) =>
           debug(
-            `Plan ${car.id} (${car.fleet.name}) received ${bookings.length} bookings`
+            `Plan ${car.id} (${car.fleet?.name || 'unknown fleet'}) received ${
+              bookings.length
+            } bookings`
           )
         ),
         mergeMap(({ car, bookings }) =>

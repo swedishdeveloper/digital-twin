@@ -1,8 +1,9 @@
 import { from, Subject, ReplaySubject, Subscription } from 'rxjs'
 import { toArray, shareReplay } from 'rxjs/operators'
-import { beforeEach, describe, it, xit, expect, jest } from '@jest/globals'
+import { beforeEach, describe, it, expect, jest } from '@jest/globals'
 import Booking from '../../models/Booking'
 import Vehicle from '../../models/vehicles/Vehicle'
+import Taxi from '../../models/vehicles/Taxi'
 import { dispatch } from '../../lib/dispatch/dispatchCentral'
 import Position from '../../models/Position'
 import { VirtualTime } from '../../models/VirtualTime'
@@ -13,18 +14,20 @@ describe('dispatch', () => {
   const stockholm = new Position({ lon: 18.06324, lat: 59.334591 })
   let cars
   let bookings
+  let virtualTime
   const subscriptions = [] as Subscription[]
-  const virtualTime = new VirtualTime()
 
   beforeEach(() => {
+    virtualTime = new VirtualTime()
     virtualTime.setTimeMultiplier(Infinity)
     cars = from([
-      new Vehicle({ id: '1', position: ljusdal }),
-      new Vehicle({ id: '2', position: arjeplog }),
+      new Vehicle({ id: '1', virtualTime, position: ljusdal }),
+      new Vehicle({ id: '2', virtualTime, position: arjeplog }),
     ]).pipe(shareReplay())
     bookings = from([
       new Booking({
         id: '0',
+        virtualTime,
         pickup: { position: ljusdal },
         destination: { position: arjeplog },
       }),
@@ -47,11 +50,13 @@ describe('dispatch', () => {
       new Booking({
         id: '1337',
         pickup: { position: arjeplog },
+        virtualTime,
         destination: { position: ljusdal },
       }),
       new Booking({
         id: '1338',
         pickup: { position: ljusdal },
+        virtualTime,
         destination: { position: arjeplog },
       }),
     ])
@@ -76,6 +81,7 @@ describe('dispatch', () => {
             new Booking({
               id: '2',
               pickup: { position: arjeplog },
+              virtualTime,
               destination: { position: ljusdal },
             })
           )
@@ -90,6 +96,7 @@ describe('dispatch', () => {
       new Booking({
         id: '1',
         pickup: { position: ljusdal },
+        virtualTime,
         destination: { position: arjeplog },
       })
     )
@@ -98,8 +105,8 @@ describe('dispatch', () => {
   it('should have cars available even the second time', function (done) {
     const bookingStream = new Subject<Booking>()
     const cars = new ReplaySubject<Vehicle>()
-    cars.next(new Vehicle({ position: ljusdal }))
-    cars.next(new Vehicle({ position: arjeplog }))
+    cars.next(new Vehicle({ position: ljusdal, virtualTime }))
+    cars.next(new Vehicle({ position: arjeplog, virtualTime }))
 
     subscriptions.push(
       dispatch(cars, bookingStream).subscribe(({ id, car }) => {
@@ -109,6 +116,7 @@ describe('dispatch', () => {
             new Booking({
               id: '2',
               pickup: { position: arjeplog },
+              virtualTime,
               destination: { position: ljusdal },
             })
           )
@@ -124,22 +132,25 @@ describe('dispatch', () => {
       new Booking({
         id: '1',
         pickup: { position: ljusdal },
+        virtualTime,
         destination: { position: arjeplog },
       })
     )
   })
 
   it('should dispatch two bookings to one car', function (done) {
-    cars = from([new Vehicle({ id: '1', position: ljusdal })])
+    cars = from([new Vehicle({ id: '1', position: ljusdal, virtualTime })])
     bookings = from([
       new Booking({
         id: '1337',
         pickup: { position: ljusdal, name: 'pickup 1' },
+        virtualTime,
         destination: { position: arjeplog, name: 'dropoff 1' },
       }),
       new Booking({
         id: '1338',
         pickup: { position: arjeplog, name: 'pickup 2' },
+        virtualTime,
         destination: { position: ljusdal, name: 'dropoff 2' },
       }),
     ])
@@ -166,22 +177,30 @@ describe('dispatch', () => {
 
   it('should dispatch three bookings to one car with only capacity for one and still deliver them all', function (done) {
     cars = from([
-      new Taxi({ id: '1', position: ljusdal, passengerCapacity: 1 }),
+      new Taxi({
+        id: '1',
+        position: ljusdal,
+        virtualTime,
+        passengerCapacity: 1,
+      }),
     ])
     bookings = from([
       new Booking({
         id: '1337',
         pickup: { position: ljusdal, name: 'pickup 1' },
+        virtualTime,
         destination: { position: arjeplog, name: 'dropoff 1' },
       }),
       new Booking({
         id: '1338',
         pickup: { position: arjeplog, name: 'pickup 2' },
+        virtualTime,
         destination: { position: stockholm, name: 'dropoff 2' },
       }),
       new Booking({
         id: '1339',
         pickup: { position: stockholm, name: 'pickup 3' },
+        virtualTime,
         destination: { position: arjeplog, name: 'dropoff 3' },
       }),
     ])

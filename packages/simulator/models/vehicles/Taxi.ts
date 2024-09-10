@@ -2,6 +2,7 @@ import { safeId } from '../../lib/id'
 import { debug } from '../../lib/log'
 import Vehicle from './Vehicle'
 import Position from '../Position'
+import { VirtualTime } from '../VirtualTime'
 const fleet = {
   name: 'taxi',
 }
@@ -18,14 +19,16 @@ export default class Taxi extends Vehicle {
     id = 't-' + safeId(),
     position,
     passengerCapacity,
+    virtualTime,
     ...vehicle
   }) {
-    super({ position, id, fleet, ...vehicle })
+    super({ position, id, fleet, virtualTime, ...vehicle })
     this.id = id
     this.position = position
     this.heading = null
     this.cargo = []
     this.passengers = []
+    this.virtualTime = virtualTime
     this.queue = []
     this.passengerCapacity = passengerCapacity || 4 // TODO: Set this when constructing the vehicle
     this.vehicleType = 'taxi'
@@ -34,6 +37,8 @@ export default class Taxi extends Vehicle {
     this.plan = []
     this.instruction = null
   }
+
+  private _timeout?: NodeJS.Timeout
 
   stopped() {
     if (this.status === 'returning' && !this.plan?.length)
@@ -54,12 +59,12 @@ export default class Taxi extends Vehicle {
     this.statusEvents.next(this)
     switch (this.status) {
       case 'pickup':
-        await virtualTime.waitUntil(this.instruction.arrival)
+        await this.virtualTime.waitUntil(this.instruction.arrival)
         this.status = 'toPickup'
         return this.navigateTo(this.booking!.pickup.position)
       case 'delivery':
         this.status = 'toDelivery'
-        await virtualTime.waitUntil(this.instruction.arrival)
+        await this.virtualTime.waitUntil(this.instruction.arrival)
         return this.navigateTo(this.booking!.destination!.position)
       case 'start':
         return this.pickNextInstructionFromPlan()
@@ -74,29 +79,24 @@ export default class Taxi extends Vehicle {
   }
 
   async pickup() {
-    debug('Pickup passenger', this.id, this.booking?.passenger?.name)
+    debug('Pickup passenger', this.id, this.booking!.passenger?.name)
     this.passengers.push(this.booking!.passenger)
     this.cargoEvents.next(this)
-    this.booking.pickedUp(this.position)
+    this.booking!.pickedUp(this.position)
   }
 
   async dropOff() {
     debug('Dropoff passenger', this.id, this.booking?.passenger?.name)
     this.passengers = this.passengers.filter(
-      (p) => p !== this.booking.passenger
+      (p) => p !== this.booking!.passenger
     )
     this.cargoEvents.next(this)
-    this.booking.delivered(this.position)
+    this.booking!.delivered(this.position)
   }
 
   canHandleBooking(booking) {
-    if (booking.type === 'parcel') {
-      if (this.cargo.length < this.parcelCapacity) return true
-      return false
-    }
     if (booking.type === 'passenger') {
       if (this.passengers.length < this.passengerCapacity) return true
-      return false
     }
     return false
   }

@@ -1,14 +1,14 @@
 import { ReplaySubject, Subscription } from 'rxjs'
 import { scan } from 'rxjs/operators'
 import moment from 'moment'
-import { assert, warn } from 'console'
+import { assert, info, warn } from 'console'
 import { bearing, haversine } from '../../lib/distance'
 import Position from '../Position'
 import Booking from '../Booking'
 import * as interpolate from '../../lib/interpolate'
 import { osrm } from '../../lib/osrm'
 import { safeId } from '../../lib/id'
-import { VirtualTime, virtualTime } from '../VirtualTime'
+import { VirtualTime } from '../VirtualTime'
 
 const wait = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms))
@@ -20,6 +20,7 @@ interface VehicleArgs {
   weight?: number
   fleet?: any
   co2PerKmKg?: number
+  virtualTime: VirtualTime
 }
 
 class Vehicle {
@@ -64,6 +65,7 @@ class Vehicle {
     virtualTime,
   }: VehicleArgs) {
     this.id = id
+    this.virtualTime = virtualTime
     this.position = position
     this.origin = position
     this.queue = []
@@ -79,7 +81,6 @@ class Vehicle {
     this.co2PerKmKg = co2PerKmKg
     this.vehicleType = 'default'
     this.passengers = []
-    this.virtualTime = virtualTime
 
     this.movedEvents = new ReplaySubject<Vehicle>()
     this.cargoEvents = new ReplaySubject<Vehicle>()
@@ -92,7 +93,7 @@ class Vehicle {
   }
 
   time(): Promise<number> {
-    return virtualTime.getTimeInMillisecondsAsPromise()
+    return this.virtualTime.getTimeInMillisecondsAsPromise()
   }
 
   simulate(route: any) {
@@ -101,11 +102,11 @@ class Vehicle {
     }
     if (!route) return
 
-    if (virtualTime.timeMultiplier === Infinity) {
+    if (this.virtualTime.timeMultiplier === Infinity) {
       return this.updatePosition(route)
     }
 
-    this.movementSubscription = virtualTime
+    this.movementSubscription = this.virtualTime
       .getTimeInMilliseconds()
       .pipe(
         scan((prevRemainingPointsInRoute, currentTimeInMs: number) => {
@@ -132,9 +133,15 @@ class Vehicle {
   }
 
   navigateTo(position: Position): Promise<Position> {
+    if (this.heading === position) throw new Error('Already heading there')
+    info('Navigate to', this.id, position)
     this.heading = position
 
-    if (this.position.distanceTo(position) < 100) {
+    if (
+      this.position.distanceTo(position) < 100 ||
+      this.virtualTime.timeMultiplier === Infinity
+    ) {
+      this.updatePosition(position)
       this.stopped()
       return Promise.resolve(position)
     }
@@ -167,16 +174,16 @@ class Vehicle {
   }
 
   async handleBooking(booking: Booking): Promise<Booking> {
-    assert(booking instanceof Booking, 'Booking needs to be of type Booking')
-
     if (!this.booking) {
+      info('Handle booking', booking.id, this.id)
       this.booking = booking
       booking.assign(this)
       this.status = 'toPickup'
       this.statusEvents.next(this)
 
-      if (booking.pickup) this.navigateTo(booking.pickup.position)
+      this.navigateTo(booking.pickup.position)
     } else {
+      info('Queuing booking', booking.id, this.id, this.booking.id)
       this.queue.push(booking)
       booking.assign(this)
 
@@ -192,17 +199,20 @@ class Vehicle {
       'hh:mm:ss'
     ).valueOf()
     const waitingtime = moment(departure).diff(
-      moment(await virtualTime.getTimeInMillisecondsAsPromise())
+      moment(await this.virtualTime.getTimeInMillisecondsAsPromise())
     )
 
     if (waitingtime > 0) {
       this.simulate(false)
-      await virtualTime.waitUntil(departure)
+      await this.virtualTime.waitUntil(departure)
     }
   }
 
   async pickup() {
     if (this._disposed) return
+
+    this.status = 'atPickup'
+    this.statusEvents.next(this)
 
     await this.waitAtPickup()
 
@@ -240,6 +250,7 @@ class Vehicle {
       this.delivered.push(this.booking)
       this.booking = null
     }
+    this.status = 'atDropoff'
     this.statusEvents.next(this)
 
     this.pickNextFromCargo()
@@ -255,6 +266,7 @@ class Vehicle {
     this.cargoEvents.next(this)
 
     if (booking) {
+      this.booking = booking
       this.navigateTo(this.booking!.destination!.position)
     } else {
       this.queue.sort(
@@ -328,11 +340,13 @@ class Vehicle {
 
   stopped() {
     this.speed = 0
-    this.statusEvents.next(this)
     if (this.booking) {
       this.simulate(false)
       if (this.status === 'toPickup') return this.pickup()
       if (this.status === 'toDelivery') return this.dropOff()
+    } else {
+      this.status = 'stopped'
+      this.statusEvents.next(this)
     }
   }
 
