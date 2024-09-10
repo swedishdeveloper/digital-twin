@@ -21,6 +21,10 @@ import Position from './Position'
 import Booking from './Booking'
 import { getHours, getISODay } from 'date-fns'
 import type { CitizenType, Home, Workplace } from '../../../types/Citizen'
+import moment from 'moment'
+import { VirtualTime } from './VirtualTime'
+import { safeId } from '../lib/id'
+import { searchOne } from '../lib/pelias'
 
 type CitizenParams = {
   name: string
@@ -31,6 +35,7 @@ type CitizenParams = {
   home: Home
   startPosition?: any
   municipality: string
+  virtualTime: VirtualTime
 }
 
 class Citizen implements CitizenType {
@@ -52,8 +57,9 @@ class Citizen implements CitizenType {
   waitTime: number
   intents: Observable<string>
   bookings: Observable<Booking>
-  pickedUpEvents: any
-  deliveredEvents: any
+  pickedUpEvents: Observable<Citizen>
+  deliveredEvents: Observable<Citizen>
+  virtualTime: VirtualTime
 
   constructor({
     name,
@@ -63,6 +69,7 @@ class Citizen implements CitizenType {
     workplace,
     home,
     municipality,
+    virtualTime,
   }: CitizenParams) {
     this.id = 'p-' + safeId()
     this.workplace = {
@@ -83,6 +90,7 @@ class Citizen implements CitizenType {
     this.cost = 0
     this.co2 = 0
     this.inVehicle = false
+    this.virtualTime = virtualTime
 
     // Aggregated values
     this.co2 = 0
@@ -124,10 +132,11 @@ class Citizen implements CitizenType {
                 type: 'passenger',
                 passenger: this,
                 pickup: this.home,
+                virtualTime: this.virtualTime,
                 destination: {
                   ...this.workplace,
                   departureTime: moment(
-                    await virtualTime.getTimeInMillisecondsAsPromise()
+                    await this.virtualTime.getTimeInMillisecondsAsPromise()
                   )
                     .add(1, 'hour')
                     .format('hh:mm:ss'),
@@ -154,7 +163,7 @@ class Citizen implements CitizenType {
             return of(this.workplace.position).pipe(
               filter(() => Math.random() < 0.1), // 10% of the time, eat at a restaurant
               mergeMap((position) =>
-                pelias.searchOne('restaurang', position, 'venue')
+                searchOne('restaurang', position, 'venue')
               ),
               retryWhen((errors) =>
                 errors.pipe(delay(Math.random() * 10000), take(3))
@@ -180,6 +189,7 @@ class Citizen implements CitizenType {
                     // Go back from lunch to work
                     type: 'passenger',
                     passenger: this,
+                    virtualTime: this.virtualTime,
                     pickup: {
                       ...lunchPlace,
                       departureTime: moment(

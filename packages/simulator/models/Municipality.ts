@@ -16,7 +16,7 @@ import RecycleTruck from './vehicles/RecycleTruck'
 import Citizen from './Citizen'
 import Booking from './Booking'
 import Fleet from './Fleet'
-import { searchOne } from '../lib/pelias'
+import { error } from '../lib/log'
 
 interface MunicipalityParams {
   geometry?: any

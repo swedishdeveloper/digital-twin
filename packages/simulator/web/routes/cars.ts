@@ -53,16 +53,5 @@ export const register = (experiment: Experiment, socket: Socket): any[] => {
         bufferTime(100, null, 100)
       )
       .subscribe(emitCars(socket)),
-    experiment.buses
-      .pipe(
-        map((vehicle) => vehicle.toJson()),
-        map((vehicle) => ({
-          experimentId: experiment.parameters.id,
-          ...vehicle,
-        }))
-      )
-      .subscribe((car) => {
-        socket.volatile.emit('cars', [car])
-      }),
   ]
 }

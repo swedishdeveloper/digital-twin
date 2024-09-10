@@ -1,7 +1,8 @@
-import { warn } from 'console'
+import { debug, warn } from 'console'
 import Position from '../Position'
 import Vehicle from './Vehicle'
 import Booking from '../Booking'
+import { VirtualTime } from '../VirtualTime'
 
 interface Truck {
   parcelCapacity: number
@@ -92,7 +93,7 @@ class Truck extends Vehicle {
   }
 
   async waitAtPickup() {
-    return
+    return // no waiting time for trucks
   }
 }
 

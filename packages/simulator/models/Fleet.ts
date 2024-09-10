@@ -9,11 +9,14 @@ import {
 } from 'rxjs'
 import { shareReplay, mergeMap, share, catchError, first } from 'rxjs/operators'
 import RecycleTruck from './vehicles/RecycleTruck'
+import Taxi from './vehicles/Taxi'
 import Municipality from './Municipality'
 import Position from './Position'
 import Vehicle from './vehicles/Vehicle'
 import Booking from './Booking'
 import { dispatch } from '../lib/dispatch/dispatchCentral'
+import { debug } from 'console'
+import { error } from '../lib/log'
 
 const vehicleTypes = {
   recycleTruck: {

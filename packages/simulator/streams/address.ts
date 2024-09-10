@@ -2,6 +2,7 @@ import { osrm } from '../lib/osrm'
 import Position from '../models/Position'
 import { addMeters } from '../lib/distance'
 import { Address } from '../../../types/Address'
+import { error } from '../lib/log'
 const streamsUrl =
   process.env.STREAMS_URL || 'https://streams.telge.iteam.pub/addresses'
 

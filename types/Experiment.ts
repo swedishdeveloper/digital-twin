@@ -9,6 +9,8 @@ export type ExperimentParameters = {
   id: string
   startDate: Date
   fleets: any
+  municipalities: string[]
+  emitters: string[]
 }
 
 export type Experiment = {

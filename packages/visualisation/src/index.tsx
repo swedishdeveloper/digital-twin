@@ -2,9 +2,9 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import './index.css'
 import App from './App'
-import { SocketIOProvider } from './context/socketIOProvider'
 import 'moment-duration-format'
 import { ThemeProvider, createTheme } from '@mui/material'
+import { IoProvider } from 'socket.io-react-hook'
 
 const darkTheme = createTheme({
   overrides: {
@@ -30,13 +30,10 @@ const darkTheme = createTheme({
 })
 
 ReactDOM.render(
-  <SocketIOProvider
-    url={import.meta.env.VITE_SIMULATOR_URL || 'http://localhost:4000'}
-    opts={{ withCredentials: true }}
-  >
+  <IoProvider>
     <ThemeProvider theme={darkTheme}>
       <App />
     </ThemeProvider>
-  </SocketIOProvider>,
+  </IoProvider>,
   document.getElementById('root')
 )

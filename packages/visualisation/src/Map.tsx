@@ -12,7 +12,7 @@ import inside from 'point-in-polygon'
 import { ParagraphLarge } from './components/Typography'
 import MunicipalityStatisticsBox from './components/MunicipalityStatisticsBox'
 import TimeProgressBar from './components/TimeProgressBar'
-import LayersMenu from './components/LayersMenu/index.jsx'
+import LayersMenu from './components/LayersMenu/index'
 import HoverInfoBox from './components/HoverInfoBox'
 
 const transitionInterpolator = new LinearInterpolator(['bearing'])

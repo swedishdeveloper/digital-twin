@@ -1,8 +1,19 @@
-import { Observable, ReplaySubject, merge, share } from 'rxjs'
+import { Observable, ReplaySubject, VirtualAction, merge, share } from 'rxjs'
 
-import { BookingData } from '../../../types/BookingData'
 import Position from './Position'
 import Vehicle from './vehicles/Vehicle'
+import { VirtualTime } from './VirtualTime'
+import { safeId } from '../lib/id'
+
+interface BookingParams {
+  id?: string
+  sender?: string
+  passenger?: any
+  type?: string
+  pickup: { departureTime?: Date; position: Position; name?: string }
+  destination?: any
+  virtualTime: VirtualTime
+}
 
 class Booking {
   id: string
@@ -24,16 +35,18 @@ class Booking {
   car?: Vehicle
   assigned?: Date
 
-  queuedDateTime?: number // Date
-  pickupDateTime?: number // Date
+  queuedDateTime?: Date
+  pickupDateTime?: Date
   pickupPosition?: Position
-  deliveredDateTime?: number // Date
+  deliveredDateTime?: Date
   deliveryTime?: number // seconds
+
+  virtualTime: VirtualTime
 
   // REMOVE?
   deliveredPosition?: any
 
-  constructor(booking: BookingData) {
+  constructor(booking: BookingParams) {
     Object.assign(this, booking)
     this.id =
       `${
@@ -48,6 +61,7 @@ class Booking {
     this.distance = 0 //TODO: räkna med sträcka innan?
     this.weight = Math.random() * 10 // kg TODO: find reference kg // TODO: passagerare väger mer..
     this.position = this.pickup?.position
+    this.virtualTime = booking.virtualTime
     this.queuedEvents = new ReplaySubject<Booking>()
     this.pickedUpEvents = new ReplaySubject<Booking>()
     this.assignedEvents = new ReplaySubject<Booking>()
@@ -61,15 +75,18 @@ class Booking {
   }
 
   async queued(car: any): Promise<void> {
-    this.queuedDateTime = await virtualTime.getTimeInMillisecondsAsPromise()
+    this.queuedDateTime = new Date(
+      await this.virtualTime.getTimeInMillisecondsAsPromise()
+    )
     this.status = 'Queued'
     this.car = car
     this.queuedEvents.next(this)
   }
 
   async assign(car: any): Promise<void> {
-    this.assigned =
-      this.assigned || (await virtualTime.getTimeInMillisecondsAsPromise())
+    this.assigned = new Date(
+      this.assigned || (await this.virtualTime.getTimeInMillisecondsAsPromise())
+    )
     this.car = car
     this.status = 'Assigned'
     this.assignedEvents.next(this)
@@ -87,8 +104,8 @@ class Booking {
       metersMoved,
       co2,
       cost,
-      (await virtualTime.getTimeInMillisecondsAsPromise()) -
-        (this.pickupDateTime || 0)
+      (await this.virtualTime.getTimeInMillisecondsAsPromise()) -
+        (this.pickupDateTime?.getTime() || 0)
     )
     this.distance += metersMoved
     this.cost += cost
@@ -97,9 +114,9 @@ class Booking {
 
   async pickedUp(
     position: any,
-    date: Promise<number> = virtualTime.getTimeInMillisecondsAsPromise()
+    date: Promise<number> = this.virtualTime.getTimeInMillisecondsAsPromise()
   ): Promise<void> {
-    this.pickupDateTime = await date
+    this.pickupDateTime = new Date(await date)
     this.pickupPosition = position
     this.status = 'Picked up'
     this.pickedUpEvents.next(this)
@@ -107,12 +124,14 @@ class Booking {
 
   async delivered(
     position: any,
-    date: Promise<number> = virtualTime.getTimeInMillisecondsAsPromise()
+    date: Promise<number> = this.virtualTime.getTimeInMillisecondsAsPromise()
   ): Promise<void> {
-    this.deliveredDateTime = await date
+    this.deliveredDateTime = new Date(await date)
     this.deliveredPosition = position
     this.deliveryTime =
-      ((await date) - (this.assigned || this.queuedDateTime || 0)) / 1000
+      ((await date) -
+        (this.assigned?.getTime() || this.queuedDateTime?.getTime() || 0)) /
+      1000
     this.status = 'Delivered'
     this.deliveredEvents.next(this)
   }
