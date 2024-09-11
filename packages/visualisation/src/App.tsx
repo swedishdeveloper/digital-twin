@@ -15,10 +15,10 @@ import type { CitizenType } from '../../../types/Citizen'
 import type { VehicleType } from '../../../types/Vehicle'
 import type { ExperimentParameters } from '../../../types/Experiment'
 
-import Slide from '@mui/material/Slide'
+import Slide, { SlideProps } from '@mui/material/Slide'
 
 const App = () => {
-  const [activeCar, setActiveCar] = useState(null)
+  const [activeCar, setActiveCar] = useState<VehicleType | null>(null)
   const [reset, setReset] = useState(false)
   const [speed, setSpeed] = useState(60)
   const [time, setTime] = useState(-3600000) // 00:00
@@ -35,12 +35,14 @@ const App = () => {
     useState<ExperimentParameters>()
   const [currentParameters, setCurrentParameters] =
     useState<ExperimentParameters>()
-  const [fleets, setFleets] = useState({})
+  const [fleets, setFleets] = useState<Record<string, any>>({})
   const [latestLogMessage, setLatestLogMessage] = useState('')
   const [snackbarOpen, setSnackbarOpen] = useState(false)
   const [showEditExperimentModal, setShowEditExperimentModal] = useState(false)
   const [showExperimentDoneModal, setShowExperimentDoneModal] = useState(false)
-  const [previousExperimentId, setPreviousExperimentId] = useState(null)
+  const [previousExperimentId, setPreviousExperimentId] = useState<
+    string | null
+  >(null)
 
   const [connected, setConnected] = useState(false)
 
@@ -112,7 +114,7 @@ const App = () => {
   }
 
   const [cars, setCars] = React.useState<VehicleType[]>([])
-  socket.on('cars', (newCars) => {
+  socket.on('cars', (newCars: VehicleType[]) => {
     setReset(false)
     setCars((cars) => [
       ...cars.filter((car) => !newCars.some((nc) => nc.id === car.id)),
@@ -120,17 +122,17 @@ const App = () => {
     ])
   })
 
-  socket.on('time', (time) => {
+  socket.on('time', (time: number) => {
     setTime(time)
   })
 
-  socket.on('log', (message) => {
+  socket.on('log', (message: string) => {
     setLatestLogMessage(message)
     setSnackbarOpen(true)
   })
 
   const [bookings, setBookings] = React.useState<Booking[]>([])
-  socket.on('bookings', (newBookings) => {
+  socket.on('bookings', (newBookings: any[]) => {
     setReset(false)
     setBookings((bookings) => [
       ...bookings.filter(
@@ -147,7 +149,7 @@ const App = () => {
   const [recycleCollectionPoints, setRecycleCollection] = React.useState<
     Booking[]
   >([])
-  socket.on('recycleCollection', (newRecycleCollectionPoints) => {
+  socket.on('recycleCollection', (newRecycleCollectionPoints: any[]) => {
     setReset(false)
     setRecycleCollection((current) => [
       ...current,
@@ -158,7 +160,7 @@ const App = () => {
     ])
   })
 
-  socket.on('recycleCollectionUpdates', (recycleCollectionUpdates) => {
+  socket.on('recycleCollectionUpdates', (recycleCollectionUpdates: any[]) => {
     setRecycleCollection((current) =>
       current.map((recycleCollectionPoint) => {
         const recycleCollectionIds = recycleCollectionUpdates.map(
@@ -175,8 +177,8 @@ const App = () => {
     )
   })
 
-  const [busStops, setBusStops] = React.useState([])
-  socket.on('busStops', (busStops) => {
+  const [busStops, setBusStops] = React.useState<any[]>([])
+  socket.on('busStops', (busStops: any[]) => {
     setReset(false)
     setBusStops(
       busStops.map(({ position, ...rest }) => ({
@@ -186,13 +188,13 @@ const App = () => {
     )
   })
 
-  const [lineShapes, setLineShapes] = React.useState([])
-  socket.on('lineShapes', (lineShapes) => {
+  const [lineShapes, setLineShapes] = React.useState<any[]>([])
+  socket.on('lineShapes', (lineShapes: any[]) => {
     setLineShapes(lineShapes)
   })
 
-  const [municipalities, setmunicipalities] = React.useState([])
-  socket.on('municipality', (municipality) => {
+  const [municipalities, setmunicipalities] = React.useState<any[]>([])
+  socket.on('municipality', (municipality: any) => {
     setReset(false)
     setmunicipalities((current) => {
       console.log('Received municipality data:', municipality)
@@ -200,7 +202,7 @@ const App = () => {
     })
   })
 
-  socket.on('parameters', (currentParameters) => {
+  socket.on('parameters', (currentParameters: ExperimentParameters) => {
     console.log('ExperimentId', currentParameters.id)
 
     if (!previousExperimentId) {
@@ -218,13 +220,15 @@ const App = () => {
       municipalities: setMunicipalityLayer,
     }
 
-    Object.entries(layerSetFunctions).map(([emitterName, setStateFunction]) => {
-      if (currentParameters.emitters.includes(emitterName)) {
-        setStateFunction(true)
-      } else {
-        setStateFunction(false)
+    Object.entries(layerSetFunctions).forEach(
+      ([emitterName, setStateFunction]) => {
+        if (currentParameters.emitters.includes(emitterName)) {
+          setStateFunction(true)
+        } else {
+          setStateFunction(false)
+        }
       }
-    })
+    )
 
     setFleets(currentParameters.fleets)
     setExperimentParameters(currentParameters)
@@ -232,7 +236,7 @@ const App = () => {
     console.log('Received parameters:', currentParameters)
   })
   const [passengers, setPassengers] = React.useState<CitizenType[]>([])
-  socket.on('passengers', (passengers) => {
+  socket.on('passengers', (passengers: any[]) => {
     setPassengers((currentPassengers) => [
       ...currentPassengers.filter(
         (cp) => !passengers.some((p) => p.id === cp.id)
@@ -255,7 +259,7 @@ const App = () => {
     console.log('play stream')
   }
 
-  const onSpeedChange = (value) => {
+  const onSpeedChange = (value: number) => {
     socket.emit('speed', value)
     setSpeed(value)
   }
@@ -280,8 +284,10 @@ const App = () => {
   /**
    * Update the fleets part of the parameters.
    */
-  const saveFleets = (updatedJson) => {
-    setExperimentParameters({ ...experimentParameters, fleets: updatedJson })
+  const saveFleets = (updatedJson: Record<string, any>) => {
+    setExperimentParameters((prev) =>
+      prev ? { ...prev, fleets: updatedJson } : undefined
+    )
   }
 
   return (
@@ -328,7 +334,7 @@ const App = () => {
       />
 
       {/* Map. */}
-      {currentParameters.initMapState && (
+      {currentParameters?.initMapState && (
         <Map
           activeLayers={activeLayers}
           passengers={passengers}
@@ -367,7 +373,7 @@ const App = () => {
   )
 }
 
-function TransitionDown(props) {
+function TransitionDown(props: SlideProps) {
   return <Slide {...props} direction="down" />
 }
 export default App

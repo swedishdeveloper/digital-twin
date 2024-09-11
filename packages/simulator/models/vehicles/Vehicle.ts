@@ -95,7 +95,7 @@ class Vehicle {
   }
 
   time(): Promise<number> {
-    return this.virtualTime.getTimeInMillisecondsAsPromise()
+    return this.virtualTime?.getTimeInMillisecondsAsPromise()
   }
 
   simulate(route: any) {

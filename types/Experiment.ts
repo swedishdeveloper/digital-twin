@@ -6,11 +6,12 @@ import Citizen from "../packages/simulator/models/Citizen"
 import Booking from "../packages/simulator/models/Booking"
 
 export type ExperimentParameters = {
-  id: string
+  id: string | null
   startDate: Date
   fleets: any
   municipalities: string[]
   emitters: string[]
+  initMapState: any
 }
 
 export type Experiment = {
