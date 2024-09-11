@@ -7,6 +7,7 @@ export interface Name {
 }
 
 export interface CitizenType extends Name {
+  id: any
   position: any
   workplace: Workplace
   home: Home

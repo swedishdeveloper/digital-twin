@@ -52,7 +52,7 @@ class Booking {
       `${
         booking.sender ? booking.sender.replace(/&/g, '').toLowerCase() : 'b'
       }-` + safeId()
-    this.status = 'New'
+    this.status = 'unhandled'
     this.co2 = 0 //TODO: initialvärde?
     this.pickup = booking.pickup
     this.passenger = booking.passenger
@@ -78,7 +78,7 @@ class Booking {
     this.queuedDateTime = new Date(
       await this.virtualTime.getTimeInMillisecondsAsPromise()
     )
-    this.status = 'Queued'
+    this.status = 'queued'
     this.car = car
     this.queuedEvents.next(this)
   }
@@ -88,7 +88,7 @@ class Booking {
       this.assigned || (await this.virtualTime.getTimeInMillisecondsAsPromise())
     )
     this.car = car
-    this.status = 'Assigned'
+    this.status = 'assigned'
     this.assignedEvents.next(this)
   }
 
@@ -118,7 +118,7 @@ class Booking {
   ): Promise<void> {
     this.pickupDateTime = new Date(await date)
     this.pickupPosition = position
-    this.status = 'Picked up'
+    this.status = 'pickedUp'
     this.pickedUpEvents.next(this)
   }
 
@@ -132,7 +132,7 @@ class Booking {
       ((await date) -
         (this.assigned?.getTime() || this.queuedDateTime?.getTime() || 0)) /
       1000
-    this.status = 'Delivered'
+    this.status = 'delivered'
     this.deliveredEvents.next(this)
   }
 

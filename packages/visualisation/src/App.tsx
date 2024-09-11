@@ -10,6 +10,10 @@ import Logo from './components/Logo'
 import ExperimentDoneModal from './components/ExperimentDoneModal/index'
 import { Snackbar, SnackbarContent } from '@mui/material'
 import { useSocket, useSocketEvent } from 'socket.io-react-hook'
+import type { Booking } from '../../../types/Booking'
+import type { CitizenType } from '../../../types/Citizen'
+import type { VehicleType } from '../../../types/Vehicle'
+import type { ExperimentParameters } from '../../../types/Experiment'
 
 import Slide from '@mui/material/Slide'
 
@@ -27,8 +31,10 @@ const App = () => {
   const [recycleCollectionLayer, setRecycleCollectionLayer] = useState(false)
   const [busLineLayer, setBusLineLayer] = useState(true)
   const [municipalityLayer, setMunicipalityLayer] = useState(true)
-  const [experimentParameters, setExperimentParameters] = useState({})
-  const [currentParameters, setCurrentParameters] = useState({})
+  const [experimentParameters, setExperimentParameters] =
+    useState<ExperimentParameters>()
+  const [currentParameters, setCurrentParameters] =
+    useState<ExperimentParameters>()
   const [fleets, setFleets] = useState({})
   const [latestLogMessage, setLatestLogMessage] = useState('')
   const [snackbarOpen, setSnackbarOpen] = useState(false)
@@ -74,7 +80,6 @@ const App = () => {
     setPassengers([])
     setCars([])
     setmunicipalities([])
-    setPostombud([])
     setRecycleCollection([])
     setBusStops([])
     setLineShapes([])
@@ -84,7 +89,7 @@ const App = () => {
 
   socket.on('reset', () => {
     console.log('Reset experiment')
-    setPreviousExperimentId(experimentParameters.id)
+    setPreviousExperimentId(experimentParameters?.id || null)
     setShowExperimentDoneModal(true)
   })
 
@@ -106,7 +111,7 @@ const App = () => {
     return new_arr
   }
 
-  const [cars, setCars] = React.useState([])
+  const [cars, setCars] = React.useState<VehicleType[]>([])
   socket.on('cars', (newCars) => {
     setReset(false)
     setCars((cars) => [
@@ -124,7 +129,7 @@ const App = () => {
     setSnackbarOpen(true)
   })
 
-  const [bookings, setBookings] = React.useState([])
+  const [bookings, setBookings] = React.useState<Booking[]>([])
   socket.on('bookings', (newBookings) => {
     setReset(false)
     setBookings((bookings) => [
@@ -139,19 +144,9 @@ const App = () => {
     ])
   })
 
-  const [postombud, setPostombud] = React.useState([])
-  socket.on('postombud', (newPostombud) => {
-    setReset(false)
-    setPostombud((current) => [
-      ...current,
-      ...newPostombud.map(({ position, ...rest }) => ({
-        position: [position.lon, position.lat],
-        ...rest,
-      })),
-    ])
-  })
-
-  const [recycleCollectionPoints, setRecycleCollection] = React.useState([])
+  const [recycleCollectionPoints, setRecycleCollection] = React.useState<
+    Booking[]
+  >([])
   socket.on('recycleCollection', (newRecycleCollectionPoints) => {
     setReset(false)
     setRecycleCollection((current) => [
@@ -236,7 +231,7 @@ const App = () => {
 
     console.log('Received parameters:', currentParameters)
   })
-  const [passengers, setPassengers] = React.useState([])
+  const [passengers, setPassengers] = React.useState<CitizenType[]>([])
   socket.on('passengers', (passengers) => {
     setPassengers((currentPassengers) => [
       ...currentPassengers.filter(
@@ -302,7 +297,6 @@ const App = () => {
           bookings={bookings.length}
           busStops={busStops.length}
           municipalities={municipalities.length}
-          lineShapes={lineShapes.length}
           parameters={currentParameters}
         />
       )}
@@ -340,7 +334,6 @@ const App = () => {
           passengers={passengers}
           cars={cars}
           bookings={bookings}
-          postombud={postombud}
           busStops={busStops}
           municipalities={municipalities}
           activeCar={activeCar}
@@ -360,7 +353,6 @@ const App = () => {
           vertical: 'top',
           horizontal: 'center',
         }}
-        variant="filled"
         open={snackbarOpen}
         autoHideDuration={3000}
         TransitionComponent={TransitionDown}

@@ -475,7 +475,7 @@ const Map = ({
         if (car === undefined) return null
 
         switch (booking.status) {
-          case 'Picked up':
+          case 'pickedUp':
             return (
               showActiveDeliveries && {
                 inbound: [169, 178, 237, 55],
@@ -484,7 +484,7 @@ const Map = ({
                 to: booking.destination,
               }
             )
-          case 'Assigned':
+          case 'assigned':
             return (
               showAssignedBookings && {
                 inbound: getColorBasedOnFleet(car),
@@ -493,7 +493,7 @@ const Map = ({
                 to: booking.destination,
               }
             )
-          case 'Queued':
+          case 'queued':
             return (
               showAssignedBookings && {
                 inbound: [90, 40, 200, 0],
@@ -502,7 +502,7 @@ const Map = ({
                 to: booking.destination,
               }
             )
-          case 'Delivered':
+          case 'delivered':
             return null
 
           default:

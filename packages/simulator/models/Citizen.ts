@@ -226,7 +226,7 @@ class Citizen implements CitizenType {
       mergeMap((booking) => booking.deliveredEvents),
       tap((booking) => {
         this.inVehicle = false
-        this.position = booking.destination.position
+        this.position = booking.destination!.position
       }),
       mapTo(this),
       share()

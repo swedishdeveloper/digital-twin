@@ -10,6 +10,8 @@ import { osrm } from '../../lib/osrm'
 import { safeId } from '../../lib/id'
 import { VirtualTime } from '../VirtualTime'
 
+import type { VehicleType } from '../../../../types/Vehicle'
+
 const wait = (ms: number): Promise<void> =>
   new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -141,8 +143,10 @@ class Vehicle {
       this.position.distanceTo(position) < 100 ||
       this.virtualTime.timeMultiplier === Infinity
     ) {
-      this.updatePosition(position)
-      this.stopped()
+      setImmediate(() => {
+        this.updatePosition(position)
+        this.stopped()
+      })
       return Promise.resolve(position)
     }
 
@@ -238,7 +242,7 @@ class Vehicle {
         ) {
           this.navigateTo(this.queue[0].pickup.position)
         } else {
-          this.navigateTo(this.booking.destination.position)
+          this.navigateTo(this.booking!.destination.position)
         }
       }
     })
@@ -267,7 +271,7 @@ class Vehicle {
 
     if (booking) {
       this.booking = booking
-      this.navigateTo(this.booking!.destination!.position)
+      //this.navigateTo(this.booking!.destination!.position)
     } else {
       this.queue.sort(
         (a, b) =>
@@ -367,7 +371,7 @@ class Vehicle {
     return co2
   }
 
-  toJson() {
+  toJson(): VehicleType {
     const {
       position: { lon, lat },
       id,
@@ -387,19 +391,19 @@ class Vehicle {
 
     return {
       id,
-      heading: (heading && [heading.lon, heading.lat]) || null,
+      heading: (heading && { lon: heading.lon, lat: heading.lat }) || undefined,
       speed,
       bearing,
-      position: [lon, lat],
+      position: { lon, lat },
       status,
       fleet: fleet?.name || 'Privat',
       co2,
       distance,
       ema,
       cargo: cargo.length,
-      passengers: passengers?.length,
+      passengers: passengers?.length || 0,
       queue: queue.length,
-      vehicleType,
+      type: vehicleType,
     }
   }
 }

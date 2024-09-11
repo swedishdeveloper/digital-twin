@@ -2,7 +2,7 @@ import { expect, describe, beforeEach, it } from '@jest/globals'
 import { VirtualTime } from '../../models/VirtualTime'
 
 const timeout = (fn, ms: number) =>
-  new Promise((resolve) => timeout(() => resolve(fn()), ms))
+  new Promise((resolve) => setTimeout(() => resolve(fn()), ms))
 
 describe('VirtualTime', () => {
   let virtualTime
@@ -15,6 +15,7 @@ describe('VirtualTime', () => {
     let start = await virtualTime.getTimeInMillisecondsAsPromise()
 
     await timeout(async () => {
+      console.log('here')
       expect(await virtualTime.getTimeInMillisecondsAsPromise()).toBeCloseTo(
         start + 1000
       )
@@ -38,7 +39,7 @@ describe('VirtualTime', () => {
     await timeout(async () => {
       virtualTime.play()
       const time = await virtualTime.getTimeInMillisecondsAsPromise()
-      expect(time.toBeCloseTo(start))
+      expect(time).toBeCloseTo(start)
     }, 1000)
   })
 
