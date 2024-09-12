@@ -4,9 +4,11 @@
   "description": "## Background",
   "main": "index.js",
   "scripts": {
+    "dev": "concurrently \"npm:simulator\" \"npm:visualisation\"",
     "start": "concurrently \"npm:simulator\" \"npm:visualisation\"",
     "simulator": "cd packages/simulator && npm run dev",
-    "visualisation": "cd packages/visualisation && npm run dev"
+    "visualisation": "cd packages/visualisation && npm run dev",
+    "test": "npx jest"
   },
   "repository": {
     "type": "git",
@@ -19,13 +21,19 @@
   },
   "homepage": "https://github.com/PredictiveMovement/digital-twin#readme",
   "dependencies": {
-    "dotenv": "^16.0.3"
+    "chalk": "^5.3.0",
+    "dotenv": "^16.4.5",
+    "rxjs": "^7.8.1",
+    "typescript": "^5.0.0"
   },
   "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
     "concurrently": "^8.0.1",
     "eslint": "^8.39.0",
     "eslint-plugin-rxjs": "^5.0.3",
-    "lerna": "^6.6.2",
+    "lerna": "^8.1.8",
     "prettier": "^2.5.1"
   },
   "workspaces": [

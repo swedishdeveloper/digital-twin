@@ -6,8 +6,8 @@
     "recycleTrucks",
     "recycleCollectionPoints"
   ],
-  "fleets": {
-    "Södertälje municipality": {
+  "municipalities": {
+    "Södertälje kommun": {
       "fleets": [
         {
           "name": "Telge Återvinning AB",
