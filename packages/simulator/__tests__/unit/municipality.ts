@@ -6,7 +6,9 @@ import { dispatch } from '../../lib/dispatch/dispatchCentral'
 import { from, take } from 'rxjs'
 import Position from '../../models/Position'
 
-jest.mock('../../lib/dispatch/taxiDispatch')
+jest.mock('../../lib/dispatch/dispatch', () => ({
+  dispatch: jest.fn(),
+}))
 
 describe('A municipality', () => {
   const arjeplog = new Position({ lon: 17.886855, lat: 66.041054 })
@@ -38,7 +40,7 @@ describe('A municipality', () => {
     // municipality.dispose()
   })
 
-  it('should initialize correctly', function (done) {
+  it('should initialize correctly', function () {
     municipality = new Municipality({
       name: 'stockholm',
       squares,
@@ -51,7 +53,6 @@ describe('A municipality', () => {
       fleets,
     })
     expect(municipality.name).toBe('stockholm')
-    done()
   })
 
   it('dispatches handled bookings', function () {
@@ -63,19 +64,10 @@ describe('A municipality', () => {
     })
     municipality.handleBooking(testBooking)
 
-    expect(dispatch.taxiDispatch.mock.calls.length).toBe(1)
+    expect(dispatch).toHaveBeenCalled()
   })
 
   it('handled bookings are dispatched', function (done) {
-    dispatch((cars, bookings) =>
-      bookings.pipe(
-        map((booking) => ({
-          booking,
-          car: { id: 1 },
-        }))
-      )
-    )
-
     municipality = new Municipality({
       id: '1',
       name: 'stockholm',

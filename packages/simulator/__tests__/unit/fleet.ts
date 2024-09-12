@@ -9,8 +9,13 @@ import {
 import Booking from '../../models/Booking'
 import Fleet from '../../models/Fleet'
 import Position from '../../models/Position'
+import { first, from } from 'rxjs'
+import { VirtualTime } from '../../models/VirtualTime'
+import { dispatch } from '../../lib/dispatch/dispatchCentral'
 
-jest.mock('../../lib/dispatchCentral')
+jest.mock('../../lib/dispatch/dispatchCentral', () => ({
+  dispatch: jest.fn(),
+}))
 
 describe('A fleet', () => {
   const arjeplog = {
@@ -20,8 +25,11 @@ describe('A fleet', () => {
     position: new Position({ lon: 14.44681991219, lat: 61.59465992477 }),
   }
   let fleet
+  let virtualTime = new VirtualTime()
 
   let testBooking = new Booking({
+    id: '0',
+    virtualTime,
     pickup: arjeplog,
     destination: ljusdal,
   })
@@ -38,10 +46,11 @@ describe('A fleet', () => {
   it('should initialize correctly', function (done) {
     fleet = new Fleet({
       name: 'postnord',
+      vehicles: { taxi: 1 },
       marketshare: 1,
       hub: arjeplog,
     })
-    expect(fleet.name).toHaveLength(8)
+    expect(fleet.name).toBe('postnord')
     done()
   })
 
@@ -49,12 +58,12 @@ describe('A fleet', () => {
     fleet = new Fleet({
       name: 'postnord',
       marketshare: 1,
-      numberOfCars: 1,
+      vehicles: { taxi: 1 },
       hub: arjeplog,
     })
     fleet.handleBooking(testBooking)
 
-    expect(dispatch.dispatch.mock.calls.length).toBe(1)
+    expect(dispatch).toBeCalled()
   })
 
   it('handled bookings are dispatched', function () {
@@ -70,7 +79,9 @@ describe('A fleet', () => {
     fleet = new Fleet({
       name: 'postnord',
       marketshare: 1,
-      numberOfCars: 1,
+      vehicles: {
+        taxi: 1,
+      },
       hub: arjeplog,
     })
     fleet.handleBooking(testBooking)

@@ -1,7 +1,13 @@
+import Booking from '../../models/Booking'
+import Truck from '../../models/vehicles/Truck'
+
 const { plan, truckToVehicle, bookingToShipment } = require('../vroom')
 const { error } = require('../log')
 
-const findBestRouteToPickupBookings = async (truck, bookings) => {
+const findBestRouteToPickupBookings = async (
+  truck: Truck,
+  bookings: Booking[]
+) => {
   const vehicles = [truckToVehicle(truck, 0)]
   const shipments = bookings.map(bookingToShipment)
 

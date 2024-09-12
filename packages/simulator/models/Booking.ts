@@ -13,6 +13,7 @@ interface BookingParams {
   pickup: { departureTime?: Date; position: Position; name?: string }
   destination?: any
   virtualTime: VirtualTime
+  metadata?: any
 }
 
 class Booking {
@@ -42,6 +43,7 @@ class Booking {
   deliveryTime?: number // seconds
 
   virtualTime: VirtualTime
+  metadata: any
 
   // REMOVE?
   deliveredPosition?: any

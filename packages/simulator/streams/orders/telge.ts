@@ -27,6 +27,7 @@ function read(virtualTime: VirtualTime): Observable<Booking> {
           Turid: id,
           Datum: pickupDate,
           Tjtyp: serviceType,
+          Bil: vehicleId,
           Lat: lat,
           Lng: lon,
         }) => ({
@@ -35,6 +36,9 @@ function read(virtualTime: VirtualTime): Observable<Booking> {
             name: serviceType,
             date: pickupDate,
             position: new Position({ lat, lon }),
+          },
+          metadata: {
+            vehicleId,
           },
           sender: 'TELGE',
           serviceType,
