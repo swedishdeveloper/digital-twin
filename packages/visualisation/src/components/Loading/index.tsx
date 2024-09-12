@@ -50,7 +50,7 @@ const Loading = ({
   else if (!parameters) activeStep = 1
   else if (!municipalities) activeStep = 2
   else if (!cars) activeStep = 3
-  else if (!passengers || !bookings) activeStep = 4
+  else if (!bookings) activeStep = 4
   else activeStep = 5
 
   return (

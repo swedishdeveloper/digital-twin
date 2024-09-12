@@ -1,17 +1,16 @@
 import Booking from '../../models/Booking'
-import Truck from '../../models/vehicles/Truck'
+import Vehicle from '../../models/vehicles/Vehicle'
 
-const { plan, truckToVehicle, bookingToShipment } = require('../vroom')
-const { error } = require('../log')
+import Vroom from '../../lib/vroom'
 
 export const findBestRouteToPickupBookings = async (
-  truck: Truck,
+  truck: Vehicle,
   bookings: Booking[]
 ) => {
-  const vehicles = [truckToVehicle(truck, 0)]
-  const shipments = bookings.map(bookingToShipment)
+  const vehicles = [Vroom.truckToVehicle(truck, 0)]
+  const shipments = bookings.map(Vroom.bookingToShipment)
 
-  const result = await plan({ shipments, vehicles })
+  const result = await Vroom.plan({ shipments, vehicles })
 
   if (result.unassigned?.length > 0) {
     error(`Unassigned bookings: ${result.unassigned}`)

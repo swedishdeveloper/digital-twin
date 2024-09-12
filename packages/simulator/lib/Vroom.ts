@@ -14,7 +14,7 @@ const delay = (ms: number): Promise<void> =>
 
 const queue = new Queue()
 
-class Vroom {
+export default class Vroom {
   static bookingToShipment({ id, pickup, destination }: Booking, i: number) {
     if (!pickup || !destination)
       throw new Error('Missing pickup or destination')
@@ -138,5 +138,3 @@ class Vroom {
     )
   }
 }
-
-export default Vroom

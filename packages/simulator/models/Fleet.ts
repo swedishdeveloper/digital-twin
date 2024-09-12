@@ -18,7 +18,7 @@ import Municipality from './Municipality'
 import Position from './Position'
 import Vehicle from './vehicles/Vehicle'
 import Booking from './Booking'
-import { dispatch } from '../lib/dispatch/dispatchCentral'
+import { manualDispatch } from '../lib/dispatch/manual'
 import { debug } from 'console'
 import { error } from '../lib/log'
 
@@ -85,7 +85,7 @@ class Fleet {
     this.manualDispatchedBookings = new Subject<Booking>()
     this.dispatchedBookings = merge(
       this.manualDispatchedBookings,
-      dispatch(this.cars, this.unhandledBookings)
+      manualDispatch(this.cars, this.unhandledBookings)
     ).pipe(share())
   }
 

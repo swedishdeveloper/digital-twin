@@ -1,7 +1,7 @@
 import { ReplaySubject, Subscription } from 'rxjs'
 import { scan } from 'rxjs/operators'
 import moment from 'moment'
-import { assert, info, warn } from 'console'
+import { error, info } from '../../lib/log'
 import { bearing, haversine } from '../../lib/distance'
 import Position from '../Position'
 import Booking from '../Booking'
@@ -153,6 +153,7 @@ class Vehicle {
     return osrm
       .route(this.position, this.heading)
       .then(async (route: any) => {
+        this.heading = position
         route.started = await this.time()
         this.route = route
         if (!route.legs)
@@ -164,13 +165,12 @@ class Vehicle {
             )}`
           )
         this.simulate(this.route)
-        return this.heading!
+        return this.heading
       })
-      .catch(
-        (err: Error) =>
-          error('Route error, retrying in 1s...', err) ||
-          wait(1000).then(() => this.navigateTo(position))
-      )
+      .catch((err: Error) => {
+        error('Route error, retrying in 1s...', err)
+        return wait(1000).then(() => this.navigateTo(position))
+      })
   }
 
   canHandleBooking(booking: Booking): boolean {

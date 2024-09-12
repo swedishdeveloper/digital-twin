@@ -3,6 +3,7 @@ import { debug } from '../../lib/log'
 import Vehicle from './Vehicle'
 import Position from '../Position'
 import { VirtualTime } from '../VirtualTime'
+import { findBestRouteToPickupBookings } from '../../lib/dispatch/truckDispatch'
 const fleet = {
   name: 'taxi',
 }

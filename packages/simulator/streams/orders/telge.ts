@@ -8,10 +8,11 @@ import {
   Observable,
   share,
   take,
+  tap,
   throwError,
   toArray,
 } from 'rxjs'
-import { error } from '../../lib/log'
+import { error, info } from '../../lib/log'
 
 import Booking from '../../models/Booking'
 import Position from '../../models/Position'
@@ -66,6 +67,9 @@ function read(virtualTime: VirtualTime): Observable<Booking> {
       mergeAll(),
       take(5), // Start with just a few bookings for debug reasons
       map((row) => new Booking({ type: 'recycleBin', ...row, virtualTime })),
+      tap((booking) => {
+        info('TELGE -> from CSV', booking)
+      }),
       share()
     )
     .pipe(

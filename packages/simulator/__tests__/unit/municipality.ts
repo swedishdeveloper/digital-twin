@@ -62,7 +62,7 @@ describe('A municipality', () => {
     expect(municipality.name).toBe('stockholm')
   })
 
-  it('dispatches handled bookings', async function () {
+  it('dispatches handled bookings', function (done) {
     municipality = new Municipality({
       id: '1',
       name: 'stockholm',
@@ -70,9 +70,11 @@ describe('A municipality', () => {
       recycleCollectionPoints: from([]),
       fleets,
     })
-    await municipality.handleBooking(testBooking)
-
-    expect(dispatch).toHaveBeenCalled()
+    municipality.handleBooking(testBooking)
+    municipality.dispatchedBookings.pipe(take(1)).subscribe((booking) => {
+      expect(dispatch).toHaveBeenCalled()
+      done()
+    })
   })
 
   it('handled bookings are dispatched', function (done) {

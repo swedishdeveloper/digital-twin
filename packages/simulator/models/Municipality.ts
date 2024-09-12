@@ -114,7 +114,7 @@ class Municipality {
     this.cars = merge(
       this.privateCars,
       this.fleets.pipe(mergeMap((fleet) => fleet.cars))
-    ).pipe(shareReplay())
+    )
   }
 
   async handleBooking(booking: Booking) {
