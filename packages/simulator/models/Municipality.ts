@@ -93,6 +93,7 @@ class Municipality {
     )
 
     this.dispatchedBookings = merge(
+      this.unhandledBookings,
       this.recycleCollectionPoints.pipe(
         mergeMap((booking) =>
           this.fleets.pipe(
@@ -114,6 +115,10 @@ class Municipality {
       this.privateCars,
       this.fleets.pipe(mergeMap((fleet) => fleet.cars))
     ).pipe(shareReplay())
+  }
+
+  async handleBooking(booking: Booking) {
+    this.unhandledBookings.next(booking)
   }
 }
 

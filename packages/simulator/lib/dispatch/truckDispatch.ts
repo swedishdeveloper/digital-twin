@@ -4,7 +4,7 @@ import Truck from '../../models/vehicles/Truck'
 const { plan, truckToVehicle, bookingToShipment } = require('../vroom')
 const { error } = require('../log')
 
-const findBestRouteToPickupBookings = async (
+export const findBestRouteToPickupBookings = async (
   truck: Truck,
   bookings: Booking[]
 ) => {
@@ -29,8 +29,4 @@ const findBestRouteToPickupBookings = async (
       }
       return instruction
     })
-}
-
-module.exports = {
-  findBestRouteToPickupBookings,
 }

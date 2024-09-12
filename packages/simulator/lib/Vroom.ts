@@ -3,6 +3,8 @@ import { debug, error, info } from './log'
 import { getFromCache, updateCache } from './cache'
 import Queue from './Queue'
 import Booking from '../models/Booking'
+import Taxi from '../models/vehicles/Taxi'
+import Truck from '../models/vehicles/Truck'
 
 const vroomUrl: string =
   process.env.VROOM_URL || 'https://vroom.telge.iteam.pub/'

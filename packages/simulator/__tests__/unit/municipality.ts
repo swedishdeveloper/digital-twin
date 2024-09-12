@@ -5,8 +5,9 @@ import { VirtualTime } from '../../models/VirtualTime'
 import { dispatch } from '../../lib/dispatch/dispatchCentral'
 import { from, take } from 'rxjs'
 import Position from '../../models/Position'
+import Fleet from '../../models/Fleet'
 
-jest.mock('../../lib/dispatch/dispatch', () => ({
+jest.mock('../../lib/dispatch/dispatchCentral', () => ({
   dispatch: jest.fn(),
 }))
 
@@ -21,7 +22,7 @@ describe('A municipality', () => {
   let testBooking = new Booking({
     id: 'b-123',
     passenger: null,
-    type: 'taxi',
+    type: 'passenger',
     virtualTime,
     pickup: { departureTime: new Date(), position: arjeplog },
     destination: ljusdal,
@@ -30,9 +31,14 @@ describe('A municipality', () => {
   beforeEach(() => {
     virtualTime = new VirtualTime()
     virtualTime.setTimeMultiplier(Infinity)
-    fleets = [
-      { name: 'postnord', marketshare: 1, numberOfCars: 1, hub: arjeplog },
-    ]
+    fleets = from([
+      new Fleet({
+        name: 'postnord',
+        marketshare: 1,
+        vehicles: { taxi: 1 },
+        hub: arjeplog,
+      }),
+    ])
     jest.clearAllMocks()
   })
 
@@ -51,18 +57,20 @@ describe('A municipality', () => {
       center: null,
       telephone: '123456789',
       fleets,
+      recycleCollectionPoints: from([]),
     })
     expect(municipality.name).toBe('stockholm')
   })
 
-  it('dispatches handled bookings', function () {
+  it('dispatches handled bookings', async function () {
     municipality = new Municipality({
       id: '1',
       name: 'stockholm',
       squares,
+      recycleCollectionPoints: from([]),
       fleets,
     })
-    municipality.handleBooking(testBooking)
+    await municipality.handleBooking(testBooking)
 
     expect(dispatch).toHaveBeenCalled()
   })
@@ -72,6 +80,7 @@ describe('A municipality', () => {
       id: '1',
       name: 'stockholm',
       squares,
+      recycleCollectionPoints: from([]),
       fleets,
     })
     municipality.handleBooking(testBooking)

@@ -2,6 +2,7 @@ import { debug, warn } from 'console'
 import Position from '../Position'
 import Vehicle from './Vehicle'
 import Booking from '../Booking'
+import { findBestRouteToPickupBookings } from '../../lib/dispatch/truckDispatch'
 import { VirtualTime } from '../VirtualTime'
 
 interface Truck {

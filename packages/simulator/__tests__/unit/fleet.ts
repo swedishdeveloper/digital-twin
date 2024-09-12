@@ -67,14 +67,9 @@ describe('A fleet', () => {
   })
 
   it('handled bookings are dispatched', function () {
-    dispatch.dispatch.mockImplementation(() =>
-      from([
-        {
-          booking: testBooking,
-          car: { id: 1 },
-        },
-      ])
-    )
+    jest.mock('../../lib/dispatch/dispatchCentral', () => ({
+      dispatch: jest.fn(() => from([testBooking])),
+    }))
 
     fleet = new Fleet({
       name: 'postnord',
