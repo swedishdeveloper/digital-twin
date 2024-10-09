@@ -5,6 +5,7 @@ import DeckGL, {
   ScatterplotLayer,
   ArcLayer,
   LinearInterpolator,
+  IconLayer,
 } from 'deck.gl'
 import inside from 'point-in-polygon'
 import { ParagraphLarge } from './components/Typography'
@@ -159,6 +160,42 @@ const Map = ({
     return colors[parseInt(car) % colors.length]
   }
 
+  const ICON_MAPPING = {
+    hemsortering: {x: 0, y: 0, width: 128, height: 128, mask: true},
+  };
+
+  const carIconLayer = new IconLayer({
+    id: 'car-icon-layer',
+    data: cars,
+    pickable: true,
+    iconAtlas: '/icon-atlas.png',
+    iconMapping: ICON_MAPPING,
+    getIcon: d => d.fleet.toLowerCase(),
+    sizeScale: 5,
+    getPosition: d => d.position,
+    getSize: d => 5,
+    getColor: getColorBasedOnFleet,
+    onHover: ({ object, x, y, viewport }) => {
+      if (!object) return setHoverInfo(null)
+      setHoverInfo({
+        id: object.id,
+        type: 'car',
+        x,
+        y,
+        viewport,
+      })
+    },
+    onClick: ({ object }) => {
+      setMapState({
+        ...mapState,
+        zoom: 14,
+        longitude: object.position[0],
+        latitude: object.position[1],
+      })
+      setActiveCar(object)
+    },
+  });
+
   const carLayer = new ScatterplotLayer({
     id: 'car-layer',
     data: cars,
@@ -227,10 +264,6 @@ const Map = ({
       })
     },
   })
-
-  const ICON_MAPPING = {
-    marker: { x: 0, y: 0, width: 128, height: 128, anchorY: 150, mask: true },
-  }
 
   const [showAssignedBookings, setShowAssignedBookings] = useState(false)
   const [showActiveDeliveries, setShowActiveDeliveries] = useState(false)
@@ -358,7 +391,7 @@ const Map = ({
         bookingLayer,
         showArcLayer && arcLayer,
         (showAssignedBookings || showActiveDeliveries) && routesLayer,
-        activeLayers.carLayer && carLayer,
+        activeLayers.carLayer && (activeLayers.useIcons ? carIconLayer : carLayer),
       ]}
     >
       <div
