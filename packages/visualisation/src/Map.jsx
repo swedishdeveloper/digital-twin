@@ -87,34 +87,11 @@ const Map = ({
     },
   })
 
-  const getColorBasedOnFleet = ({ fleet }) => {
+  const getColorBasedOnStatus = ({ status }) => {
     const opacity = Math.round((4 / 5) * 255)
-    switch (fleet.toLowerCase()) {
-      case 'brun':
-        return [205, 127, 50, opacity]
-      case 'tnt':
-      case 'lila':
-        return [99, 20, 145, opacity]
-      case 'bring':
-      case 'grön':
-        return [189, 197, 129, opacity]
-      case 'dhl':
-      case 'gul':
-        return [249, 202, 36, opacity]
-      case 'blå':
-      case 'postnord':
-        return [57, 123, 184, opacity]
-      case 'röd':
-      case 'schenker':
-        return [235, 77, 75, opacity]
-      case 'länstrafiken i norrbotten':
-        return [232, 67, 147, opacity]
-      case 'drönarleverans ab':
-        return [119, 155, 172, opacity]
-      case 'privat':
-        return [34, 166, 179, opacity]
-      case 'anropsstyrd kollektivtrafik':
-        return [255, 255, 0, opacity]
+    switch (status) {
+      case 'ready':
+        return [0, 200, 0, opacity]
       default:
         return [254, 254, 254, opacity]
     }
@@ -174,7 +151,6 @@ const Map = ({
     sizeScale: 5,
     getPosition: d => d.position,
     getSize: d => 5,
-    getColor: getColorBasedOnFleet,
     onHover: ({ object, x, y, viewport }) => {
       if (!object) return setHoverInfo(null)
       setHoverInfo({
@@ -208,7 +184,7 @@ const Map = ({
       return c.position
     },
     //getRadius: (c) => (c.fleet === 'Privat' ? 4 : 8),
-    getFillColor: getColorBasedOnFleet,
+    getFillColor: getColorBasedOnStatus,
     pickable: true,
     onHover: ({ object, x, y, viewport }) => {
       if (!object) return setHoverInfo(null)
