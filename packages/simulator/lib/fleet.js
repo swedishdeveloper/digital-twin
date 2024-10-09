@@ -1,6 +1,6 @@
 // fleet.js
 
-const { Subject, from, of, ReplaySubject } = require('rxjs')
+const { from, of, ReplaySubject, merge, firstValueFrom } = require('rxjs')
 const {
   shareReplay,
   mergeMap,
@@ -8,16 +8,18 @@ const {
   toArray,
   bufferTime,
   withLatestFrom,
-  tap,
   mergeAll,
   map,
   filter,
+  tap,
   groupBy,
+  find,
+  share,
 } = require('rxjs/operators')
 const RecycleTruck = require('./vehicles/recycleTruck')
+const Truck = require('./vehicles/truck')
 const Position = require('./models/position')
-const { error, info, debug } = require('./log')
-const { plan, truckToVehicle, bookingToShipment } = require('./vroom')
+const { error, debug, info } = require('./log')
 const {
   clusterByPostalCode,
   convertToVroomCompatibleFormat,
@@ -28,48 +30,48 @@ const {
 const vehicleClasses = {
   recycleTruck: {
     weight: 10 * 1000,
-    parcelCapacity: 300,
-    class: RecycleTruck,
+    parcelCapacity: 200,
+    class: Truck,
   },
   baklastare: {
     weight: 10 * 1000,
-    parcelCapacity: 300,
-    class: RecycleTruck,
+    parcelCapacity: 200,
+    class: Truck,
   },
   fyrfack: {
     weight: 10 * 1000,
-    parcelCapacity: 300,
-    class: RecycleTruck,
+    parcelCapacity: 200,
+    class: Truck,
   },
   matbil: {
     weight: 10 * 1000,
-    parcelCapacity: 300,
-    class: RecycleTruck,
+    parcelCapacity: 200,
+    class: Truck,
   },
   skåpbil: {
     weight: 10 * 1000,
-    parcelCapacity: 300,
-    class: RecycleTruck,
+    parcelCapacity: 200,
+    class: Truck,
   },
   ['2-fack']: {
     weight: 10 * 1000,
-    parcelCapacity: 300,
-    class: RecycleTruck,
+    parcelCapacity: 200,
+    class: Truck,
   },
   latrin: {
     weight: 10 * 1000,
-    parcelCapacity: 300,
-    class: RecycleTruck,
+    parcelCapacity: 200,
+    class: Truck,
   },
   lastväxlare: {
     weight: 10 * 1000,
-    parcelCapacity: 300,
-    class: RecycleTruck,
+    parcelCapacity: 200,
+    class: Truck,
   },
   kranbil: {
     weight: 10 * 1000,
-    parcelCapacity: 300,
-    class: RecycleTruck,
+    parcelCapacity: 200,
+    class: Truck,
   },
 }
 
@@ -121,6 +123,7 @@ class Fleet {
 
   handleBooking(booking) {
     debug(`Fleet ${this.name} received booking ${booking.bookingId}`)
+    booking.fleet = this
     this.unhandledBookings.next(booking) // add to queue
     return booking
   }
@@ -130,11 +133,17 @@ class Fleet {
     this.dispatchedBookings = this.unhandledBookings.pipe(
       bufferTime(1000),
       filter((bookings) => bookings.length > 0),
-      clusterByPostalCode(200),
+      clusterByPostalCode(200, 5), // cluster bookings if we have more than what Vroom can handle for this fleet
       withLatestFrom(this.cars.pipe(toArray())),
-      convertToVroomCompatibleFormat(this.name),
+      tap(([bookings, cars]) => {
+        info(
+          `Fleet ${this.name} received ${bookings.length} bookings and ${cars.length} cars`
+        )
+      }),
+      convertToVroomCompatibleFormat(),
       planWithVroom(),
       convertBackToBookings(),
+      filter(({ booking }) => !booking.assigned),
       mergeMap(({ car, booking }) => {
         return car.handleBooking(booking)
       }),

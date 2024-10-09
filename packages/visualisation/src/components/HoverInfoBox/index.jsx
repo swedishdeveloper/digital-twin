@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import styled from 'styled-components'
 import ProgressBar from '../ProgressBar'
 import { Paragraph } from '../Typography'
@@ -41,11 +41,25 @@ const vehicleName = (vehicleType) => {
     case 'car':
       return 'Bil'
     case 'truck':
-      return 'Lastbil'
+      return 'Smart fordon'
     case 'recycleTruck':
       return 'Återvinningsfordon'
     default:
       return 'Fordon'
+  }
+}
+
+const statusLabel = (status) => {
+  switch (status) {
+    case 'Queued':
+    case 'Assigned':
+      return "Väntar på tömning"
+    case 'Picked up':
+      return "Tömd"
+    case 'Delivered':
+      return "Tömd och klar"
+    default:
+      return status
   }
 }
 
@@ -128,60 +142,29 @@ const CarInfo = ({ data }) => {
   )
 }
 
-const PassengerInfo = ({ data }) => {
-  return (
-    <Wrapper left={data.x} top={data.viewport.height - data.y + 20}>
-      <Paragraph>
-        Namn: <strong>{data.name}</strong>
-      </Paragraph>
-      {data.home && <Paragraph>Bostad: {data.home.name}</Paragraph>}
-      {data.workplace && (
-        <Paragraph>Arbetsplats: {data.workplace.name}</Paragraph>
-      )}
-      <Paragraph>
-        CO<sub>2</sub>:{' '}
-        <strong>{Math.ceil((10 * data.co2) / 10) || 0} kg</strong>
-      </Paragraph>
-      <Paragraph>
-        Distans: <strong>{Math.ceil(data.distance / 1000) || 0} km</strong>
-      </Paragraph>
-      <Paragraph>
-        Restid:{' '}
-        <strong>
-          {moment.duration(data.moveTime || 0, 'seconds').humanize()}
-        </strong>
-      </Paragraph>
-      <Paragraph>
-        Väntetid:{' '}
-        <strong>
-          {moment.duration(data.waitTime || 0, 'seconds').humanize()}
-        </strong>
-      </Paragraph>
-    </Wrapper>
-  )
-}
-
 const GenericInfo = ({ data }) => {
   return (
     <Wrapper left={data.x} top={data.viewport.height - data.y + 20}>
       <Paragraph>
         <strong>{data.id}</strong>
       </Paragraph>
-      <Paragraph>{data.title}</Paragraph>
-      <Paragraph>{data.subTitle}</Paragraph>
-      <Paragraph>
-        Typ: {data.type === 'recycle' ? 'återvinningskärl' : data.type}
-      </Paragraph>
+      <Paragraph>Återvinningskärl</Paragraph>
       <Paragraph>Återvinningstyp: {data.recyclingType}</Paragraph>
+      <br />
       <Paragraph>Bil: {data.carId}</Paragraph>
       {data.deliveryTime ? (
         <Paragraph>
           Leveranstid: {Math.ceil((10 * data.deliveryTime) / 60 / 60) / 10} h
         </Paragraph>
       ) : null}
+      {data.status ? (
+        <Paragraph>
+          Status: {`${statusLabel(data.status)}`}
+          </Paragraph> 
+      ) : null}
       {data.pickupDateTime ? (
         <Paragraph>
-          Hämtades kl: {moment(data.pickupDateTime).format('HH:mm')}
+          Tömdes kl: {moment(data.pickupDateTime).format('HH:mm')}
         </Paragraph>
       ) : null}
       {data.co2 ? (
@@ -198,15 +181,30 @@ const GenericInfo = ({ data }) => {
   )
 }
 
-const HoverInfoBox = ({ data }) => {
+const HoverInfoBox = ({ data, cars, bookings }) => {
+  const objectData = useMemo(() => {
+    if (data.type === 'car') {
+      const car = cars.find((car) => car.id === data.id);
+      if (!car) return null
+      return { ...car, ...data }
+    } else if (data.type === 'booking') {
+      const booking = bookings.find((booking) => booking.id === data.id);
+      if (!booking) return null
+      return { ...booking, ...data }
+    }
+    return null;
+  }, [data, cars, bookings])
+
+  if (!objectData) return null
+
   switch (data.type) {
     case 'car':
-      return <CarInfo data={data} />
-    case 'passenger':
-      return <PassengerInfo data={data} />
+      return <CarInfo data={objectData} />
+    case 'booking':
+      return <GenericInfo data={objectData} />
     default:
-      return <GenericInfo data={data} />
+      return null
   }
-}
+};
 
 export default HoverInfoBox
