@@ -4,7 +4,8 @@ const mappings = require('../data/elasticsearch_mappings.json')
 
 const { error, info } = require('./log')
 
-const host = process.env.ELASTICSEARCH_URL
+const host =
+  process.env.ELASTICSEARCH_URL || 'https://elasticsearch.telge.iteam.pub/'
 
 if (!host) {
   info('No elasticsearch url provided, skipping statistics collection')
