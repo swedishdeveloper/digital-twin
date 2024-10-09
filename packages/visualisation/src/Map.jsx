@@ -265,6 +265,30 @@ const Map = ({
     },
   })
 
+  const destinationLayer = new ScatterplotLayer({
+    id: 'destination-layer',
+    data: [bookings.find((b) => b.destination)].filter(Boolean),
+    opacity: 1,
+    stroked: false,
+    filled: true,
+    radiusScale: 3,
+    radiusUnits: 'pixels',
+    getPosition: (b) => b.destination,
+    getRadius: () => 4,
+    getFillColor: [255, 140, 0, 200],
+    pickable: true,
+    onHover: ({ object, x, y, viewport }) => {
+      if (!object) return setHoverInfo(null)
+      setHoverInfo({
+        id: object.id,
+        type: 'dropoff',
+        x,
+        y,
+        viewport,
+      })
+    },
+  })
+
   const [showAssignedBookings, setShowAssignedBookings] = useState(false)
   const [showActiveDeliveries, setShowActiveDeliveries] = useState(false)
 
@@ -389,6 +413,7 @@ const Map = ({
         // The order of these layers matter, roughly equal to increasing z-index by 1
         activeLayers.municipalityLayer && municipalityLayer, // TODO: This hides some items behind it, sort of
         bookingLayer,
+        destinationLayer,
         showArcLayer && arcLayer,
         (showAssignedBookings || showActiveDeliveries) && routesLayer,
         activeLayers.carLayer && (activeLayers.useIcons ? carIconLayer : carLayer),
