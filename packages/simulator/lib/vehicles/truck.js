@@ -51,7 +51,15 @@ class Truck extends Vehicle {
 
   stopped() {
     super.stopped()
-    this.pickNextInstructionFromPlan()
+
+    //If no more jobs, set position to start position
+    if (!this.plan.length) {
+      console.log('No more jobs, setting position to start position', this.id)
+      this.position = this.startPosition
+      this.movedEvents.next(this)
+    } else {
+      this.pickNextInstructionFromPlan()
+    }
   }
 
   async pickup() {

@@ -138,17 +138,22 @@ const Map = ({
   }
 
   const ICON_MAPPING = {
-    hemsortering: {x: 0, y: 0, width: 128, height: 128, mask: true},
+    hemsortering: {x: 0, y: 0, width: 640, height: 640, mask: true},
+    hushållsavfall: {x: 0, y: 0, width: 640, height: 640, mask: true},
+    matavfall: {x: 0, y: 0, width: 640, height: 640, mask: true},
+    skåpbil: {x: 0, y: 0, width: 640, height: 640, mask: true},
+    frontlastare: {x: 0, y: 0, width: 640, height: 640, mask: true},
+    baklastare: {x: 0, y: 0, width: 640, height: 640, mask: true},
   };
 
   const carIconLayer = new IconLayer({
     id: 'car-icon-layer',
     data: cars,
     pickable: true,
-    iconAtlas: '/icon-atlas.png',
+    iconAtlas: '/delivery-truck-svgrepo-com.png',
     iconMapping: ICON_MAPPING,
     getIcon: d => d.fleet.toLowerCase(),
-    sizeScale: 5,
+    sizeScale: 7,
     getPosition: d => d.position,
     getSize: d => 5,
     getColor: getColorBasedOnStatus,

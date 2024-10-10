@@ -76,7 +76,16 @@ const vehicleClasses = {
 }
 
 class Fleet {
-  constructor({ name, hub, type, municipality, vehicleTypes, recyclingTypes }) {
+  constructor({
+    id,
+    name,
+    hub,
+    type,
+    municipality,
+    vehicleTypes,
+    recyclingTypes,
+  }) {
+    this.id = id
     this.name = name
     this.type = type
     this.hub = { position: new Position(hub) }
@@ -104,7 +113,10 @@ class Fleet {
               ...vehicleTypes[type],
               id: this.name + '-' + i,
               fleet: this,
-              position: this.hub.position,
+              position: new Position({
+                lon: this.hub.position.lon + 0.0001 + 0.00002 * this.id,
+                lat: this.hub.position.lat + 0.00001 * i,
+              }),
               recyclingTypes: this.recyclingTypes,
             })
         )
