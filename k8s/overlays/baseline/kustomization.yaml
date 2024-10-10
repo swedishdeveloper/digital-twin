@@ -4,7 +4,7 @@ kind: Kustomization
 resources:
 - ../../base
 
-namespace: baseline
+namespace: telge-baseline
 
 patches:
 - path: visualisation.yaml
