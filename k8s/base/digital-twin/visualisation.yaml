@@ -42,10 +42,10 @@ metadata:
 spec:
   tls:
     - hosts:
-        - tvilling-stage.telge.iteam.pub
-      secretName: telge-stage-tls
+        - telge.iteam.pub
+      secretName: telge-visualisation-tls
   rules:
-    - host: tvilling-stage.telge.iteam.pub
+    - host: telge.iteam.pub
       http:
         paths:
           - path: /
