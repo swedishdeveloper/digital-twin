@@ -37,8 +37,6 @@ class Truck extends Vehicle {
         this.status = 'toPickup'
         return this.navigateTo(this.booking.pickup.position)
       case 'delivery':
-        this.status = 'toDelivery'
-        return this.navigateTo(this.booking.destination.position)
       case 'end':
       case 'ready':
       case 'returning':
