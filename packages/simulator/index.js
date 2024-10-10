@@ -57,7 +57,10 @@ const engine = {
 
     experiment.bookingUpdates = experiment.dispatchedBookings.pipe(
       mergeMap((booking) => booking.statusEvents),
-      catchError((err) => error('bookingUpdates', err)),
+      catchError((err, caught) => {
+        error('bookingUpdates', err)
+        return caught
+      }),
       share()
     )
     experiment.subscriptions.push(
