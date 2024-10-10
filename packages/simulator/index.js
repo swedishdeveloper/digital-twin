@@ -60,6 +60,11 @@ const engine = {
       catchError((err) => error('bookingUpdates', err)),
       share()
     )
+    experiment.subscriptions.push(
+      experiment.bookingUpdates.subscribe((booking) =>
+        statistics.collectBooking(booking, parameters)
+      )
+    )
 
     // TODO: Rename to vehicleUpdates
     experiment.carUpdates = merge(
