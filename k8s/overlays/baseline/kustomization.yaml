@@ -7,7 +7,6 @@ resources:
 namespace: telge-baseline
 
 patches:
-- path: visualisation.yaml
 - path: simulator.yaml
 - patch: |-
     - op: add
