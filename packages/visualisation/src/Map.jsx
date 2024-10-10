@@ -151,6 +151,7 @@ const Map = ({
     sizeScale: 5,
     getPosition: d => d.position,
     getSize: d => 5,
+    getColor: getColorBasedOnStatus,
     onHover: ({ object, x, y, viewport }) => {
       if (!object) return setHoverInfo(null)
       setHoverInfo({
